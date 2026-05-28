@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>AI Ops · Operator Surface</title>
+<link rel="stylesheet" href="../../colors_and_type.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background: var(--bg-deep);
+    color: var(--paper-text);
+    font-family: var(--font-sans);
+    padding: 40px 32px;
+  }
+
+  .canvas { max-width: 1840px; margin: 0 auto; }
+
+  /* Wide canvas shells — overflow horizontally on narrow viewports */
+  .label-row {
+    display: flex;
+    gap: 36px;
+    margin-bottom: 14px;
+  }
+  .label-mobile { width: 402px; flex-shrink: 0; }
+  .label-desktop { flex: 1; min-width: 1280px; }
+  .stage-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime);
+  }
+  .stage-label-sub {
+    color: var(--muted); margin-left: 8px; font-weight: 500;
+    letter-spacing: 0.04em; text-transform: none;
+  }
+  .stages {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
+  }
+  .mobile-shell, .desktop-shell { flex-shrink: 0; }
+
+  /* Mobile artboard frame */
+  .mobile-shell {
+    width: 402px; height: 874px;
+    background: #0A1410; border-radius: 56px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+  }
+  .mobile-screen {
+    width: 100%; height: 100%; border-radius: 44px; overflow: hidden;
+    background: var(--bg); position: relative;
+    display: flex; flex-direction: column;
+  }
+
+  /* Desktop artboard frame */
+  .desktop-shell {
+    width: 1280px; min-height: 874px;
+    background: var(--bg);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+    display: flex; flex-direction: column;
+  }
+
+  /* iOS status bar */
+  .ios-status {
+    height: 47px; padding: 0 24px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 15px; font-weight: 600; color: var(--paper-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .ios-notch { width: 110px; height: 30px; background: #000; border-radius: 9999px; }
+
+  /* HERO */
+  .hero {
+    padding: 18px 28px 28px;
+    border-bottom: 1px solid rgba(244,241,232,0.08);
+    flex-shrink: 0;
+  }
+  .hero.desk { padding: 56px 64px 48px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime); margin-bottom: 10px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 9999px;
+    background: var(--volt);
+    box-shadow: 0 0 8px var(--volt);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  .hero-title {
+    font-family: var(--font-serif);
+    line-height: 0.96; letter-spacing: -0.035em; margin: 0;
+    text-wrap: balance;
+  }
+  .hero.mob .hero-title { font-size: 36px; }
+  .hero.desk .hero-title { font-size: clamp(56px, 6vw, 88px); max-width: 18ch; }
+
+  .hero-sub {
+    color: var(--muted); margin: 14px 0 0; max-width: 56ch;
+    text-wrap: pretty; line-height: 1.55;
+  }
+  .hero.mob .hero-sub { font-size: 13px; }
+  .hero.desk .hero-sub { font-size: 16px; }
+
+  .hero-meta {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin-top: 24px; align-items: center;
+    color: var(--muted); font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-meta strong { color: var(--paper-text); font-weight: 600; }
+  .hero-meta .sep { color: rgba(244,241,232,0.20); }
+
+  /* CARD GRID */
+  .grid {
+    flex: 1; overflow: auto;
+    padding: 28px;
+    display: grid; gap: 20px;
+  }
+  .grid.mob { grid-template-columns: 1fr; padding: 20px 18px 32px; }
+  .grid.desk { grid-template-columns: repeat(3, 1fr); padding: 36px 64px 64px; gap: 28px; }
+
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    text-decoration: none; color: inherit;
+    transition: transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1),
+                box-shadow 220ms cubic-bezier(0.2, 0.9, 0.2, 1),
+                border-color 220ms;
+    box-shadow: 0 1px 0 rgba(10,20,16,0.20);
+  }
+  .card:hover {
+    border-color: var(--lime);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(10,20,16,0.45), 0 0 0 1px var(--lime);
+  }
+  .card:hover .open { color: var(--ink); background: var(--lime); }
+  .card:hover .open .arrow { transform: translateX(3px); }
+
+  /* Card thumbnail container */
+  .thumb {
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--surface-edge);
+    padding: 22px 22px 0;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    position: relative;
+  }
+  .grid.mob .thumb { aspect-ratio: 16 / 9; padding: 18px 18px 0; }
+
+  .card-body {
+    padding: 22px 24px 22px;
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+  }
+  .grid.mob .card-body { padding: 16px 18px; }
+
+  .card-num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: 28px; line-height: 1.05; letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .grid.mob .card-title { font-size: 22px; }
+
+  .card-desc {
+    color: var(--muted); font-size: 13px; line-height: 1.5;
+    text-wrap: pretty;
+    margin: 0;
+  }
+
+  .card-meta {
+    margin-top: auto; padding-top: 16px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    border-top: 1px solid var(--surface-edge);
+  }
+
+  .open {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--lime);
+    border: 1px solid rgba(217,232,121,0.40);
+    border-radius: 9999px;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: all 180ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    margin-left: auto;
+  }
+  .open .arrow { transition: transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1); }
+
+  /* FOOTER */
+  .footer {
+    padding: 18px 28px;
+    border-top: 1px solid rgba(244,241,232,0.08);
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.02em;
+    flex-wrap: wrap;
+  }
+  .footer.desk { padding: 22px 64px; }
+  .footer-mark {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--paper-text); font-weight: 600;
+  }
+  .footer-mark svg { flex-shrink: 0; }
+  .footer-version {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    background: rgba(217,232,121,0.10);
+    border: 1px solid rgba(217,232,121,0.30);
+    color: var(--lime);
+    border-radius: 4px;
+    font-weight: 700; letter-spacing: 0.10em; font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  /* ── THUMBNAIL: Approval Queue ── */
+  .tn-queue {
+    display: flex; flex-direction: column; gap: 6px;
+    padding-top: 4px;
+  }
+  .tn-row {
+    display: grid; grid-template-columns: 18px 1fr auto;
+    gap: 8px; align-items: center;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 8px;
+  }
+  .tn-row.active {
+    border-color: rgba(217,232,121,0.45);
+    background: rgba(217,232,121,0.04);
+  }
+  .tn-avatar {
+    width: 18px; height: 18px; border-radius: 9999px;
+    background: var(--surface-2);
+    color: var(--paper-text);
+    font-family: var(--font-serif); font-size: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tn-stack { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .tn-name-row { display: flex; gap: 5px; align-items: center; }
+  .tn-name { font-size: 9px; font-weight: 600; color: var(--paper-text); }
+  .tn-chip {
+    font-size: 7px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 1px 4px; border-radius: 3px;
+    background: rgba(200,249,2,0.16); color: var(--volt);
+    border: 1px solid rgba(200,249,2,0.45);
+  }
+  .tn-chip.cand { background: rgba(217,232,121,0.14); color: var(--lime); border-color: rgba(217,232,121,0.40); }
+  .tn-chip.peer { background: rgba(111,180,217,0.12); color: #6FB4D9; border-color: rgba(111,180,217,0.40); }
+  .tn-chip.noise { background: rgba(244,241,232,0.06); color: var(--muted); border-color: rgba(244,241,232,0.16); }
+  .tn-preview { font-size: 8px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tn-send {
+    font-size: 8px; font-weight: 700;
+    background: var(--lime); color: var(--ink);
+    padding: 3px 7px; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* ── THUMBNAIL: Decision Trace ── */
+  .tn-trace { display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+  .tn-bubble-paper {
+    background: var(--paper); color: var(--ink);
+    border-radius: 18px 5px 18px 5px;
+    padding: 6px 11px;
+    font-size: 9px; line-height: 1.35;
+    align-self: flex-start; max-width: 80%;
+  }
+  .tn-thought {
+    border: 1.2px dotted var(--lime);
+    background: rgba(217,232,121,0.04);
+    border-radius: 14px 14px 14px 4px;
+    padding: 8px 11px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tn-thought-head {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 0.10em; color: var(--lime);
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(217,232,121,0.30);
+  }
+  .tn-thought-row {
+    display: grid; grid-template-columns: 50px 1fr;
+    gap: 6px; font-size: 8px;
+  }
+  .tn-thought-kind { color: var(--lime); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tn-thought-text { color: var(--paper-text); }
+  .tn-bubble-lime {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #D9E879, #C8F902);
+    color: var(--ink);
+    border-radius: 5px 18px 5px 18px;
+    padding: 6px 11px;
+    font-size: 9px; line-height: 1.35;
+    max-width: 80%;
+  }
+
+  /* ── THUMBNAIL: Daily Brief ── */
+  .tn-brief {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #1D1C1D;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex; flex-direction: column; gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .tn-brief-head {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 9px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #E8E8E8;
+  }
+  .tn-brief-head .name { font-weight: 700; color: #1D1C1D; }
+  .tn-brief-head .app {
+    font-size: 6px; font-weight: 700; letter-spacing: 0.08em;
+    color: #fff; background: #616061;
+    padding: 1px 3px; border-radius: 2px;
+  }
+  .tn-brief-head .ts { color: #9B9A9B; font-size: 8px; margin-left: auto; }
+  .tn-brief-lead {
+    font-size: 9px; color: #1D1C1D; font-weight: 500;
+  }
+  .tn-brief-rows { display: flex; flex-direction: column; gap: 4px; }
+  .tn-brief-row {
+    background: #F8F8F8;
+    border-left: 2px solid #E8E8E8;
+    border-radius: 0 4px 4px 0;
+    padding: 5px 8px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .tn-brief-row.high { border-left-color: #1E5631; }
+  .tn-brief-row .top {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .tn-brief-row .sender {
+    font-size: 8px; font-weight: 700; color: #1264A3;
+  }
+  .tn-brief-row .text {
+    font-size: 8px; color: #1D1C1D; line-height: 1.35;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tn-brief-cta {
+    align-self: flex-start;
+    background: #D9E879; color: #0A1410;
+    border: 1px solid #B8C95F;
+    padding: 4px 8px; border-radius: 3px;
+    font-size: 8px; font-weight: 700;
+  }
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+  // ── Reusable hero/cards/footer composition shared by mobile + desktop ──
+  function makeMark(size) {
+    return `
+      <svg viewBox="0 0 64 64" width="${size}" height="${size}" style="flex-shrink:0">
+        <rect x="2" y="2" width="60" height="60" rx="10" fill="#1E5631"/>
+        <rect x="2" y="2" width="60" height="60" rx="10" fill="none" stroke="#3A8052" stroke-width="1"/>
+        <path d="M16 48 L30 18 L44 48 Z" fill="#D9E879"/>
+        <circle cx="44" cy="48" r="4" fill="#C8F902"/>
+      </svg>`;
+  }
+
+  const CARDS = [
+    {
+      num: '01',
+      title: 'Approval Queue',
+      desc: 'Triage drafted replies in one minute. Categories, intent confidence, batch send.',
+      meta: '8 threads · 6 drafted · 2 archived',
+      href: 'approval-queue.html',
+      thumb: `
+        <div class="tn-queue">
+          <div class="tn-row active">
+            <div class="tn-avatar">A</div>
+            <div class="tn-stack">
+              <div class="tn-name-row">
+                <span class="tn-name">Aileen Cruz</span>
+                <span class="tn-chip">INVESTOR</span>
+              </div>
+              <div class="tn-preview">Following on Series B timeline…</div>
+            </div>
+            <div class="tn-send">Send</div>
+          </div>
+          <div class="tn-row">
+            <div class="tn-avatar">D</div>
+            <div class="tn-stack">
+              <div class="tn-name-row">
+                <span class="tn-name">Devon Park</span>
+                <span class="tn-chip cand">CANDIDATE</span>
+              </div>
+              <div class="tn-preview">Saw the DriveX role — interested…</div>
+            </div>
+            <div class="tn-send">Send</div>
+          </div>
+          <div class="tn-row">
+            <div class="tn-avatar">M</div>
+            <div class="tn-stack">
+              <div class="tn-name-row">
+                <span class="tn-name">Maya Okafor</span>
+                <span class="tn-chip peer">FOUNDER-PEER</span>
+              </div>
+              <div class="tn-preview">Could you intro me to Sarah at Index?</div>
+            </div>
+            <div class="tn-send">Send</div>
+          </div>
+          <div class="tn-row">
+            <div class="tn-avatar">B</div>
+            <div class="tn-stack">
+              <div class="tn-name-row">
+                <span class="tn-name">Ben Sato</span>
+                <span class="tn-chip noise">NOISE</span>
+              </div>
+              <div class="tn-preview">Auto-archived · recruiter outreach</div>
+            </div>
+          </div>
+        </div>
+      `,
+    },
+    {
+      num: '02',
+      title: 'Decision Trace',
+      desc: 'See why the agent classified each DM. Signals, confidence, edit before send.',
+      meta: '6 signals · 91% confidence · 380ms',
+      href: 'decision-trace.html',
+      thumb: `
+        <div class="tn-trace">
+          <div class="tn-bubble-paper">Following on Series B timeline — open to chat next week?</div>
+          <div class="tn-thought">
+            <div class="tn-thought-head">
+              <span>◆</span>
+              <span>REASONING · 6 SIGNALS</span>
+            </div>
+            <div class="tn-thought-row">
+              <span class="tn-thought-kind">Sender</span>
+              <span class="tn-thought-text">Partner at Sequoia · Tier-1 fund</span>
+            </div>
+            <div class="tn-thought-row">
+              <span class="tn-thought-kind">Urgency</span>
+              <span class="tn-thought-text">High · active fundraise window</span>
+            </div>
+            <div class="tn-thought-row">
+              <span class="tn-thought-kind">Action</span>
+              <span class="tn-thought-text">Reply 24h · attach deck on send</span>
+            </div>
+          </div>
+          <div class="tn-bubble-lime">Thanks Aileen. Tuesday at 11 work?</div>
+        </div>
+      `,
+    },
+    {
+      num: '03',
+      title: 'Daily Brief',
+      desc: '7am Slack + email recap of overnight work. One CTA: open the queue.',
+      meta: 'Delivered 7:00 ET · auto-clears 9:00 AM',
+      href: 'daily-brief.html',
+      thumb: `
+        <div class="tn-brief">
+          <div class="tn-brief-head">
+            ${makeMark(16)}
+            <span class="name">Triage Agent</span>
+            <span class="app">APP</span>
+            <span class="ts">7:00 AM</span>
+          </div>
+          <div class="tn-brief-lead">Good morning, Jamie. 3 threads need you today.</div>
+          <div class="tn-brief-rows">
+            <div class="tn-brief-row high">
+              <div class="top">
+                <span class="sender">1. Aileen Cruz</span>
+                <span class="tn-chip" style="font-size:6px;padding:1px 3px;">INVESTOR</span>
+              </div>
+              <div class="text">Sequoia partner · Series B timeline</div>
+            </div>
+            <div class="tn-brief-row">
+              <div class="top">
+                <span class="sender">2. Maya Okafor</span>
+                <span class="tn-chip peer" style="font-size:6px;padding:1px 3px;">FOUNDER-PEER</span>
+              </div>
+              <div class="text">Intro request — portfolio overlap</div>
+            </div>
+            <div class="tn-brief-row">
+              <div class="top">
+                <span class="sender">3. Devon Park</span>
+                <span class="tn-chip cand" style="font-size:6px;padding:1px 3px;">CANDIDATE</span>
+              </div>
+              <div class="text">Senior eng, ex-Stripe — strong fit</div>
+            </div>
+          </div>
+          <div class="tn-brief-cta">Open Queue (3 waiting) →</div>
+        </div>
+      `,
+    },
+  ];
+
+  function renderHero(variant) {
+    const isMob = variant === 'mob';
+    return `
+      <div class="hero ${variant}">
+        <div class="eyebrow">
+          <span class="dot"></span>
+          <span>${isMob ? 'OPERATOR · OS' : 'OPERATOR · OS · V1 PROTOTYPE'}</span>
+        </div>
+        <h1 class="hero-title">${isMob ? 'AI Ops · Operator Surface' : 'AI&nbsp;Ops · Operator&nbsp;Surface.'}</h1>
+        <p class="hero-sub">${isMob
+          ? 'The operator console for a LinkedIn inbound triage agent — drafts overnight, hands off at 7am, waits for your approval.'
+          : 'The operator console for a LinkedIn inbound triage agent. Drafts replies overnight, briefs the founder at 7am, and waits for one-click approval. Three surfaces, one decision loop.'
+        }</p>
+        ${!isMob ? `
+          <div class="hero-meta">
+            <span><strong>3 surfaces</strong> · approval, trace, brief</span>
+            <span class="sep">·</span>
+            <span><strong>Mobile + desktop</strong></span>
+            <span class="sep">·</span>
+            <span>Built for <strong>Jamie</strong>, founder of DriveX</span>
+          </div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderCard(c, variant) {
+    return `
+      <a class="card" href="${c.href}">
+        <div class="thumb">${c.thumb}</div>
+        <div class="card-body">
+          <div class="card-num">${c.num} / 03</div>
+          <h3 class="card-title">${c.title}</h3>
+          <p class="card-desc">${c.desc}</p>
+          <div class="card-meta">
+            <span>${c.meta}</span>
+            <span class="open">
+              <span>Open</span>
+              <svg class="arrow" width="11" height="11" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  function renderFooter(variant) {
+    return `
+      <footer class="footer ${variant}">
+        <div class="footer-mark">${makeMark(20)}<span>AI Ops</span></div>
+        <span style="color:rgba(244,241,232,0.20)">·</span>
+        <span>Built with Claude Design</span>
+        <span class="footer-version">V1 · PROTOTYPE</span>
+        <span style="flex:1"></span>
+        <span>May 2026</span>
+      </footer>
+    `;
+  }
+
+  function renderApp(variant) {
+    const isMob = variant === 'mob';
+    return `
+      ${renderHero(variant)}
+      <div class="grid ${variant}">
+        ${CARDS.map(c => renderCard(c, variant)).join('')}
+      </div>
+      ${renderFooter(variant)}
+    `;
+  }
+
+  document.getElementById('root').innerHTML = `
+    <div class="canvas">
+      <div class="label-row">
+        <div class="stage-label label-mobile">Mobile · 402px<span class="stage-label-sub">·&nbsp; launcher · vertical stack</span></div>
+        <div class="stage-label label-desktop">Desktop · 1280px<span class="stage-label-sub">·&nbsp; launcher · 3-column grid</span></div>
+      </div>
+      <div class="stages">
+        <div class="mobile-shell">
+          <div class="mobile-screen">
+            <div class="ios-status">
+              <span>9:41</span>
+              <div class="ios-notch"></div>
+              <div style="display:flex;gap:5px;align-items:center;font-size:11px">
+                <span>●●●●</span>
+                <span>wifi</span>
+                <span>100</span>
+              </div>
+            </div>
+            ${renderApp('mob')}
+          </div>
+        </div>
+        <div class="desktop-shell">
+          ${renderApp('desk')}
+        </div>
+      </div>
+    </div>
+  `;
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+/* =============================================================
+   AI Ops OS — Colors & Type
+   Mode.com Retro-Modern direction
+   ============================================================= */
+
+/* ---- Webfonts (Google Fonts substitutes — see README) ---- */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ---------- COLORS ---------- */
+  /* Surfaces */
+  --bg:            #1E5631;   /* Deep Emerald — primary background */
+  --bg-deep:       #163F23;   /* Used for inset wells, deep recesses */
+  --surface:       #245F37;   /* Slightly elevated card bg */
+  --surface-2:     #2B6E40;   /* Hover / second elevation */
+  --surface-edge:  #3A8052;   /* Hairline divider on dark */
+
+  /* Light surfaces (paper) */
+  --paper:         #F4F1E8;   /* Cream paper — primary light surface */
+  --paper-2:       #ECE7D6;   /* Slightly darker paper */
+  --paper-edge:    #D8D2BE;
+
+  /* Accents — buttery-organic, editorial */
+  --lime:          #D9E879;   /* Primary accent / CTA — buttery lime */
+  --volt:          #C8F902;   /* Highlight / agent-active — keeps the punch */
+  --lime-deep:     #B8C95F;   /* Pressed lime */
+  --lime-soft:     rgba(217,232,121,0.18); /* tint wash */
+
+  /* Text */
+  --ink:           #0A1410;   /* Text on light */
+  --ink-2:         #1F2A24;   /* Secondary on light */
+  --paper-text:    #F4F1E8;   /* Text on dark */
+  --muted:         #8FA89A;   /* Muted on dark */
+  --muted-light:   #5A6E62;   /* Muted on light */
+
+  /* Semantic */
+  --success:       #D9E879;
+  --warning:       #E8A91C;
+  --danger:        #D9402B;
+  --info:          #6FB4D9;
+
+  /* Focus */
+  --focus-ring:    #C8F902;
+
+  /* ---------- TYPE ---------- */
+  --font-serif:   'DM Serif Display', 'Grenette', 'Times New Roman', serif;
+  --font-sans:    'Manrope', 'Graphik', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-num:     'Manrope', 'Graphik', system-ui, sans-serif;
+  --num-feat:     "tnum" 1, "lnum" 1; /* tabular figures for numerics */
+
+  /* Type scale */
+  --fs-display:   clamp(48px, 6.5vw, 96px);
+  --fs-h1:        56px;
+  --fs-h2:        40px;
+  --fs-h3:        28px;
+  --fs-h4:        20px;
+  --fs-body:      16px;
+  --fs-small:     14px;
+  --fs-micro:     12px;
+
+  /* Tracking */
+  --tr-tight:     -0.02em;
+  --tr-tighter:   -0.035em;
+  --tr-normal:    0;
+  --tr-wide:      0.02em;
+  --tr-eyebrow:   0.14em;
+
+  /* Line heights */
+  --lh-display:   0.96;
+  --lh-heading:   1.05;
+  --lh-body:      1.55;
+  --lh-tight:     1.2;
+
+  /* ---------- SPACING ---------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  /* ---------- RADII ---------- */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+  /* Signature speech-bubble radius */
+  --r-bubble-l: 60px 15px 60px 15px;  /* left-aligned (human/sender) */
+  --r-bubble-r: 15px 60px 15px 60px;  /* right-aligned (agent reply) */
+
+  /* ---------- SHADOWS / ELEVATION ---------- */
+  --shadow-1: 0 1px 0 rgba(10,20,16,0.20), 0 0 0 1px rgba(58,128,82,0.35);
+  --shadow-2: 0 6px 18px rgba(10,20,16,0.30), 0 0 0 1px rgba(58,128,82,0.40);
+  --shadow-3: 0 18px 40px rgba(10,20,16,0.45), 0 0 0 1px rgba(58,128,82,0.50);
+  --glow-volt: 0 0 0 4px rgba(200,249,2,0.20), 0 0 24px rgba(200,249,2,0.45);
+  --inset-well: inset 0 1px 0 rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.20);
+
+  /* ---------- BORDERS ---------- */
+  --border-dark:   1px solid rgba(244,241,232,0.08);
+  --border-mid:    1px solid rgba(244,241,232,0.16);
+  --border-strong: 1px solid rgba(244,241,232,0.28);
+  --border-paper:  1px solid var(--paper-edge);
+  --border-dotted-lime: 1.5px dotted var(--lime);
+
+  /* ---------- MOTION ---------- */
+  --ease-snap:    cubic-bezier(0.2, 0.9, 0.2, 1);
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:      cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-fast:     120ms;
+  --dur-base:     220ms;
+  --dur-slow:     420ms;
+}
+
+/* ---------- SEMANTIC ELEMENTS ---------- */
+html, body {
+  background: var(--bg);
+  color: var(--paper-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* H1/H2 use display serif (≥28px). H3 and below use Manrope. */
+h1, h2, .display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-heading);
+  color: var(--paper-text);
+  text-wrap: balance;
+}
+h1, .display { font-size: var(--fs-h1); letter-spacing: var(--tr-tighter); line-height: var(--lh-display); }
+h2 { font-size: var(--fs-h2); }
+h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-tight);
+  color: var(--paper-text);
+}
+h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-h4);
+  line-height: var(--lh-tight);
+  color: var(--paper-text);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+p { line-height: var(--lh-body); text-wrap: pretty; }
+
+.num, .numeric, td.num, .tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--num-feat);
+}
+
+code, kbd, samp, pre { font-family: var(--font-mono); font-size: 0.92em; }
+
+::selection { background: var(--volt); color: var(--ink); }

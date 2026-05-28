@@ -1,0 +1,25 @@
+# dependencies + build output
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+dist/
+**/dist/
+.turbo/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# secrets — never commit
+.dev.vars
+**/.dev.vars
+.dev.vars.local
+.env
+.env.*
+
+# cloudflare / wrangler
+.wrangler/
+**/.wrangler/
+
+# os / logs
+.DS_Store
+*.log

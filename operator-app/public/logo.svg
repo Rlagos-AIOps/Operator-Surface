@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64">
+  
+  <g>
+    
+    <rect x="4" y="12" width="40" height="40" rx="6" fill="#1E5631"></rect>
+    <rect x="4" y="12" width="40" height="40" rx="6" fill="none" stroke="#3A8052" stroke-width="1"></rect>
+    <path d="M14 42 L24 22 L34 42 Z" fill="#D9E879"></path>
+    <circle cx="34" cy="42" r="3" fill="#C8F902"></circle>
+  </g>
+  <g font-family="DM Serif Display, serif" font-size="26" fill="#F4F1E8" letter-spacing="-0.5">
+    <text x="56" y="40">AI Ops</text>
+  </g>
+  <g font-family="Manrope, sans-serif" font-size="11" font-weight="700" fill="#D9E879" letter-spacing="2">
+    <text x="56" y="54">OPERATOR OS</text>
+  </g>
+</svg>

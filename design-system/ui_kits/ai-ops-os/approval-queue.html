@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Approval Queue — AI Ops OS</title>
+<link rel="stylesheet" href="../../colors_and_type.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background: var(--bg-deep);
+    color: var(--paper-text);
+    font-family: var(--font-sans);
+    padding: 32px;
+  }
+  .stage-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr;
+    gap: 32px;
+    align-items: start;
+    max-width: 1840px;
+    margin: 0 auto;
+  }
+  .label-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr;
+    gap: 32px;
+    margin-bottom: 12px;
+  }
+  .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime);
+  }
+  .label-sub { color: var(--muted); margin-left: 8px; }
+  /* Mobile artboard frame */
+  .mobile-shell {
+    width: 402px; height: 874px;
+    background: #0A1410; border-radius: 56px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+  }
+  .mobile-screen {
+    width: 100%; height: 100%; border-radius: 44px; overflow: hidden;
+    background: var(--bg); position: relative;
+  }
+  /* Desktop artboard frame */
+  .desktop-shell {
+    width: 100%; min-width: 1280px; height: 874px;
+    background: var(--bg);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+    display: flex;
+  }
+  button:hover { filter: brightness(1.05); }
+  button:active { transform: scale(0.98); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(244,241,232,0.16) transparent; }
+  .scroll::-webkit-scrollbar { width: 6px; }
+  .scroll::-webkit-scrollbar-thumb { background: rgba(244,241,232,0.16); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.456.0/dist/umd/lucide.min.js"></script>
+
+<script src="dm-data.js"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="FilterChips.jsx"></script>
+<script type="text/babel" src="QueueRow.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const useFilteredThreads = (filter) => useMemo(() => {
+  if (filter === 'all') return window.DM_THREADS;
+  return window.DM_THREADS.filter(t => t.cat === filter);
+}, [filter]);
+
+const counts = (() => {
+  const all = window.DM_THREADS.length;
+  const out = { all };
+  for (const t of window.DM_THREADS) out[t.cat] = (out[t.cat] || 0) + 1;
+  return out;
+})();
+
+// ─── Mobile (375 / 402px iPhone) ───
+const MobileApprovalQueue = () => {
+  const [filter, setFilter] = useState('all');
+  const [statuses, setStatuses] = useState({});
+  const [selectedId, setSelectedId] = useState(null);
+  const threads = useFilteredThreads(filter);
+
+  const setStatus = (id, status) => setStatuses(s => ({ ...s, [id]: status }));
+  const onApprove = (id) => { setStatus(id, 'approved'); setSelectedId(null); };
+  const onReject  = (id) => { setStatus(id, 'rejected'); setSelectedId(null); };
+
+  const pending = threads.filter(t => !statuses[t.id] && t.cat !== 'noise').length;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+      {/* Status bar simulation */}
+      <div style={{
+        height: 47, padding: '0 24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        fontSize: 15, fontWeight: 600, color: 'var(--paper-text)',
+        fontVariantNumeric: 'tabular-nums',
+      }}>
+        <span>7:04</span>
+        <div style={{ width: 110, height: 30, background: '#000', borderRadius: 9999 }}/>
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          <i data-lucide="signal" style={{ width: 16, height: 11 }}></i>
+          <i data-lucide="wifi" style={{ width: 16, height: 11 }}></i>
+          <i data-lucide="battery-full" style={{ width: 22, height: 11 }}></i>
+        </div>
+      </div>
+
+      {/* Sticky header */}
+      <div style={{
+        padding: '14px 18px 12px',
+        borderBottom: '1px solid rgba(244,241,232,0.08)',
+        background: 'var(--bg)',
+        position: 'sticky', top: 0, zIndex: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--lime)' }}>APPROVAL&nbsp;QUEUE</div>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 28, lineHeight: 1.05, letterSpacing: '-0.02em', marginTop: 2 }}>
+              {pending} need you
+            </div>
+          </div>
+          <button style={{
+            width: 38, height: 38, borderRadius: 10,
+            background: 'transparent', color: 'var(--paper-text)',
+            border: '1px solid rgba(244,241,232,0.20)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+          }}><i data-lucide="settings" style={{ width: 16, height: 16 }}></i></button>
+        </div>
+        {/* Live agent strip */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 11, color: 'var(--muted)', marginBottom: 12,
+        }}>
+          <div style={{
+            width: 6, height: 6, borderRadius: 9999, background: 'var(--volt)',
+            boxShadow: '0 0 8px var(--volt)', animation: 'pulse 1.4s ease-in-out infinite',
+          }}/>
+          <span style={{ fontWeight: 700, letterSpacing: '0.10em', color: 'var(--volt)' }}>AGENT&nbsp;LIVE</span>
+          <span>·</span>
+          <span style={{ fontVariantNumeric: 'tabular-nums' }}>2 archived · 6 drafted overnight</span>
+        </div>
+        <FilterChips active={filter} counts={counts} onChange={setFilter}/>
+      </div>
+
+      {/* List */}
+      <div className="scroll" style={{
+        flex: 1,
+        padding: '14px 14px 100px',
+      }}>
+        {threads.map(t => (
+          <QueueRowMobile key={t.id} thread={t}
+            status={statuses[t.id]}
+            onApprove={onApprove} onReject={onReject}
+            onOpen={(id) => setSelectedId(id)}/>
+        ))}
+        <div style={{
+          textAlign: 'center', padding: '20px 0', color: 'var(--muted)', fontSize: 12,
+        }}>You're caught up.</div>
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        padding: '12px 18px 28px',
+        background: 'linear-gradient(to top, var(--bg-deep) 70%, transparent)',
+        borderTop: '1px solid rgba(244,241,232,0.06)',
+        display: 'flex', gap: 10, alignItems: 'center',
+      }}>
+        <button style={{
+          flex: 1, height: 48, borderRadius: 12,
+          background: 'var(--lime)', color: 'var(--ink)', border: 'none',
+          fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 700,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          cursor: 'pointer',
+        }}>
+          <i data-lucide="check-check" style={{ width: 16, height: 16 }}></i>
+          <span>Approve all high-confidence ({threads.filter(t => t.confidence >= 0.85 && !statuses[t.id] && t.cat !== 'noise').length})</span>
+        </button>
+        <button style={{
+          width: 48, height: 48, borderRadius: 12,
+          background: 'var(--surface)', color: 'var(--paper-text)',
+          border: '1px solid var(--surface-edge)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <i data-lucide="more-horizontal" style={{ width: 18, height: 18 }}></i>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Desktop ───
+const DesktopApprovalQueue = () => {
+  const [filter, setFilter] = useState('all');
+  const [statuses, setStatuses] = useState({});
+  const [selected, setSelected] = useState({});
+  const threads = useFilteredThreads(filter);
+
+  const setStatus = (id, status) => setStatuses(s => ({ ...s, [id]: status }));
+  const onApprove = (id) => setStatus(id, 'approved');
+  const onReject  = (id) => setStatus(id, 'rejected');
+  const onSelect = (id) => setSelected(s => ({ ...s, [id]: !s[id] }));
+
+  const selectedIds = Object.keys(selected).filter(id => selected[id]);
+  const pending = threads.filter(t => !statuses[t.id] && t.cat !== 'noise').length;
+  const highConf = threads.filter(t => t.confidence >= 0.85 && !statuses[t.id] && t.cat !== 'noise');
+
+  return (
+    <>
+      <Sidebar active="inbox" onNav={() => {}}/>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Top bar */}
+        <header style={{
+          display: 'flex', alignItems: 'center', gap: 14,
+          padding: '14px 28px', borderBottom: '1px solid rgba(244,241,232,0.08)',
+        }}>
+          <div style={{ flex: 1, position: 'relative', maxWidth: 420 }}>
+            <i data-lucide="search" style={{ width: 16, height: 16, position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}></i>
+            <input placeholder="Search threads, senders, categories" style={{
+              width: '100%', background: 'var(--bg-deep)', border: '1px solid rgba(244,241,232,0.08)',
+              color: 'var(--paper-text)', padding: '9px 14px 9px 36px', borderRadius: 8,
+              fontFamily: 'var(--font-sans)', fontSize: 13,
+            }}/>
+          </div>
+          <div style={{ flex: 1 }}/>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(200,249,2,0.10)', border: '1px solid rgba(200,249,2,0.4)',
+            padding: '8px 12px', borderRadius: 9999,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: 9999, background: 'var(--volt)',
+              boxShadow: '0 0 8px var(--volt)', animation: 'pulse 1.4s ease-in-out infinite' }}/>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--volt)' }}>AGENT&nbsp;LIVE</span>
+          </div>
+          <div style={{ width: 32, height: 32, borderRadius: 9999, background: 'var(--paper)', color: 'var(--ink)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'var(--font-serif)', fontSize: 14, fontWeight: 600 }}>J</div>
+        </header>
+
+        {/* Title region */}
+        <div style={{ padding: '24px 28px 14px' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--lime)', marginBottom: 6 }}>APPROVAL&nbsp;QUEUE</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 44, lineHeight: 1, letterSpacing: '-0.025em', margin: 0 }}>
+              {pending} threads need you
+            </h1>
+            <span style={{ fontSize: 13, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
+              · {window.DM_THREADS.length} drafted overnight · 2 auto-archived
+            </span>
+          </div>
+        </div>
+
+        {/* Filter + actions */}
+        <div style={{
+          padding: '0 28px 14px', display: 'flex', gap: 14, alignItems: 'center',
+          borderBottom: '1px solid rgba(244,241,232,0.06)', paddingBottom: 14,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <FilterChips active={filter} counts={counts} onChange={setFilter}/>
+          </div>
+          <button style={{
+            height: 36, padding: '0 14px', borderRadius: 8,
+            background: 'transparent', color: 'var(--paper-text)',
+            border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <i data-lucide="sliders-horizontal" style={{ width: 14, height: 14 }}></i>
+            <span>Sort: confidence</span>
+          </button>
+          <button style={{
+            height: 36, padding: '0 16px', borderRadius: 8,
+            background: 'var(--lime)', color: 'var(--ink)', border: 'none', cursor: 'pointer',
+            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 700,
+            display: 'flex', alignItems: 'center', gap: 6,
+            opacity: highConf.length === 0 ? 0.4 : 1,
+            pointerEvents: highConf.length === 0 ? 'none' : 'auto',
+          }}>
+            <i data-lucide="check-check" style={{ width: 14, height: 14 }}></i>
+            <span>Approve all high-confidence ({highConf.length})</span>
+          </button>
+        </div>
+
+        {/* Column headers */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '24px 220px 110px 1fr 80px 200px',
+          gap: 16, padding: '10px 20px',
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--muted)',
+          borderBottom: '1px solid rgba(244,241,232,0.06)',
+        }}>
+          <span></span>
+          <span>SENDER</span>
+          <span>CATEGORY</span>
+          <span>INBOUND&nbsp;·&nbsp;DRAFT</span>
+          <span>CONFIDENCE</span>
+          <span style={{ textAlign: 'right' }}>ACTIONS</span>
+        </div>
+
+        {/* Rows */}
+        <div className="scroll" style={{ flex: 1, overflowY: 'auto' }}>
+          {threads.map(t => (
+            <QueueRowDesktop key={t.id} thread={t}
+              status={statuses[t.id]} selected={selected[t.id]}
+              onApprove={onApprove} onReject={onReject}
+              onSelect={onSelect}
+              onOpen={() => {}}/>
+          ))}
+        </div>
+
+        {/* Sticky multi-select footer */}
+        {selectedIds.length > 0 && (
+          <div style={{
+            padding: '14px 28px',
+            borderTop: '1px solid var(--surface-edge)',
+            background: 'var(--surface)',
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}>
+            <span style={{ fontSize: 13 }}>
+              <strong style={{ color: 'var(--volt)', fontVariantNumeric: 'tabular-nums' }}>{selectedIds.length}</strong> selected
+            </span>
+            <div style={{ flex: 1 }}/>
+            <button style={{
+              height: 36, padding: '0 14px', borderRadius: 8,
+              background: 'transparent', color: 'var(--paper-text)',
+              border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+              fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
+            }}>Reject selected</button>
+            <button onClick={() => {
+              selectedIds.forEach(id => onApprove(id));
+              setSelected({});
+            }} style={{
+              height: 36, padding: '0 16px', borderRadius: 8,
+              background: 'var(--lime)', color: 'var(--ink)', border: 'none', cursor: 'pointer',
+              fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 700,
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <i data-lucide="send" style={{ width: 14, height: 14 }}></i>
+              <span>Send {selectedIds.length} replies</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+// ─── Page composition ───
+const Page = () => {
+  useEffect(() => {
+    if (window.lucide) window.lucide.createIcons({ attrs: { 'stroke-width': 1.75 } });
+  });
+  return (
+    <div className="stage-wrap">
+      <div className="label-row">
+        <div className="label">Mobile · 402px<span className="label-sub" style={{ fontWeight: 500, letterSpacing: '0.04em', textTransform: 'none', color: 'var(--muted)' }}>·&nbsp; primary view</span></div>
+        <div className="label">Desktop · 1280px<span className="label-sub" style={{ fontWeight: 500, letterSpacing: '0.04em', textTransform: 'none', color: 'var(--muted)' }}>·&nbsp; denser sibling</span></div>
+      </div>
+      <div className="mobile-shell">
+        <div className="mobile-screen">
+          <MobileApprovalQueue/>
+        </div>
+      </div>
+      <div className="desktop-shell">
+        <DesktopApprovalQueue/>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Page/>);
+</script>
+</body>
+</html>

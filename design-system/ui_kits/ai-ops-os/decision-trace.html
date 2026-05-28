@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Decision Trace — AI Ops OS</title>
+<link rel="stylesheet" href="../../colors_and_type.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background: var(--bg-deep);
+    color: var(--paper-text);
+    font-family: var(--font-sans);
+    padding: 32px;
+  }
+  .stage-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr;
+    gap: 32px;
+    align-items: start;
+    max-width: 1840px;
+    margin: 0 auto;
+  }
+  .label-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr;
+    gap: 32px;
+    margin-bottom: 12px;
+  }
+  .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime);
+  }
+  .label-sub { color: var(--muted); margin-left: 8px; font-weight: 500; letter-spacing: 0.04em; text-transform: none; }
+  /* Mobile artboard frame */
+  .mobile-shell {
+    width: 402px; height: 874px;
+    background: #0A1410; border-radius: 56px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+  }
+  .mobile-screen {
+    width: 100%; height: 100%; border-radius: 44px; overflow: hidden;
+    background: var(--bg); position: relative;
+  }
+  /* Desktop artboard frame */
+  .desktop-shell {
+    width: 100%; min-width: 1280px; height: 874px;
+    background: var(--bg);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+    display: flex;
+  }
+  button:hover { filter: brightness(1.05); }
+  button:active { transform: scale(0.98); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(244,241,232,0.16) transparent; }
+  .scroll::-webkit-scrollbar { width: 6px; }
+  .scroll::-webkit-scrollbar-thumb { background: rgba(244,241,232,0.16); border-radius: 3px; }
+
+  /* Empty-state confetti dots */
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; }
+    50% { transform: translateY(-6px) rotate(8deg); opacity: 0.85; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.456.0/dist/umd/lucide.min.js"></script>
+
+<script src="dm-data.js?v=4"></script>
+<script type="text/babel" src="Sidebar.jsx?v=4"></script>
+<script type="text/babel" src="QueueRow.jsx?v=4"></script>
+<script type="text/babel" src="DecisionTrace.jsx?v=4"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+const thread = window.DM_THREADS.find(t => t.id === 't1') || {}; // Aileen Cruz
+// Defensive: log if data is missing so future load issues surface clearly
+if (!thread.signals || !thread.timeline) {
+  console.warn('Decision Trace: t1 thread missing signals/timeline', thread);
+}
+
+// ───────────────────── MOBILE ─────────────────────
+const MobileDecisionTrace = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+    {/* iOS status bar */}
+    <div style={{
+      height: 47, padding: '0 24px', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      fontSize: 15, fontWeight: 600, color: 'var(--paper-text)',
+      fontVariantNumeric: 'tabular-nums',
+    }}>
+      <span>7:14</span>
+      <div style={{ width: 110, height: 30, background: '#000', borderRadius: 9999 }}/>
+      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+        <i data-lucide="signal" style={{ width: 16, height: 11 }}></i>
+        <i data-lucide="wifi" style={{ width: 16, height: 11 }}></i>
+        <i data-lucide="battery-full" style={{ width: 22, height: 11 }}></i>
+      </div>
+    </div>
+
+    {/* Header */}
+    <div style={{
+      padding: '6px 16px 14px',
+      borderBottom: '1px solid rgba(244,241,232,0.08)',
+      display: 'flex', alignItems: 'center', gap: 12,
+      flexShrink: 0,
+    }}>
+      <button aria-label="Back" style={{
+        width: 36, height: 36, borderRadius: 10,
+        background: 'transparent', color: 'var(--paper-text)',
+        border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}><i data-lucide="arrow-left" style={{ width: 16, height: 16 }}></i></button>
+      <div style={{ flex: 1, minWidth: 0, textAlign: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2 }}>{thread.name}</div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden',
+          textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{thread.role}</div>
+      </div>
+      <button aria-label="More" style={{
+        width: 36, height: 36, borderRadius: 10,
+        background: 'transparent', color: 'var(--paper-text)',
+        border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}><i data-lucide="more-vertical" style={{ width: 16, height: 16 }}></i></button>
+    </div>
+
+    {/* Scrolling body */}
+    <div className="scroll" style={{
+      flex: 1, padding: '20px 18px 140px',
+    }}>
+      <OriginalDM thread={thread} dense/>
+      <ThoughtBubble items={thread.signals} dense/>
+      <ClassificationCard thread={thread} dense/>
+      <DraftedReply thread={thread} dense/>
+      <DecisionTimeline steps={thread.timeline} dense/>
+    </div>
+
+    {/* Sticky footer */}
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      padding: '12px 16px 28px',
+      background: 'linear-gradient(to top, var(--bg-deep) 70%, rgba(22,63,35,0.85) 92%, transparent)',
+      borderTop: '1px solid rgba(244,241,232,0.06)',
+    }}>
+      <TraceFooter dense/>
+    </div>
+  </div>
+);
+
+// ───────────────────── DESKTOP ─────────────────────
+const DesktopDecisionTrace = () => (
+  <>
+    <Sidebar active="inbox" onNav={() => {}}/>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      {/* Top bar */}
+      <header style={{
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: '14px 28px', borderBottom: '1px solid rgba(244,241,232,0.08)',
+        flexShrink: 0,
+      }}>
+        <button style={{
+          height: 36, padding: '0 14px', borderRadius: 8,
+          background: 'transparent', color: 'var(--paper-text)',
+          border: '1px solid rgba(244,241,232,0.16)', cursor: 'pointer',
+          fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <i data-lucide="arrow-left" style={{ width: 14, height: 14 }}></i>
+          <span>Approval Queue</span>
+        </button>
+        <span style={{ color: 'var(--muted)', fontSize: 13 }}>/</span>
+        <span style={{ fontSize: 13, color: 'var(--paper-text)' }}>{thread.name}</span>
+        <CategoryBadge cat={thread.cat}/>
+        <div style={{ flex: 1 }}/>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: 'rgba(200,249,2,0.10)', border: '1px solid rgba(200,249,2,0.4)',
+          padding: '6px 12px', borderRadius: 9999,
+        }}>
+          <div style={{ width: 6, height: 6, borderRadius: 9999, background: 'var(--volt)',
+            boxShadow: '0 0 8px var(--volt)', animation: 'pulse 1.4s ease-in-out infinite' }}/>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--volt)' }}>AGENT&nbsp;LIVE</span>
+        </div>
+        <button style={{
+          width: 36, height: 36, borderRadius: 9999,
+          background: 'transparent', color: 'var(--muted)',
+          border: '1px solid rgba(244,241,232,0.16)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}><i data-lucide="more-horizontal" style={{ width: 16, height: 16 }}></i></button>
+        <div style={{
+          width: 32, height: 32, borderRadius: 9999, background: 'var(--paper)', color: 'var(--ink)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'var(--font-serif)', fontSize: 14, fontWeight: 600,
+        }}>J</div>
+      </header>
+
+      {/* Title region */}
+      <div style={{ padding: '24px 36px 8px', flexShrink: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--lime)', marginBottom: 6 }}>DECISION&nbsp;TRACE</div>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 44, lineHeight: 1, letterSpacing: '-0.025em', margin: 0 }}>
+          Why the agent drafted this reply.
+        </h1>
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>
+          Every classification is auditable. Walk through the signals, override anything, then approve.
+        </div>
+      </div>
+
+      {/* Two-column body: trace / sidecar */}
+      <div className="scroll" style={{
+        flex: 1, padding: '24px 36px 28px',
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) 320px',
+        gap: 36,
+        alignItems: 'start',
+      }}>
+        <div>
+          <OriginalDM thread={thread}/>
+          <ThoughtBubble items={thread.signals}/>
+          <ClassificationCard thread={thread}/>
+          <DraftedReply thread={thread}/>
+          <DecisionTimeline steps={thread.timeline}/>
+        </div>
+
+        {/* Sidecar — sender intelligence */}
+        <aside style={{
+          background: 'var(--surface)', borderRadius: 14,
+          border: '1px solid var(--surface-edge)',
+          padding: '20px 22px',
+          position: 'sticky', top: 0,
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+            color: 'var(--lime)', marginBottom: 14,
+          }}>SENDER · SNAPSHOT</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 9999,
+              background: 'var(--surface-2)', color: 'var(--paper)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-serif)', fontSize: 20, flexShrink: 0,
+            }}>{thread.name[0]}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>{thread.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{thread.role}</div>
+            </div>
+          </div>
+          <ul style={{
+            margin: 0, padding: 0, listStyle: 'none',
+            display: 'flex', flexDirection: 'column', gap: 12,
+            borderTop: '1px solid var(--surface-edge)', paddingTop: 16,
+          }}>
+            {[
+              { label: 'Last contact', value: '47 days ago' },
+              { label: 'Reply rate',   value: '100% (2 of 2)' },
+              { label: 'Avg. response',value: '14h 22m' },
+              { label: 'Relationship', value: 'Existing' },
+              { label: 'Prior topic',  value: 'YC offsite (Mar 12)' },
+            ].map((row, i) => (
+              <li key={i} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                fontSize: 13, gap: 12,
+              }}>
+                <span style={{ color: 'var(--muted)' }}>{row.label}</span>
+                <span style={{ color: 'var(--paper-text)', fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>{row.value}</span>
+              </li>
+            ))}
+          </ul>
+          <button style={{
+            marginTop: 18, width: '100%',
+            height: 40, borderRadius: 8,
+            background: 'transparent', color: 'var(--paper-text)',
+            border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+            fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}>
+            <i data-lucide="external-link" style={{ width: 13, height: 13 }}></i>
+            <span>Open LinkedIn profile</span>
+          </button>
+        </aside>
+      </div>
+
+      {/* Sticky footer */}
+      <div style={{
+        padding: '14px 36px',
+        borderTop: '1px solid var(--surface-edge)',
+        background: 'var(--bg-deep)',
+        flexShrink: 0,
+      }}>
+        <TraceFooter/>
+      </div>
+    </div>
+  </>
+);
+
+// ───────────────────── EMPTY-STATE (mobile reward) ─────────────────────
+const MobileEmptyState = () => {
+  const dots = Array.from({ length: 14 }, (_, i) => i);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflow: 'hidden' }}>
+      <div style={{
+        height: 47, padding: '0 24px', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        fontSize: 15, fontWeight: 600, color: 'var(--paper-text)',
+        fontVariantNumeric: 'tabular-nums',
+      }}>
+        <span>7:42</span>
+        <div style={{ width: 110, height: 30, background: '#000', borderRadius: 9999 }}/>
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          <i data-lucide="signal" style={{ width: 16, height: 11 }}></i>
+          <i data-lucide="wifi" style={{ width: 16, height: 11 }}></i>
+          <i data-lucide="battery-full" style={{ width: 22, height: 11 }}></i>
+        </div>
+      </div>
+
+      {/* Header strip */}
+      <div style={{
+        padding: '14px 18px 12px',
+        borderBottom: '1px solid rgba(244,241,232,0.08)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--lime)' }}>APPROVAL&nbsp;QUEUE</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, lineHeight: 1.05, letterSpacing: '-0.02em', marginTop: 2 }}>
+            Inbox zero
+          </div>
+        </div>
+        <button style={{
+          width: 38, height: 38, borderRadius: 10,
+          background: 'transparent', color: 'var(--paper-text)',
+          border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}><i data-lucide="settings" style={{ width: 16, height: 16 }}></i></button>
+      </div>
+
+      {/* Confetti backdrop */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {dots.map(i => {
+          const colors = ['var(--lime)', 'var(--volt)', 'var(--paper)', 'var(--lime-deep)'];
+          const color = colors[i % colors.length];
+          const size = 6 + (i % 3) * 4;
+          const left = (i * 137) % 90 + 5;
+          const top = 18 + (i * 91) % 60;
+          const delay = (i * 0.27) % 2.5;
+          const shape = i % 3 === 0 ? '50%' : i % 3 === 1 ? '2px' : '50%';
+          return (
+            <div key={i} style={{
+              position: 'absolute',
+              left: left + '%', top: top + '%',
+              width: size, height: size, borderRadius: shape,
+              background: i % 4 === 3 ? 'transparent' : color,
+              border: i % 4 === 3 ? `1.5px dotted ${color}` : 'none',
+              animation: `drift 2.8s ${delay}s ease-in-out infinite`,
+              opacity: 0.6,
+            }}/>
+          );
+        })}
+      </div>
+
+      {/* Body */}
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '20px 32px', position: 'relative', zIndex: 1,
+      }}>
+        {/* Trophy bubble */}
+        <div style={{
+          width: 132, height: 132, borderRadius: '60% 40% 60% 40%',
+          background: 'linear-gradient(135deg,#D9E879,#C8F902)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 28,
+          boxShadow: '0 20px 60px rgba(217,232,121,0.35), 0 0 0 8px rgba(200,249,2,0.10)',
+        }}>
+          <i data-lucide="check" style={{ width: 64, height: 64, color: 'var(--ink)', strokeWidth: 2.5 }}></i>
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: 36, lineHeight: 1.05, letterSpacing: '-0.025em',
+          textAlign: 'center', marginBottom: 12,
+        }}>You're caught up.</div>
+        <div style={{
+          fontSize: 14, lineHeight: 1.5, color: 'var(--muted)',
+          textAlign: 'center', maxWidth: 280, marginBottom: 32, textWrap: 'balance',
+        }}>
+          The agent drafted <strong style={{ color: 'var(--paper-text)', fontVariantNumeric: 'tabular-nums' }}>8 replies</strong> overnight. You approved <strong style={{ color: 'var(--paper-text)' }}>6</strong>, archived <strong style={{ color: 'var(--paper-text)' }}>2</strong>. Next sweep at 2pm.
+        </div>
+
+        {/* Today receipt — small editorial card */}
+        <div style={{
+          width: '100%', maxWidth: 320,
+          background: 'var(--surface)', borderRadius: 14,
+          border: '1px solid var(--surface-edge)',
+          padding: '16px 18px',
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+            color: 'var(--lime)', marginBottom: 10 }}>TODAY · RECEIPT</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              { l: 'Replied',     v: '6', tone: 'volt' },
+              { l: 'Archived',    v: '2', tone: 'muted' },
+              { l: 'Time saved',  v: '~52 min', tone: 'paper' },
+              { l: 'Pipeline +',  v: '$12,400', tone: 'lime' },
+            ].map((row, i) => (
+              <div key={i} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                fontSize: 13,
+              }}>
+                <span style={{ color: 'var(--muted)' }}>{row.l}</span>
+                <span style={{
+                  fontVariantNumeric: 'tabular-nums', fontWeight: 600,
+                  color: row.tone === 'volt' ? 'var(--volt)'
+                       : row.tone === 'lime' ? 'var(--lime)'
+                       : row.tone === 'muted' ? 'var(--muted)' : 'var(--paper-text)',
+                }}>{row.v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        padding: '12px 18px 28px',
+        borderTop: '1px solid rgba(244,241,232,0.06)',
+        background: 'var(--bg-deep)',
+        position: 'relative', zIndex: 1,
+        display: 'flex', gap: 10,
+      }}>
+        <button style={{
+          flex: 1, height: 48, borderRadius: 12,
+          background: 'transparent', color: 'var(--paper-text)',
+          border: '1px solid rgba(244,241,232,0.20)', cursor: 'pointer',
+          fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          <i data-lucide="history" style={{ width: 14, height: 14 }}></i>
+          <span>View today's decisions</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ───────────────────── PAGE COMPOSITION ─────────────────────
+const Page = () => {
+  useEffect(() => {
+    if (window.lucide) window.lucide.createIcons({ attrs: { 'stroke-width': 1.75 } });
+  });
+  return (
+    <div>
+      {/* Block 1 — primary trace screens */}
+      <div className="stage-wrap" style={{ marginBottom: 56 }}>
+        <div className="label-row">
+          <div className="label">Mobile · 402px<span className="label-sub">·&nbsp; Decision Trace · Aileen Cruz</span></div>
+          <div className="label">Desktop · 1280px<span className="label-sub">·&nbsp; Decision Trace · denser sibling</span></div>
+        </div>
+        <div className="mobile-shell">
+          <div className="mobile-screen">
+            <MobileDecisionTrace/>
+          </div>
+        </div>
+        <div className="desktop-shell">
+          <DesktopDecisionTrace/>
+        </div>
+      </div>
+
+      {/* Block 2 — empty state */}
+      <div className="stage-wrap">
+        <div className="label-row">
+          <div className="label">Mobile · 402px<span className="label-sub">·&nbsp; Empty state · "You're caught up"</span></div>
+          <div className="label" style={{ color: 'var(--muted)' }}>Notes</div>
+        </div>
+        <div className="mobile-shell">
+          <div className="mobile-screen">
+            <MobileEmptyState/>
+          </div>
+        </div>
+        <div style={{
+          padding: '24px 28px',
+          background: 'var(--surface)',
+          border: '1px solid var(--surface-edge)',
+          borderRadius: 14, alignSelf: 'start',
+          fontSize: 13, lineHeight: 1.55, color: 'var(--muted)',
+          maxWidth: 540,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em',
+            color: 'var(--lime)', marginBottom: 10 }}>EMPTY-STATE NOTES</div>
+          <p style={{ margin: '0 0 12px', color: 'var(--paper-text)' }}>
+            Inbox-zero is the reward state — it should feel like a small celebration without slipping into AI-slop confetti.
+          </p>
+          <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <li>Asymmetric lime "trophy" bubble reuses the speech-bubble radius vocabulary.</li>
+            <li>Confetti is sparse, monochrome, and drifts slowly — visual punctuation, not a party.</li>
+            <li>Receipt card frames the agent's overnight work as <em>completed labor</em>: replies, archives, time saved, pipeline added.</li>
+            <li>Single CTA returns the operator to today's decision history (audit trail) — no upsell, no nag.</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Block 3 — mobile sidebar pattern note */}
+      <div className="stage-wrap" style={{ marginTop: 56 }}>
+        <div className="label-row">
+          <div className="label">Mobile navigation pattern<span className="label-sub">·&nbsp; deferred spec</span></div>
+          <div className="label" style={{ color: 'var(--muted)' }}>—</div>
+        </div>
+        <div style={{
+          gridColumn: '1 / -1',
+          padding: '24px 28px',
+          background: 'var(--surface)',
+          border: '1px solid var(--surface-edge)',
+          borderRadius: 14,
+          fontSize: 13, lineHeight: 1.6, color: 'var(--paper-text)',
+          maxWidth: 1200,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em',
+            color: 'var(--lime)', marginBottom: 12 }}>MOBILE SIDEBAR · PROPOSED PATTERN</div>
+          <p style={{ margin: '0 0 12px' }}>
+            On mobile, the workspace nav <strong style={{ color: 'var(--lime)' }}>collapses to a single hamburger</strong> in the top-left of the Approval Queue header — not a bottom-tab bar.
+          </p>
+          <p style={{ margin: '0 0 12px', color: 'var(--muted)' }}>
+            Rationale: only one workspace section (Inbox) is shippable in v1. The other five (Pipeline, Clients, Scoping, ROI Pricing, Agents) are SOON. A bottom-tab bar would advertise dead-ends; a hamburger keeps them discoverable on tap without consuming permanent real estate. The bottom of the screen is reserved for the primary action — Approve-all on the queue, Approve & Send on the trace.
+          </p>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            Once Pipeline + Agents both ship as full mobile surfaces, we revisit and likely promote to a 3-tab bottom bar (Inbox · Pipeline · Agents).
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Page/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Daily Brief — AI Ops OS</title>
+<link rel="stylesheet" href="../../colors_and_type.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background: var(--bg-deep);
+    color: var(--paper-text);
+    font-family: var(--font-sans);
+    padding: 32px;
+  }
+
+  .canvas {
+    max-width: 1840px;
+    margin: 0 auto;
+  }
+
+  /* Page-level header (the meta-screen title) */
+  .page-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px; padding: 8px 0 36px;
+    border-bottom: 1px solid rgba(244,241,232,0.08);
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .page-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime);
+    margin-bottom: 8px;
+  }
+  .page-title {
+    font-family: var(--font-serif);
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 0.96; letter-spacing: -0.03em;
+    margin: 0; max-width: 18ch; text-wrap: balance;
+  }
+  .page-sub {
+    font-size: 14px; color: var(--muted);
+    max-width: 460px; line-height: 1.55;
+    text-align: right; text-wrap: pretty;
+  }
+
+  /* Two-up grid */
+  .stage-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+  .label-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    margin-bottom: 14px;
+  }
+  .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lime);
+  }
+  .label-sub {
+    color: var(--muted); margin-left: 8px; font-weight: 500;
+    letter-spacing: 0.04em; text-transform: none;
+  }
+
+  /* Mobile artboard frame */
+  .mobile-shell {
+    width: 402px; height: 874px;
+    background: #0A1410; border-radius: 56px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(244,241,232,0.08);
+  }
+  .mobile-screen {
+    width: 100%; height: 100%; border-radius: 44px; overflow: hidden;
+    background: var(--bg); position: relative;
+  }
+  .mobile-stage {
+    grid-column: 1;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 64px;
+  }
+  .rationale-card {
+    grid-column: 2;
+    align-self: stretch;
+    padding: 28px 32px;
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--paper-text);
+    margin-bottom: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .rationale-section h4 {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--lime); margin: 0 0 12px;
+    text-transform: uppercase;
+  }
+  .rationale-section p {
+    margin: 0 0 10px;
+  }
+  .compare-table {
+    display: grid;
+    grid-template-columns: 110px 1fr 1fr;
+    border-top: 1px solid var(--surface-edge);
+    font-size: 12px;
+  }
+  .compare-table > div {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--surface-edge);
+  }
+  .compare-table .col-h {
+    font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    font-size: 10px; color: var(--lime);
+    background: rgba(166,214,9,0.04);
+  }
+  .compare-table .row-l {
+    color: var(--muted); font-weight: 600;
+    background: rgba(244,241,232,0.02);
+  }
+  .timing-diagram {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    flex-wrap: wrap;
+  }
+  .tick {
+    width: 10px; height: 10px; border-radius: 9999px;
+    background: var(--lime); flex-shrink: 0;
+    box-shadow: 0 0 0 4px rgba(166,214,9,0.15);
+  }
+  .tick.dim { background: rgba(244,241,232,0.20); box-shadow: none; }
+  .tick-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, rgba(166,214,9,0.5), rgba(244,241,232,0.10));
+    min-width: 18px;
+  }
+
+  button:hover { filter: brightness(1.05); }
+  button:active { transform: scale(0.98); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(244,241,232,0.16) transparent; }
+  .scroll::-webkit-scrollbar { width: 6px; }
+  .scroll::-webkit-scrollbar-thumb { background: rgba(244,241,232,0.16); border-radius: 3px; }
+
+  .section-divider {
+    grid-column: 1 / -1;
+    height: 1px; background: rgba(244,241,232,0.08);
+    margin: 56px 0 36px;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.456.0/dist/umd/lucide.min.js"></script>
+
+<script src="dm-data.js?v=4"></script>
+<script type="text/babel" src="DailyBrief.jsx?v=3"></script>
+
+<script type="text/babel">
+const { useEffect } = React;
+
+// ───── Mobile shell — Slack on top, email below, scrollable ─────
+const MobileBrief = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+    {/* iOS status bar */}
+    <div style={{
+      height: 47, padding: '0 24px', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      fontSize: 15, fontWeight: 600, color: 'var(--paper-text)',
+      fontVariantNumeric: 'tabular-nums',
+    }}>
+      <span>7:01</span>
+      <div style={{ width: 110, height: 30, background: '#000', borderRadius: 9999 }}/>
+      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+        <i data-lucide="signal" style={{ width: 16, height: 11 }}></i>
+        <i data-lucide="wifi" style={{ width: 16, height: 11 }}></i>
+        <i data-lucide="battery-full" style={{ width: 22, height: 11 }}></i>
+      </div>
+    </div>
+
+    {/* Header */}
+    <div style={{
+      padding: '14px 18px 16px',
+      borderBottom: '1px solid rgba(244,241,232,0.08)',
+      flexShrink: 0,
+    }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--lime)' }}>
+        DAILY&nbsp;BRIEF
+      </div>
+      <div style={{
+        fontFamily: 'var(--font-serif)', fontSize: 26, lineHeight: 1.05,
+        letterSpacing: '-0.025em', marginTop: 4,
+      }}>
+        Tuesday, April 28
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6, lineHeight: 1.5 }}>
+        How the agent reaches you each morning.
+      </div>
+    </div>
+
+    {/* Stack: Slack → Email */}
+    <div className="scroll" style={{
+      flex: 1, padding: '18px 16px 28px',
+      display: 'flex', flexDirection: 'column', gap: 28,
+    }}>
+      <div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+          color: 'var(--lime)', marginBottom: 12,
+        }}>
+          <i data-lucide="message-square" style={{ width: 12, height: 12 }}></i>
+          <span>SLACK</span>
+        </div>
+        <SlackPreview/>
+        <PreviewMeta icon="check-circle-2" channel="DELIVERED"
+          delivered="7:00 ET" next="7:00 ET tomorrow"/>
+      </div>
+
+      <div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+          color: 'var(--lime)', marginBottom: 12,
+        }}>
+          <i data-lucide="mail" style={{ width: 12, height: 12 }}></i>
+          <span>EMAIL</span>
+        </div>
+        <EmailPreview/>
+        <PreviewMeta icon="check-circle-2" channel="DELIVERED"
+          delivered="7:00 ET" next="7:00 ET tomorrow"/>
+      </div>
+    </div>
+  </div>
+);
+
+// ───── Page composition ─────
+const Page = () => {
+  useEffect(() => {
+    if (window.lucide) window.lucide.createIcons({ attrs: { 'stroke-width': 1.75 } });
+  });
+  return (
+    <div className="canvas">
+      <header className="page-head">
+        <div>
+          <div className="page-eyebrow">Daily Brief · Meta-screen preview</div>
+          <h1 className="page-title">How the agent reaches Jamie at 7am.</h1>
+        </div>
+        <p className="page-sub">
+          Triage runs overnight and lands in the tools the operator already lives in — Slack first, email as a durable backup. The product surface inside the OS is the queue; this is the front door.
+        </p>
+      </header>
+
+      <div className="stage-wrap">
+        <div className="label-row">
+          <div className="label">Slack DM<span className="label-sub">·&nbsp; #triage-agent · 7:00 AM</span></div>
+          <div className="label">Email<span className="label-sub">·&nbsp; jamie@drivex.com · 7:00 AM</span></div>
+        </div>
+
+        <div>
+          <SlackPreview/>
+          <PreviewMeta icon="check-circle-2" channel="DELIVERED"
+            delivered="7:00 ET" next="7:00 ET tomorrow"/>
+        </div>
+        <div>
+          <EmailPreview/>
+          <PreviewMeta icon="check-circle-2" channel="DELIVERED"
+            delivered="7:00 ET" next="7:00 ET tomorrow"/>
+        </div>
+
+        <div className="section-divider"></div>
+
+        <div className="label-row" style={{ marginBottom: 0 }}>
+          <div className="label">Mobile · 402px<span className="label-sub">·&nbsp; Slack + Email stacked</span></div>
+          <div className="label" style={{ color: 'var(--muted)' }}>Brief delivery channels — design rationale</div>
+        </div>
+
+        <div className="mobile-stage">
+          <div className="mobile-shell">
+            <div className="mobile-screen">
+              <MobileBrief/>
+            </div>
+          </div>
+        </div>
+
+        <div className="rationale-card">
+          {/* Section 1 — why two channels */}
+          <div className="rationale-section">
+            <h4>Why two channels</h4>
+            <p>
+              <strong style={{ color: 'var(--lime)' }}>Slack is primary.</strong> It's where Jamie already triages her morning. A one-line nudge in <code style={{
+                fontFamily: 'var(--font-mono)', fontSize: 12,
+                background: 'rgba(166,214,9,0.08)', padding: '1px 6px',
+                borderRadius: 3, color: 'var(--lime)',
+              }}>#triage-agent</code> reads in seconds — same idiom as a teammate, not a notification.
+            </p>
+            <p style={{ color: 'var(--muted)' }}>
+              <strong style={{ color: 'var(--paper-text)' }}>Email is the durable backup.</strong> If Jamie misses the Slack window or wants to forward something to a co-founder, the brief lives in her inbox — indexable, searchable, archivable.
+            </p>
+          </div>
+
+          {/* Section 2 — comparison */}
+          <div className="rationale-section">
+            <h4>Channels at a glance</h4>
+            <div className="compare-table">
+              <div className="col-h">&nbsp;</div>
+              <div className="col-h"><i data-lucide="message-square" style={{ width: 11, height: 11, marginRight: 6, verticalAlign: 'middle' }}></i>Slack</div>
+              <div className="col-h"><i data-lucide="mail" style={{ width: 11, height: 11, marginRight: 6, verticalAlign: 'middle' }}></i>Email</div>
+
+              <div className="row-l">Role</div>
+              <div>Primary nudge</div>
+              <div style={{ color: 'var(--muted)' }}>Durable backup</div>
+
+              <div className="row-l">Read in</div>
+              <div style={{ fontVariantNumeric: 'tabular-nums' }}>~10 sec</div>
+              <div style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--muted)' }}>~30 sec</div>
+
+              <div className="row-l">Lifespan</div>
+              <div>Auto-clears 9:00 AM</div>
+              <div style={{ color: 'var(--muted)' }}>Permanent</div>
+
+              <div className="row-l" style={{ borderBottom: 'none' }}>CTA</div>
+              <div style={{ borderBottom: 'none' }}>Open Queue →</div>
+              <div style={{ color: 'var(--muted)', borderBottom: 'none' }}>Open Queue →</div>
+            </div>
+          </div>
+
+          {/* Section 3 — timing */}
+          <div className="rationale-section">
+            <h4>Brief lifecycle</h4>
+            <div className="timing-diagram" style={{ marginBottom: 14, flexWrap: 'nowrap' }}>
+              <span className="tick"></span>
+              <span style={{ flex: 'none' }}>
+                <span style={{ color: 'var(--paper-text)', fontWeight: 600 }}>6:58</span>
+                <span style={{ marginLeft: 6 }}>composes</span>
+              </span>
+              <span className="tick-line"></span>
+              <span className="tick"></span>
+              <span style={{ flex: 'none' }}>
+                <span style={{ color: 'var(--paper-text)', fontWeight: 600 }}>7:00</span>
+                <span style={{ marginLeft: 6 }}>delivers</span>
+              </span>
+              <span className="tick-line"></span>
+              <span className="tick dim"></span>
+              <span style={{ flex: 'none', color: 'var(--muted)' }}>
+                <span>9:00</span>
+                <span style={{ marginLeft: 6 }}>auto-clears</span>
+              </span>
+            </div>
+            <p style={{ color: 'var(--muted)', margin: 0 }}>
+              The brief never tries to <em>be</em> the queue. It's a hand-off — read in 30 seconds, then act in the OS. One CTA, one destination.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Page/>);
+</script>
+</body>
+</html>
