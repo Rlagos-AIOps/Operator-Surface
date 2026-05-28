@@ -1,65 +1,40 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="mx-auto max-w-[1280px] px-s5 py-s8">
+      <p className="eyebrow mb-s3">Operator Surface</p>
+
+      <h1 className="font-serif text-h1 text-paper mb-s5">
+        See what your agents did. Approve what they want to do next.
+      </h1>
+
+      <p className="text-body text-muted max-w-[640px]">
+        Your CSM agents are running. This surface shows their work, the
+        reasoning behind it, and what needs your decision before they
+        execute. Placeholder agents:{" "}
+        <span className="text-paper">health-score-recomputer</span>,{" "}
+        <span className="text-paper">at-risk-triage</span>,{" "}
+        <span className="text-paper">renewal-outreach</span>,{" "}
+        <span className="text-paper">data-hygiene-audit</span>,{" "}
+        <span className="text-paper">save-plan-drafter</span>.
+      </p>
+
+      <div className="mt-s8 grid grid-cols-3 gap-s5">
+        <div className="rounded-lg bg-surface p-s5 shadow-e1">
+          <p className="eyebrow mb-s2">Today</p>
+          <p className="font-serif text-h2 tabular text-paper">12</p>
+          <p className="text-small text-muted">decisions made</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="rounded-lg bg-surface p-s5 shadow-e1">
+          <p className="eyebrow mb-s2">Pending</p>
+          <p className="font-serif text-h2 tabular text-lime">3</p>
+          <p className="text-small text-muted">need your review</p>
         </div>
-      </main>
-    </div>
+        <div className="rounded-lg bg-surface p-s5 shadow-e1">
+          <p className="eyebrow mb-s2">Connected</p>
+          <p className="font-serif text-h2 tabular text-paper">4 / 4</p>
+          <p className="text-small text-muted">integrations live</p>
+        </div>
+      </div>
+    </main>
   );
 }
