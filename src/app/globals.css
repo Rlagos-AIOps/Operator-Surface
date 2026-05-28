@@ -1,26 +1,182 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* =============================================================
+   Tailwind v4 token → utility mapping
+   Maps CSS variables from styles/tokens.css to Tailwind utility
+   namespaces (--color-*, --font-*, --spacing-*, --radius-*,
+   --shadow-*) so `bg-bg`, `text-paper`, `text-h1`, etc. work.
+   ============================================================= */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors → bg-bg, text-paper, text-lime, etc. */
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-edge: var(--surface-edge);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-edge: var(--paper-edge);
+  --color-lime: var(--lime);
+  --color-lime-deep: var(--lime-deep);
+  --color-volt: var(--volt);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-muted-light: var(--muted-light);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  /* Fonts → font-serif, font-sans, font-mono.
+     Fallback chains live in tokens.css so they're available to both
+     Tailwind utilities (via @theme inline) and bare element rules. */
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Type scale → text-display, text-h1, text-h2, ... text-micro */
+  --text-display: var(--fs-display);
+  --text-display--line-height: var(--lh-display);
+  --text-h1: var(--fs-h1);
+  --text-h1--line-height: var(--lh-display);
+  --text-h2: var(--fs-h2);
+  --text-h2--line-height: var(--lh-heading);
+  --text-h3: var(--fs-h3);
+  --text-h3--line-height: var(--lh-tight);
+  --text-h4: var(--fs-h4);
+  --text-h4--line-height: var(--lh-tight);
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-small: var(--fs-small);
+  --text-small--line-height: var(--lh-body);
+  --text-micro: var(--fs-micro);
+  --text-micro--line-height: var(--lh-tight);
+
+  /* Spacing scale → p-s1, gap-s5, m-s8, ... (Tailwind generates per-step) */
+  --spacing-s1: var(--s-1);
+  --spacing-s2: var(--s-2);
+  --spacing-s3: var(--s-3);
+  --spacing-s4: var(--s-4);
+  --spacing-s5: var(--s-5);
+  --spacing-s6: var(--s-6);
+  --spacing-s7: var(--s-7);
+  --spacing-s8: var(--s-8);
+  --spacing-s9: var(--s-9);
+
+  /* Radii → rounded-sm, rounded-md, rounded-lg, rounded-xl, rounded-pill, rounded-bubble-l/r */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
+  --radius-bubble-l: var(--r-bubble-l);
+  --radius-bubble-r: var(--r-bubble-r);
+
+  /* Shadows → shadow-e1, shadow-e2, shadow-e3, shadow-glow-volt, shadow-well */
+  --shadow-e1: var(--shadow-1);
+  --shadow-e2: var(--shadow-2);
+  --shadow-e3: var(--shadow-3);
+  --shadow-glow-volt: var(--glow-volt);
+  --shadow-well: var(--inset-well);
+
+  /* Motion */
+  --ease-snap: var(--ease-snap);
+  --ease-out-bz: var(--ease-out);
+  --ease-in-bz: var(--ease-in);
+  --duration-fast: var(--dur-fast);
+  --duration-base: var(--dur-base);
+  --duration-slow: var(--dur-slow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* =============================================================
+   Typography reset — applied to bare HTML elements.
+   Components use Tailwind utilities; this is the canvas baseline.
+   ============================================================= */
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--paper-text);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+.display {
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-heading);
+  color: var(--paper-text);
+  text-wrap: balance;
+}
+
+h1,
+.display {
+  font-size: var(--fs-h1);
+  letter-spacing: var(--tr-tighter);
+  line-height: var(--lh-display);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+}
+
+h3 {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: var(--fs-h3);
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-tight);
+  color: var(--paper-text);
+}
+
+h4 {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: var(--fs-h4);
+  line-height: var(--lh-tight);
+  color: var(--paper-text);
+}
+
+.eyebrow {
+  font-family: var(--font-sans), sans-serif;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+p {
+  line-height: var(--lh-body);
+  text-wrap: pretty;
+}
+
+.num,
+.numeric,
+.tabular,
+td.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.92em;
+}
+
+::selection {
+  background: var(--volt);
+  color: var(--ink);
 }

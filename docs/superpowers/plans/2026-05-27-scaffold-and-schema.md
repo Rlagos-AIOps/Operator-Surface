@@ -7,11 +7,13 @@
 **Architecture:** Single Next.js (App Router, TypeScript, Tailwind) project deployed to Vercel. Shared Supabase Postgres holds the agent↔app data contract. Hermes agents write to Supabase using the service role key; this app reads via the anon/auth keys and writes back only for human-in-the-loop fields (approval decisions, brief view marks). Schema is managed through SQL migration files under `supabase/migrations/`, pushed to the **hosted** Supabase project via `supabase link` + `supabase db push`. JSONB column conventions are documented in `docs/schema-conventions.md`.
 
 **Tech Stack:**
-- Next.js 15 (App Router) + TypeScript + Tailwind CSS v3
+- Next.js 16.2 (App Router, Turbopack) + TypeScript + Tailwind CSS v4
 - Fonts: DM Serif Display + Manrope (via `next/font/google`)
 - Supabase JS v2 (`@supabase/supabase-js`, `@supabase/ssr`)
 - Supabase CLI linked to the hosted project (no local Docker)
 - Node 20 LTS, npm
+
+**Tailwind v4 note:** v4 declares design tokens via `@theme` directives inside CSS, not a `tailwind.config.ts`. The source-of-truth tokens live in `src/styles/tokens.css` (raw CSS variables in `:root`), and `src/app/globals.css` re-exposes them to Tailwind via `@theme inline { --color-bg: var(--bg); ... }`. No `tailwind.config.ts` file is created.
 
 ---
 
