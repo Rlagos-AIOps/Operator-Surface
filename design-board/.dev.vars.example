@@ -1,0 +1,12 @@
+# tldraw agent board — model provider keys.
+# Copy this file to `.dev.vars` and paste your own key(s). NEVER commit `.dev.vars`.
+# Anthropic is recommended for best results: https://console.anthropic.com/settings/keys
+#
+#   cp .dev.vars.example .dev.vars   then fill in ANTHROPIC_API_KEY
+#
+# The canvas + the seeded 3-section board render WITHOUT any key.
+# A key is only needed for the agent chat panel (drawing/editing via prompts).
+
+ANTHROPIC_API_KEY=
+GOOGLE_API_KEY=
+OPENAI_API_KEY=

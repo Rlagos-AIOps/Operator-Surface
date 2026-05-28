@@ -1,15 +1,15 @@
-name = "agent-template"
+name = "operator-surface-board"
 main = "worker/worker.ts"
 compatibility_date = "2024-12-30"
 assets = { not_found_handling = "single-page-application" }
 preview_urls = true
+workers_dev = true
 
 [observability]
 enabled = true
 
-[[routes]]
-pattern = "agent.templates.tldraw.dev"
-custom_domain = true
+# Deployed to *.workers.dev (no custom domain). To serve on your own Cloudflare
+# zone instead, add a [[routes]] block with your pattern + zone_name here.
 
 # Set up the durable object used for each tldraw room
 [durable_objects]
