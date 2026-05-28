@@ -84,7 +84,7 @@ function App() {
 			<div className="tldraw-agent-container">
 				<div className="tldraw-canvas">
 					<Tldraw
-						persistenceKey="tldraw-agent-demo"
+						persistenceKey="operator-surface-board-v2"
 						onMount={(editor) => seedBoardIfEmpty(editor)}
 						tools={tools}
 						overrides={overrides}
