@@ -29,9 +29,8 @@ new_sqlite_classes = ["AgentDurableObject"]
 tag = "v2"
 new_sqlite_classes = ["TldrawDurableObject"]
 
-# Canvas/room data lives in the Durable Object's SQLite storage — no R2 needed
-# for shared sync. R2 (for user image/video UPLOADS) is pending account
-# activation; once R2 is enabled in the Cloudflare dashboard, re-add:
-#   [[r2_buckets]]
-#   binding = "TLDRAW_BUCKET"
-#   bucket_name = "operator-surface-board"
+# Asset uploads (images/videos dropped on the board) live in R2.
+# Canvas/room data lives in the Durable Object's SQLite storage.
+[[r2_buckets]]
+binding = "TLDRAW_BUCKET"
+bucket_name = "operator-surface-board"
