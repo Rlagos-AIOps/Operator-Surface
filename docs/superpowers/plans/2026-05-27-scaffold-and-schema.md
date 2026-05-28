@@ -784,7 +784,7 @@ create table public.decisions (
   agent_id            uuid not null references public.agents(id) on delete restrict,
   decision_type       text not null,            -- e.g. 'classify_intent', 'route_lead'
   source_record_type  text not null,            -- e.g. 'lead', 'thread', 'account'
-  source_record_id    text not null,            -- external ID (Salesforce, LinkedIn, etc.)
+  source_record_id    text not null,            -- external ID (Salesforce, Zoom, Gmail, etc.)
   label               text not null,            -- the verdict, e.g. 'hot', 'cold'
   confidence          numeric(4,3) check (confidence is null or (confidence >= 0 and confidence <= 1)),
   reasoning           text,                     -- narrative

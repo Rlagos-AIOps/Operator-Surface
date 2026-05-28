@@ -114,7 +114,7 @@ Free-shape JSONB matching the `action_type`. Conventions per action type:
 // current_value: null (we're creating a new draft)
 // proposed_value:
 {
-  "channel": "email",                    // "email" | "slack" | "linkedin"
+  "channel": "email",                    // "email" | "slack" | "in_app"
   "to": ["jane@customer.com"],
   "subject": "Re: Pricing question",
   "body_md": "Hi Jane,\n\nThanks for...",
