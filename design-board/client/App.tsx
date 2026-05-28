@@ -20,6 +20,8 @@ import { AllContextHighlights } from './components/highlights/ContextHighlights'
 import { TargetAreaTool } from './tools/TargetAreaTool'
 import { TargetShapeTool } from './tools/TargetShapeTool'
 import { seedBoardIfEmpty } from './seed'
+import { useSync } from '@tldraw/sync'
+import { multiplayerAssetStore } from './multiplayerAssetStore'
 
 // Customize tldraw's styles to play to the agent's strengths
 DefaultSizeStyle.setDefaultValue('s')
@@ -53,6 +55,11 @@ const overrides: TLUiOverrides = {
 }
 
 function App() {
+	// One shared room for the whole team — synced + persisted via the Cloudflare DO.
+	const store = useSync({
+		uri: `${window.location.origin}/api/connect/operator-surface-room`,
+		assets: multiplayerAssetStore,
+	})
 	const [app, setApp] = useState<TldrawAgentApp | null>(null)
 
 	const handleUnmount = useCallback(() => {
@@ -84,7 +91,8 @@ function App() {
 			<div className="tldraw-agent-container">
 				<div className="tldraw-canvas">
 					<Tldraw
-						persistenceKey="operator-surface-board-v2"
+						store={store}
+						licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY}
 						onMount={(editor) => seedBoardIfEmpty(editor)}
 						tools={tools}
 						overrides={overrides}

@@ -4,4 +4,6 @@ export interface Environment {
 	ANTHROPIC_API_KEY: string
 	GOOGLE_API_KEY: string
 	MINIMAX_API_KEY: string
+	TLDRAW_DURABLE_OBJECT: DurableObjectNamespace
+	TLDRAW_BUCKET: R2Bucket
 }

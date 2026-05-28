@@ -13,7 +13,10 @@ enabled = true
 
 # Set up the durable object used for each tldraw room
 [durable_objects]
-bindings = [{ name = "AGENT_DURABLE_OBJECT", class_name = "AgentDurableObject" }]
+bindings = [
+  { name = "AGENT_DURABLE_OBJECT", class_name = "AgentDurableObject" },
+  { name = "TLDRAW_DURABLE_OBJECT", class_name = "TldrawDurableObject" },
+]
 
 # Durable objects require migrations. Cloudflare's free plan requires
 # SQLite-backed DOs (new_sqlite_classes). This is the worker's first deploy,
@@ -21,3 +24,14 @@ bindings = [{ name = "AGENT_DURABLE_OBJECT", class_name = "AgentDurableObject" }
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["AgentDurableObject"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["TldrawDurableObject"]
+
+# Canvas/room data lives in the Durable Object's SQLite storage — no R2 needed
+# for shared sync. R2 (for user image/video UPLOADS) is pending account
+# activation; once R2 is enabled in the Cloudflare dashboard, re-add:
+#   [[r2_buckets]]
+#   binding = "TLDRAW_BUCKET"
+#   bucket_name = "operator-surface-board"
