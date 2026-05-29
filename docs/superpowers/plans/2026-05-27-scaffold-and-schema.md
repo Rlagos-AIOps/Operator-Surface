@@ -747,7 +747,7 @@ create table public.agent_runs (
                     (case when finished_at is null then null
                           else (extract(epoch from (finished_at - started_at)) * 1000)::int end) stored,
   status          agent_run_status not null default 'running',
-  trigger         text,                         -- 'cron' | 'manual' | 'webhook' | ...
+  triggered_by    text,                         -- 'cron' | 'manual' | 'webhook' | ... (renamed from `trigger` — reserved word)
   items_processed integer not null default 0,
   input_summary   text,
   output_summary  text,
