@@ -29,19 +29,31 @@ separate project. The two connect through a shared Supabase database:
 
 ---
 
-## CSM agent slugs
+## CSM agent slugs (v1 capability-based architecture)
 
-These are the placeholder slugs the Hermes repo will use for its v1 CSM agents.
-Use these — not `linkedin-triage` or any other prototype reference — in code
-comments, seed data, and example snippets.
+Hermes runs five agents organized by **capability**, not by task. Galileo is
+the orchestrator; the others are specialists with narrow, well-defined
+permissions. This separation means the operator can read each agent's
+authority surface ("can it write to Salesforce? can it touch external
+systems at all?") at a glance.
 
-| Slug | What it does |
-|---|---|
-| `health-score-recomputer` | Recomputes the 5-pillar health score for each account on a schedule, surfaces deltas and band changes |
-| `at-risk-triage` | Scans accounts for warning signals (engagement drop, support spike, save-plan staleness) and drafts ranked at-risk decisions |
-| `renewal-outreach` | Identifies renewals approaching (30/60/90 day windows) and drafts outreach proposals for the CSM to approve |
-| `data-hygiene-audit` | Runs the daily/weekly/monthly/pre-quarterly hygiene checklist against the SF data, surfaces gaps as decisions or approval items |
-| `save-plan-drafter` | When an at-risk decision lands without an active save plan, drafts a save-plan textarea entry for CSM review |
+| Slug | Role | Capabilities | External access |
+|---|---|---|---|
+| `galileo` | Orchestrator / supervisor | Routes work, gates approvals, assembles the daily brief | None directly — delegates |
+| `sop-analyst` | SOP reasoning | Parses SOP library, builds checklists, compares accounts to policy | None — pure reasoning over policy docs |
+| `sf-reader` | Salesforce read-only | Pulls accounts, opportunities, cases, activity history | Salesforce (read) |
+| `hygiene-validator` | Data quality auditor | Detects missing fields, stale records, SOP gaps; flags issues | Salesforce (read), no writes |
+| `controlled-executor` | Gated write executor | Updates fields, sends emails, creates tasks, posts Slack — **every action approval-gated** | Salesforce (write), Slack (write), Gmail (write) |
+
+Earlier prototype slugs (`linkedin-triage`, `health-score-recomputer`,
+`at-risk-triage`, etc.) are deprecated — do not reference them in seed
+data, comments, or UI strings.
+
+### `agents.metadata` keys to populate
+
+Every seeded agent row populates `capabilities` and `example_tasks` in
+metadata. See [`docs/schema-conventions.md`](docs/schema-conventions.md)
+for the full convention.
 
 ---
 
