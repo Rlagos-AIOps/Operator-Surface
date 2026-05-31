@@ -1,0 +1,18 @@
+{
+  "name": "operator-surface",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AI Ops OS operator surface — design branch monorepo (operator-app + design-board + design-system). The root provides convenience scripts; each subproject installs independently and keeps its own lockfile.",
+  "scripts": {
+    "setup": "cd operator-app && bun install && cd ../design-board && bun install",
+    "dev": "cd operator-app && bun run dev",
+    "build": "cd operator-app && bun run build",
+    "start": "cd operator-app && bun run start",
+    "lint": "cd operator-app && bun run lint",
+    "storybook": "cd operator-app && bun run storybook",
+    "build-storybook": "cd operator-app && bun run build-storybook",
+    "dev:board": "cd design-board && bun run dev",
+    "build:board": "cd design-board && bun run build",
+    "preview:board": "cd design-board && bun run preview"
+  }
+}
