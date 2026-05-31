@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, Manrope, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Masthead } from "@/components/site/masthead";
 import "./globals.css";
 
 const dmSerif = DM_Serif_Display({
@@ -24,34 +26,43 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Ops · Operator OS",
+  title: "Ops Surfer — the operator surface for AI consultancies",
   description:
-    "LinkedIn inbound triage — the operator surface for the AI Ops Consultant OS.",
+    "Run your consultancy like an operator, not a corporate. Client CRM, ROI-backed pricing, and a multi-agent delivery layer.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${dmSerif.variable} ${manrope.variable} ${jetbrains.variable} h-full`}
     >
-      <body className="min-h-screen bg-emerald text-paper font-sans antialiased">
-        {children}
-        <Toaster
-          theme="dark"
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "var(--color-surface)",
-              color: "var(--color-paper)",
-              border: "1px solid var(--color-surface-edge)",
-            },
-          }}
-        />
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <div className="app-bg pointer-events-none fixed inset-0 -z-10" aria-hidden />
+          <div className="app-sweep pointer-events-none fixed inset-0 z-[5] animate-wave-drift" aria-hidden />
+          <Masthead />
+          <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: "var(--color-card)",
+                color: "var(--color-foreground)",
+                border: "1px solid var(--color-border)",
+                backdropFilter: "blur(16px)",
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

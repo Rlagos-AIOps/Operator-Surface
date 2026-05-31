@@ -1,279 +1,167 @@
-import type { Metadata } from "next";
-import { Mark } from "@/components/operator/marks";
-import { IntentChip } from "@/components/operator/intent-chip";
-import { Bubble } from "@/components/operator/bubble";
-import { Button } from "@/components/ui/button";
-import {
-  COLOR_TOKENS,
-  TYPE_TOKENS,
-  RADII,
-  ELEVATION,
-  type TypeToken,
-} from "@/lib/tokens";
+const SWATCHES = [
+  { name: "emerald", cls: "bg-emerald", hex: "#1E5631", role: "Light canvas base" },
+  { name: "mossy", cls: "bg-mossy", hex: "#0F2A26", role: "Dark canvas base" },
+  { name: "moss-surface", cls: "bg-moss-surface", hex: "#143832", role: "Dark surface" },
+  { name: "paper", cls: "bg-paper", hex: "#F4F1E8", role: "Two-tone film / light" },
+  { name: "lime", cls: "bg-lime", hex: "#C7F36A", role: "The only CTA color" },
+  { name: "volt", cls: "bg-volt", hex: "#E6F462", role: "Agent-active only" },
+  { name: "amber", cls: "bg-amber", hex: "#E6A852", role: "Warning / queued" },
+  { name: "cyan", cls: "bg-cyan", hex: "#6BC8D6", role: "Info / signal" },
+  { name: "danger", cls: "bg-danger", hex: "#D14545", role: "Error / destructive" },
+  { name: "ink", cls: "bg-ink", hex: "#0A1410", role: "Text on light / lime" },
+];
 
-export const metadata: Metadata = {
-  title: "AI Ops OS · Styleguide",
-  description: "Living design-system styleguide — the canon for design and build.",
-};
+const SPACING = [
+  ["s-1", "4"],
+  ["s-2", "8"],
+  ["s-3", "12"],
+  ["s-4", "16"],
+  ["s-5", "24"],
+  ["s-6", "32"],
+  ["s-7", "48"],
+  ["s-8", "64"],
+];
 
-const FONT_CLASS: Record<TypeToken["font"], string> = {
-  serif: "font-serif",
-  sans: "font-sans",
-  mono: "font-mono",
-};
+const RADII = [
+  ["sm", "rounded-sm"],
+  ["md", "rounded-md"],
+  ["lg", "rounded-lg"],
+  ["xl", "rounded-xl"],
+];
 
-function Section({
-  eyebrow,
-  title,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  children: React.ReactNode;
-}) {
+function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-paper/8 py-10">
-      <div className="eyebrow mb-1 text-lime">{eyebrow}</div>
-      <h2 className="mb-6 font-serif text-[28px] tracking-tight text-paper">
-        {title}
-      </h2>
-      {children}
+    <section className="mt-10">
+      <p className="eyebrow text-muted-foreground">{title}</p>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
 
-function Spec({
-  label,
-  wires,
-  children,
-}: {
-  label: string;
-  wires?: string;
-  children: React.ReactNode;
-}) {
+export default function StyleguidePage() {
   return (
-    <div className="flex flex-col gap-3 rounded-[14px] bg-surface p-5 shadow-ground">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold text-paper">{label}</span>
-        {wires && (
-          <span className="text-[11px] text-muted-foreground">
-            wires to → {wires}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-wrap items-center gap-3">{children}</div>
-    </div>
-  );
-}
+    <div className="mx-auto max-w-[1100px] px-6 py-8 sm:py-10">
+      <p className="eyebrow text-muted-foreground">01 / Foundations</p>
+      <h1 className="mt-2 text-4xl sm:text-5xl">Styleguide</h1>
+      <p className="mt-2 max-w-[60ch] text-muted-foreground">
+        The Ops Surfer system — one two-tone language across a light (paper) and
+        dark (mossy glass) theme. Toggle the theme in the masthead; every token
+        below flips with it.
+      </p>
 
-export default function Styleguide() {
-  return (
-    <main className="mx-auto max-w-[1100px] px-7 pb-16">
-      {/* Header */}
-      <header className="flex flex-col gap-3 py-10">
-        <div className="flex items-center gap-2.5">
-          <Mark className="size-8" />
-          <div className="leading-tight">
-            <div className="font-serif text-xl text-paper">AI Ops OS</div>
-            <div className="eyebrow text-[10px] text-lime">
-              Design system · Styleguide
-            </div>
-          </div>
-        </div>
-        <p className="max-w-[640px] text-[15px] leading-relaxed text-muted-foreground">
-          The canonical, live styleguide — it renders the same{" "}
-          <span className="font-mono text-paper">@theme</span> tokens production
-          ships, so it never drifts. Screenshot it for Google Stitch, or feed the
-          token catalog to Storybook / Supernova as the source of truth.
-        </p>
-      </header>
-
-      {/* Colors */}
-      <Section eyebrow="Foundations" title="Color">
-        <div className="flex flex-col gap-7">
-          {COLOR_TOKENS.map((grp) => (
-            <div key={grp.group}>
-              <div className="eyebrow mb-3 text-muted-foreground">
-                {grp.group}
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                {grp.tokens.map((t) => (
-                  <div
-                    key={t.name + t.cssVar}
-                    className="overflow-hidden rounded-[12px] shadow-ground"
-                  >
-                    <div
-                      className="flex h-20 items-end p-2.5"
-                      style={{ background: t.hex }}
-                    >
-                      <span
-                        className="font-mono text-[11px]"
-                        style={{
-                          color: t.text === "paper" ? "#F4F1E8" : "#0A1410",
-                        }}
-                      >
-                        {t.hex}
-                      </span>
-                    </div>
-                    <div className="bg-surface p-2.5">
-                      <div className="font-mono text-[12px] text-paper">
-                        {t.name}
-                      </div>
-                      <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                        {t.usage}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      {/* Palette */}
+      <Block title="Palette">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {SWATCHES.map((s) => (
+            <div key={s.name} className="surface overflow-hidden rounded-xl">
+              <div className={`h-16 w-full ${s.cls}`} />
+              <div className="p-3">
+                <p className="text-sm font-medium">{s.name}</p>
+                <p className="num text-xs text-muted-foreground">{s.hex}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{s.role}</p>
               </div>
             </div>
           ))}
         </div>
-      </Section>
+      </Block>
 
-      {/* Typography */}
-      <Section eyebrow="Foundations" title="Typography">
-        <div className="flex flex-col divide-y divide-paper/8">
-          {TYPE_TOKENS.map((t) => (
-            <div
-              key={t.name}
-              className="grid grid-cols-1 gap-2 py-5 md:grid-cols-[200px_1fr] md:items-baseline"
-            >
-              <div>
-                <div className="text-sm font-semibold text-paper">{t.name}</div>
-                <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                  {t.usage}
-                </div>
-              </div>
-              <div
-                className={`${FONT_CLASS[t.font]} text-paper ${
-                  t.numeric ? "tabular-nums" : ""
-                } ${t.name === "Eyebrow" ? "eyebrow text-lime" : ""}`}
-                style={{
-                  fontSize: t.size,
-                  lineHeight: t.font === "serif" ? 1 : 1.3,
-                }}
-              >
-                {t.sample}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* Radii + elevation */}
-      <Section eyebrow="Foundations" title="Radii & elevation">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div>
-            <div className="eyebrow mb-3 text-muted-foreground">Radii</div>
-            <div className="flex flex-wrap gap-4">
-              {RADII.map((r) => (
-                <div key={r.name} className="flex flex-col items-center gap-2">
-                  <div
-                    className="size-16 border border-surface-edge bg-surface-2"
-                    style={{ borderRadius: r.value }}
-                  />
-                  <div className="text-center">
-                    <div className="font-mono text-[11px] text-paper">
-                      {r.name}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {r.usage}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Surfaces */}
+      <Block title="Surfaces — the two-tone blend">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="surface flex h-24 items-center justify-center rounded-xl text-sm text-muted-foreground">
+            surface
           </div>
-          <div>
-            <div className="eyebrow mb-3 text-muted-foreground">Elevation</div>
-            <div className="flex flex-wrap gap-4">
-              {ELEVATION.map((e) => (
-                <div key={e.name} className="flex flex-col items-center gap-2">
-                  <div className={`size-16 rounded-[14px] bg-surface ${e.name}`} />
-                  <div className="text-center">
-                    <div className="font-mono text-[11px] text-paper">
-                      {e.name}
-                    </div>
-                    <div className="max-w-28 text-[10px] leading-snug text-muted-foreground">
-                      {e.usage}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="surface-2 flex h-24 items-center justify-center rounded-xl text-sm text-muted-foreground">
+            surface-2
+          </div>
+          <div className="glass flex h-24 items-center justify-center rounded-xl text-sm text-foreground">
+            glass (acrylic)
           </div>
         </div>
-      </Section>
+      </Block>
+
+      {/* Type */}
+      <Block title="Typography">
+        <div className="glass rounded-2xl p-6">
+          <p className="font-display text-5xl leading-tight">Operator clarity.</p>
+          <p className="mt-1 font-display text-5xl leading-tight text-muted-foreground">
+            Engineering authority.
+          </p>
+          <p className="eyebrow mt-4 text-muted-foreground">Display · DM Serif Display</p>
+          <hr className="my-6 border-border" />
+          <p className="max-w-[60ch] text-lg">
+            Tell them what happened, what&apos;s next, and what they need to
+            decide. Body copy is Manrope — comfortable, geometric, quietly
+            confident.
+          </p>
+          <p className="eyebrow mt-3 text-muted-foreground">Body · Manrope</p>
+          <hr className="my-6 border-border" />
+          <p className="num font-mono text-sm text-muted-foreground">
+            run·0042 · 14s · intent 0.94 · $125K
+          </p>
+          <p className="eyebrow mt-3 text-muted-foreground">Mono · JetBrains Mono</p>
+        </div>
+      </Block>
 
       {/* Components */}
-      <Section eyebrow="Components" title="Live components">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Spec label="Buttons" wires="primary actions (lime = the only CTA)">
-            <Button>Approve &amp; send</Button>
-            <Button variant="outline">Revise</Button>
-            <Button variant="ghost">Reject</Button>
-          </Spec>
+      <Block title="Controls">
+        <div className="glass flex flex-wrap items-center gap-3 rounded-2xl p-6">
+          <button className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+            Primary (lime)
+          </button>
+          <button className="surface rounded-full px-5 py-2.5 text-sm font-semibold">
+            Surface
+          </button>
+          <button className="glass rounded-full px-5 py-2.5 text-sm font-semibold">
+            Glass
+          </button>
+          <span className="surface rounded-full px-3 py-1 text-xs text-muted-foreground">
+            chip
+          </span>
+          <span className="eyebrow flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-primary">
+            <span className="size-1.5 animate-pulse-volt rounded-full bg-volt" />
+            Agent active
+          </span>
+        </div>
+      </Block>
 
-          <Spec label="Intent chips" wires="triage agent score → queue">
-            <IntentChip intent="high" score={84} />
-            <IntentChip intent="mid" score={62} />
-            <IntentChip intent="cold" score={18} />
-          </Spec>
-
-          <Spec label="Eyebrow + agent-live pill" wires="agent runtime status">
-            <span className="eyebrow text-lime">Agent · active</span>
-            <span className="flex items-center gap-2 rounded-full border border-volt/40 bg-volt/10 px-3 py-2">
-              <span className="size-1.5 animate-pulse-volt rounded-full bg-volt shadow-[0_0_8px_var(--color-volt)]" />
-              <span className="eyebrow text-[11px] text-volt">Agent live</span>
-            </span>
-          </Spec>
-
-          <Spec label="Metric card (3 tones)" wires="pipeline / ROI telemetry">
-            <div className="rounded-[14px] bg-surface p-4 shadow-ground">
-              <div className="eyebrow mb-1.5 text-muted-foreground">Pipeline</div>
-              <div className="font-serif text-3xl tabular-nums text-paper">42</div>
-            </div>
-            <div className="rounded-[14px] bg-surface p-4 shadow-[0_1px_0_rgba(10,20,16,0.2),0_0_0_1px_rgba(200,249,2,0.45),0_0_24px_rgba(200,249,2,0.2)]">
-              <div className="eyebrow mb-1.5 text-volt">Agent · active</div>
-              <div className="font-serif text-3xl tabular-nums text-volt">7</div>
-            </div>
-            <div className="rounded-[14px] bg-paper p-4 shadow-ground">
-              <div className="eyebrow mb-1.5 text-muted-paper">ROI · locked</div>
-              <div className="font-serif text-3xl tabular-nums text-ink">$4,200</div>
-            </div>
-          </Spec>
-
-          <div className="lg:col-span-2">
-            <Spec label="Speech bubbles (signature)" wires="thread view ↔ triage agent">
-              <div className="flex w-full flex-col gap-3">
-                <Bubble from="human">
-                  Saw your post on AI ops for inbound triage. Open to a quick chat?
-                </Bubble>
-                <Bubble from="reasoning">
-                  Intent score 0.84 · Persona match (RevOps · mid-market). Worth a
-                  fast reply with two scoping qs.
-                </Bubble>
-                <Bubble from="agent">
-                  Happy to chat. Two quick questions before we book time — what&apos;s
-                  your average response time today?
-                </Bubble>
-              </div>
-            </Spec>
+      {/* Speech bubbles */}
+      <Block title="Speech bubbles">
+        <div className="glass flex flex-col gap-3 rounded-2xl p-6">
+          <div className="bubble-human max-w-[75%] bg-paper px-5 py-3 text-ink">
+            Saw your post on AI ops — open to a quick chat?
+          </div>
+          <div className="bubble-agent ml-auto max-w-[75%] bg-primary px-5 py-3 text-primary-foreground">
+            Happy to chat. Two quick questions before we book time…
           </div>
         </div>
-      </Section>
+      </Block>
 
-      {/* Voice */}
-      <Section eyebrow="Foundations" title="Voice & rules">
-        <ul className="flex flex-col gap-2 text-[15px] text-muted-foreground">
-          <li>— Sentence case everywhere. UPPERCASE only for eyebrow labels (0.14em tracking).</li>
-          <li>— Tabular figures for every number. Currency <span className="font-mono text-paper tabular-nums">$4,200</span>, time <span className="font-mono text-paper tabular-nums">2h 14m</span>.</li>
-          <li>— Lime is the only CTA color. Volt is reserved for agent-active states.</li>
-          <li>— No emoji. No bluish-purple gradients. Emerald is always the dominant surface.</li>
-          <li>— Operator-to-operator voice: tell them what happened, what&apos;s next, what to decide.</li>
-        </ul>
-      </Section>
-    </main>
+      {/* Spacing + radii */}
+      <Block title="Spacing · 8-pt grid">
+        <div className="glass flex flex-wrap items-end gap-4 rounded-2xl p-6">
+          {SPACING.map(([name, px]) => (
+            <div key={name} className="flex flex-col items-center gap-2">
+              <div
+                className="rounded bg-primary/70"
+                style={{ width: `${px}px`, height: `${px}px` }}
+              />
+              <span className="num text-[11px] text-muted-foreground">{px}</span>
+            </div>
+          ))}
+        </div>
+      </Block>
+
+      <Block title="Radii">
+        <div className="glass flex flex-wrap gap-4 rounded-2xl p-6">
+          {RADII.map(([name, cls]) => (
+            <div key={name} className="flex flex-col items-center gap-2">
+              <div className={`surface size-16 ${cls}`} />
+              <span className="text-[11px] text-muted-foreground">{name}</span>
+            </div>
+          ))}
+        </div>
+      </Block>
+    </div>
   );
 }

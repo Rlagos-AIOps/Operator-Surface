@@ -5,13 +5,25 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================================
-   AI Ops OS — Mode.com Retro-Modern
-   Brand tokens overlaid on the shadcn (base-nova) token system.
-   The app is always the deep-emerald surface — no light mode.
+   Ops Surfer — dual-theme token system  (rebuilt to spec)
+   ------------------------------------------------------------
+   ONE leaf-blade, two-tone language. Warm translucent cream-paper
+   surfaces layered over an emerald/moss base — soft, organic,
+   editorial. (NOT cool glass-blur.)
+
+     :root  → LIGHT — the Figma look: brighter emerald #1e5631
+                      canvas, translucent paper surfaces, soft
+                      shadow, paler lime, leaf-blade rounding.
+     .dark  → DARK  — the Lovable look: near-black mossy #0F2A26,
+                      flatter hairline surfaces, brighter lime,
+                      full color diversity (amber/cyan/red),
+                      pill/box styling, mono nav embellishments.
+
+   Refs: design-system/references/{figma,lovable}-styleguide.design.md
    ============================================================= */
 
 @theme inline {
-  /* shadcn semantic tokens (repointed at the brand palette in :root) */
+  /* shadcn semantic tokens → theme vars */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -27,6 +39,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -39,84 +52,166 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* ---- Brand palette (direct utilities: bg-emerald, text-lime, …) ---- */
+  /* two-tone surfaces (translucent paper / bone film) */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-edge: var(--surface-edge);
+
+  /* theme-keyed accents (lime/volt shift between Figma + Lovable) */
+  --color-lime: var(--primary);
+  --color-volt: var(--volt);
+  --color-amber: var(--amber);
+  --color-cyan: var(--cyan);
+  --color-border-strong: var(--border-strong);
+  --color-dot: var(--dot);
+
+  /* fixed brand anchors */
   --color-emerald: #1e5631;
   --color-emerald-deep: #163f23;
-  --color-surface: #245f37;
-  --color-surface-2: #2b6e40;
-  --color-surface-edge: #3a8052;
+  --color-mossy: #0f2a26;
+  --color-moss-surface: #143832;
   --color-paper: #f4f1e8;
-  --color-paper-2: #ece7d6;
-  --color-paper-edge: #d8d2be;
+  --color-paper-2: #efeadb;
   --color-ink: #0a1410;
-  --color-ink-2: #1f2a24;
-  --color-lime: #d9e879;
-  --color-lime-deep: #b8c95f;
-  --color-volt: #c8f902;
-  --color-muted-paper: #5a6e62;
-  --color-success: #d9e879;
-  --color-warning: #e8a91c;
-  --color-danger: #d9402b;
-  --color-info: #6fb4d9;
+  --color-bone: #f2f4e5;
 
-  /* ---- Type ---- */
+  /* type */
   --font-sans: var(--font-manrope);
   --font-serif: var(--font-dm-serif);
   --font-display: var(--font-dm-serif);
   --font-heading: var(--font-dm-serif);
   --font-mono: var(--font-jetbrains);
 
-  /* ---- Radii ---- */
+  /* radii — leaf-blade: generous + organic */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 14px;
   --radius-xl: 20px;
+  --radius-2xl: 28px;
 
-  /* ---- Elevation (generates shadow-ground / shadow-raised / shadow-float) ---- */
-  --shadow-ground: 0 1px 0 rgba(10, 20, 16, 0.2), 0 0 0 1px rgba(58, 128, 82, 0.35);
-  --shadow-raised: 0 6px 18px rgba(10, 20, 16, 0.3), 0 0 0 1px rgba(58, 128, 82, 0.4);
-  --shadow-float: 0 18px 40px rgba(10, 20, 16, 0.45), 0 0 0 1px rgba(58, 128, 82, 0.5);
+  --shadow-ground: var(--shadow-1);
+  --shadow-raised: var(--shadow-2);
+  --shadow-float: var(--shadow-3);
 
-  /* ---- Motion ---- */
   --animate-pulse-volt: pulse-volt 1.4s ease-in-out infinite;
+  --animate-wave-drift: wave-drift 18s ease-in-out infinite;
+  --animate-bar-rise: bar-rise 0.9s var(--ease-snap) both;
+  --animate-draw-line: draw-line 1.5s var(--ease-snap) both;
+  --animate-glow-ring: glow-ring 2.2s ease-in-out infinite;
+  --animate-blink: blink 1.05s steps(1) infinite;
+  --animate-bar-load: bar-load 1.1s var(--ease-snap) both;
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
+/* ==================  LIGHT — Figma (emerald + paper, soft)  ================== */
 :root {
   --radius: 14px;
 
-  /* Surfaces */
-  --background: #1e5631; /* emerald canvas */
-  --foreground: #f4f1e8; /* paper text on dark */
-  --card: #245f37; /* surface */
+  --background: #1e5631; /* brighter emerald canvas */
+  --foreground: #f4f1e8; /* paper text */
+
+  /* warm translucent cream-paper surfaces = the two-tone */
+  --card: rgba(244, 241, 232, 0.08);
   --card-foreground: #f4f1e8;
-  --popover: #245f37;
+  --popover: #1a4d2c;
   --popover-foreground: #f4f1e8;
 
-  /* Lime is the only CTA color → primary */
-  --primary: #d9e879;
+  --primary: #d9e879; /* Figma's paler lime */
   --primary-foreground: #0a1410;
-
-  --secondary: #2b6e40;
+  --secondary: rgba(244, 241, 232, 0.08);
   --secondary-foreground: #f4f1e8;
-  --muted: #245f37;
-  --muted-foreground: #8fa89a;
-  --accent: #2b6e40;
+  --muted: rgba(244, 241, 232, 0.06);
+  --muted-foreground: rgba(244, 241, 232, 0.74);
+  --accent: rgba(244, 241, 232, 0.1);
   --accent-foreground: #f4f1e8;
-  --destructive: #d9402b;
+  --destructive: #e63946;
+  --destructive-foreground: #f7f4ea;
 
-  --border: rgba(244, 241, 232, 0.12);
-  --input: rgba(244, 241, 232, 0.12);
-  --ring: #c8f902; /* volt focus ring */
+  --border: rgba(244, 241, 232, 0.14);
+  --input: rgba(244, 241, 232, 0.1);
+  --ring: #d9e879;
 
-  /* Sidebar = deep recess */
+  --surface: rgba(244, 241, 232, 0.05);
+  --surface-2: rgba(244, 241, 232, 0.1);
+  --surface-edge: rgba(244, 241, 232, 0.16);
+
+  --volt: #c8f902;
+  --amber: #e6a852;
+  --cyan: #6bc8d6;
+  --border-strong: rgba(244, 241, 232, 0.32);
+  --dot: rgba(244, 241, 232, 0.18);
+
+  /* soft Figma elevation */
+  --shadow-1: 0 0 0 1px rgba(244, 241, 232, 0.14), 0 4px 12px rgba(10, 20, 16, 0.18);
+  --shadow-2: 0 0 0 1px rgba(244, 241, 232, 0.16), 0 8px 24px rgba(10, 20, 16, 0.24);
+  --shadow-3: 0 0 0 1px rgba(244, 241, 232, 0.18), 0 24px 56px rgba(10, 20, 16, 0.4);
+
+  --glass-bg: rgba(30, 86, 49, 0.55);
+  --glass-border: rgba(244, 241, 232, 0.16);
+  --glass-blur: 14px;
+
   --sidebar: #163f23;
   --sidebar-foreground: #f4f1e8;
   --sidebar-primary: #d9e879;
   --sidebar-primary-foreground: #0a1410;
-  --sidebar-accent: #245f37;
+  --sidebar-accent: rgba(244, 241, 232, 0.06);
   --sidebar-accent-foreground: #f4f1e8;
-  --sidebar-border: rgba(244, 241, 232, 0.08);
-  --sidebar-ring: #c8f902;
+  --sidebar-border: rgba(244, 241, 232, 0.1);
+  --sidebar-ring: #d9e879;
+}
+
+/* ==================  DARK — Lovable (near-black, flat, diverse)  ================== */
+.dark {
+  --background: #0a1f17; /* near-black emerald page */
+  --foreground: #f2f4e5; /* bone */
+
+  --card: rgba(242, 244, 229, 0.05); /* present translucent surface */
+  --card-foreground: #f2f4e5;
+  --popover: #143832;
+  --popover-foreground: #f2f4e5;
+
+  --primary: #c7f36a; /* Lovable's brighter lime */
+  --primary-foreground: #0a1410;
+  --secondary: rgba(242, 244, 229, 0.06);
+  --secondary-foreground: #f2f4e5;
+  --muted: rgba(242, 244, 229, 0.05);
+  --muted-foreground: rgba(242, 244, 229, 0.66);
+  --accent: rgba(242, 244, 229, 0.08);
+  --accent-foreground: #f2f4e5;
+  --destructive: #d14545;
+  --destructive-foreground: #f7f4ea;
+
+  --border: oklch(34% 0.045 165); /* Lovable's visible mossy hairline */
+  --border-strong: oklch(50% 0.06 150);
+  --input: rgba(242, 244, 229, 0.08);
+  --ring: #c7f36a;
+
+  --surface: rgba(242, 244, 229, 0.03);
+  --surface-2: rgba(242, 244, 229, 0.06);
+  --surface-edge: oklch(33% 0.045 165); /* present green edge on every box */
+
+  --volt: #e6f462;
+  --amber: #e6a852;
+  --cyan: #6bc8d6;
+  --dot: color-mix(in oklab, var(--primary) 15%, transparent);
+
+  /* flatter Lovable elevation — hairline-led, subtle matte depth */
+  --shadow-1: 0 0 0 1px rgba(242, 244, 229, 0.08);
+  --shadow-2: 0 0 0 1px rgba(242, 244, 229, 0.1), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 0 0 1px rgba(242, 244, 229, 0.12), 0 24px 56px rgba(0, 0, 0, 0.55);
+
+  --glass-bg: rgba(15, 42, 38, 0.5);
+  --glass-border: rgba(242, 244, 229, 0.1);
+  --glass-blur: 12px;
+
+  --sidebar: #0f2a26;
+  --sidebar-foreground: #f2f4e5;
+  --sidebar-primary: #c7f36a;
+  --sidebar-primary-foreground: #0a1410;
+  --sidebar-accent: rgba(242, 244, 229, 0.05);
+  --sidebar-accent-foreground: #f2f4e5;
+  --sidebar-border: rgba(242, 244, 229, 0.1);
+  --sidebar-ring: #c7f36a;
 }
 
 @layer base {
@@ -125,19 +220,50 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
   body {
-    @apply bg-emerald text-paper antialiased;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "tnum" 1, "lnum" 1;
     text-rendering: optimizeLegibility;
+    transition: background-color 320ms var(--ease-snap), color 320ms var(--ease-snap);
+  }
+  h1, h2, .display {
+    font-family: var(--font-serif);
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    text-wrap: balance;
   }
   ::selection {
-    background: var(--color-volt);
+    background: var(--volt);
     color: var(--color-ink);
   }
 }
 
-/* ---- Signature speech-bubble shapes ---- */
+/* ---------------------  two-tone + leaf-blade utilities  --------------------- */
+
+/* The signature blended surface: warm translucent paper film on the canvas. */
+@utility surface {
+  background: var(--surface);
+  border: 1px solid var(--surface-edge);
+}
+@utility surface-2 {
+  background: var(--surface-2);
+  border: 1px solid var(--surface-edge);
+}
+
+/* Soft acrylic — matte, low-blur (Win 11-style), keeps the theme hue. */
+@utility glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  border: 1px solid var(--glass-border);
+}
+
+/* Leaf-blade: organic asymmetric soft rounding (echoes the speech bubble). */
+@utility blade {
+  border-radius: 4px 20px 4px 20px;
+}
 @utility bubble-human {
   border-radius: 60px 15px 60px 15px;
 }
@@ -145,32 +271,128 @@
   border-radius: 15px 60px 15px 60px;
 }
 
-/* ---- Agent-active volt glow ---- */
 @utility glow-volt {
-  box-shadow: 0 0 0 4px rgba(200, 249, 2, 0.2), 0 0 24px rgba(200, 249, 2, 0.45);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--volt) 22%, transparent),
+    0 0 24px color-mix(in oklab, var(--volt) 40%, transparent);
 }
 @utility inset-well {
-  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+/* Homepage hero field — leafy aero wash (replaces mode.com's tetris blocks) */
+@utility wave-field {
+  background:
+    radial-gradient(120% 90% at 50% -25%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 58%),
+    radial-gradient(90% 70% at 85% 0%, color-mix(in oklab, var(--volt) 12%, transparent), transparent 52%),
+    radial-gradient(80% 70% at 12% 8%, color-mix(in oklab, var(--color-emerald) 14%, transparent), transparent 55%);
+}
+
+/* Universal ambient base — fixed BEHIND the app, theme-aware, subtle. */
+@utility app-bg {
+  background:
+    radial-gradient(70% 48% at 80% -4%, color-mix(in oklab, var(--volt) 10%, transparent), transparent 60%),
+    radial-gradient(62% 46% at 6% 2%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 56%),
+    radial-gradient(110% 60% at 50% 110%, color-mix(in oklab, var(--color-emerald) 16%, transparent), transparent 64%);
+}
+
+/* Universal sweep — a gentle gradient layer ON TOP of the background AND the UI
+   that bleeds across the whole page and drifts (pair with animate-wave-drift).
+   `screen` blend = it only adds light, so it washes over cards/text without
+   hurting legibility. Sized in % of the fixed viewport, so it readjusts on
+   every resize from the smallest phone to ultrawide. */
+@utility app-sweep {
+  background:
+    radial-gradient(46% 56% at 18% 16%, color-mix(in oklab, var(--volt) 18%, transparent), transparent 60%),
+    radial-gradient(54% 64% at 84% 78%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 64%),
+    radial-gradient(60% 50% at 60% 40%, color-mix(in oklab, var(--color-emerald) 22%, transparent), transparent 66%);
+  mix-blend-mode: screen;
+}
+
+/* Lovable signature: a fine dotted grid washing a panel (the "retro-modern"
+   16/9 texture from the proto). Subtle, theme-keyed, tiles on resize. */
+@utility dot-grid {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+@utility dot-grid-sm {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px);
+  background-size: 14px 14px;
+}
+
+/* Dashed hairline box — Lovable's "cancel" button / idle / drop-zone state. */
+@utility dashed {
+  border: 1px dashed var(--border-strong);
 }
 
 @layer components {
-  /* UPPERCASE label with wide tracking — the only place caps are allowed */
   .eyebrow {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     line-height: 1;
   }
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  /* Blinking terminal caret — appended after streaming agent text. */
+  .caret::after {
+    content: "";
+    display: inline-block;
+    width: 0.52ch;
+    height: 1.05em;
+    margin-left: 2px;
+    background: currentColor;
+    vertical-align: -0.16em;
+    animation: var(--animate-blink);
+  }
+  /* Keyboard key cap — the ⌘K / J / K / R / E nav signals. */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.4rem;
+    padding: 0 0.35rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+  }
 }
 
 @keyframes pulse-volt {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes wave-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-2%, 1.5%, 0) scale(1.04); }
+}
+@keyframes bar-rise {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes draw-line {
+  from { stroke-dashoffset: var(--len, 600); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes glow-ring {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--volt) 45%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in oklab, var(--volt) 0%, transparent); }
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+@keyframes bar-load {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
