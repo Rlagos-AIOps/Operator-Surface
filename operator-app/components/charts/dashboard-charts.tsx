@@ -64,8 +64,26 @@ export function WeeklyLeadsChart() {
         <XAxis dataKey="day" {...axis} />
         <YAxis {...axis} domain={[0, 28]} ticks={[0, 7, 14, 21, 28]} width={36} />
         <Tooltip content={<ChartTip />} cursor={{ fill: "var(--color-surface-2)" }} />
-        <Bar dataKey="leads" name="leads" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={16} />
-        <Bar dataKey="qualified" name="qualified" fill="var(--color-primary)" fillOpacity={0.4} radius={[4, 4, 0, 0]} maxBarSize={16} />
+        {/* isAnimationActive off: charts must render instantly + stay correct
+            on every resize (no empty→fill entrance flicker). Interactivity
+            lives in the hover Tooltip + cursor, not the entrance animation. */}
+        <Bar
+          dataKey="leads"
+          name="leads"
+          fill="var(--color-primary)"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={16}
+          isAnimationActive={false}
+        />
+        <Bar
+          dataKey="qualified"
+          name="qualified"
+          fill="var(--color-primary)"
+          fillOpacity={0.4}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={16}
+          isAnimationActive={false}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -77,7 +95,7 @@ export function ResponseTimeChart() {
       <AreaChart data={RESP} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
         <defs>
           <linearGradient id="respFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.22} />
+            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.16} />
             <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
@@ -85,15 +103,19 @@ export function ResponseTimeChart() {
         <XAxis dataKey="t" {...axis} />
         <YAxis {...axis} domain={[0, 180]} ticks={[0, 45, 90, 135, 180]} width={44} />
         <Tooltip content={<ChartTip />} cursor={{ stroke: "var(--color-surface-edge)" }} />
+        {/* Bright green line + data dots — readable on the emerald, green-spectrum,
+            no signal-accent colors. (The murky filled green area didn't read.)
+            Animation off, so dots sit at their points — no stranding. */}
         <Area
           type="monotone"
           dataKey="v"
           name="minutes"
           stroke="var(--color-primary)"
-          strokeWidth={2.5}
+          strokeWidth={2.75}
           fill="url(#respFill)"
-          dot={{ fill: "var(--color-primary)", r: 3, strokeWidth: 0 }}
-          activeDot={{ r: 5, fill: "var(--color-primary)", strokeWidth: 0 }}
+          dot={{ r: 4, fill: "var(--color-primary)", strokeWidth: 0 }}
+          activeDot={{ r: 6, fill: "var(--color-primary)", strokeWidth: 0 }}
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>

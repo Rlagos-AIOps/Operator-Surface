@@ -1,7 +1,11 @@
 "use client";
 
 import { toast } from "sonner";
-import { ArrowUpRight } from "lucide-react";
+import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge, type Tone } from "@/components/site/accents";
+import { PageHeader } from "@/components/site/page-header";
+import { BTN_GHOST, BTN_PRIMARY, LIFT, PANEL } from "@/components/site/surfaces";
 
 const METRICS = [
   { label: "MRR", value: "$42,180", delta: "+8.2%", up: true },
@@ -19,99 +23,88 @@ const CLIENTS = [
   { name: "Wynn Industries", tier: "Enterprise", mrr: "$3,800", agents: 1, roi: "8.6×", risk: "low", status: "Active" },
 ];
 
-const RISK: Record<string, string> = {
-  low: "text-primary",
-  medium: "text-amber",
-  high: "text-destructive",
+// Client intent on the cold→hot temperature scale — matches the lead intent
+// system. "At risk" lives only on the red status badge (no doubled colors).
+const INTENT: Record<string, { tone: Tone; label: string }> = {
+  low: { tone: "cold", label: "Cold" },
+  medium: { tone: "warm", label: "Warm" },
+  high: { tone: "hot", label: "Hot" },
 };
 
 export default function ClientsPage() {
+  const atRisk = CLIENTS.filter((c) => c.status !== "Active").length;
   return (
-    <div className="mx-auto max-w-[1320px] px-6 py-8 sm:py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow text-muted-foreground">Client success · Q2</p>
-          <h1 className="mt-2 text-4xl sm:text-5xl">Clients</h1>
-          <p className="mt-2 text-muted-foreground">
-            6 active clients · 10 agents in production
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => toast("Exported clients.csv")}
-            className="glass rounded-full px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2"
-          >
-            Export CSV
-          </button>
-          <button
-            onClick={() => toast("New engagement — opening intake")}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-[transform,filter] hover:brightness-105 active:scale-[0.98]"
-          >
-            New engagement
-            <ArrowUpRight className="size-4" strokeWidth={2} />
-          </button>
-        </div>
-      </div>
+    <div className="px-5 py-8 sm:px-7 sm:py-10">
+      <PageHeader
+        eyebrow="Client success · Q2"
+        title="Clients"
+        chips={[
+          { label: `${CLIENTS.length} active clients` },
+          { label: `${atRisk} at risk`, tone: "bad" },
+        ]}
+        right={
+          <>
+            <button
+              type="button"
+              onClick={() => toast("Exported clients.csv")}
+              className={cn(BTN_GHOST, "px-4 py-2 text-sm")}
+            >
+              Export CSV
+            </button>
+            <button
+              type="button"
+              onClick={() => toast("New engagement — opening intake")}
+              className={cn(BTN_PRIMARY, "px-4 py-2 text-sm")}
+            >
+              <Plus className="size-4" strokeWidth={2} /> New engagement
+            </button>
+          </>
+        }
+      />
 
-      {/* Metric cards */}
+      {/* Metric cards — neutral (informational, not signals) */}
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {METRICS.map((m) => (
-          <div key={m.label} className="glass rounded-2xl p-6">
+          <div key={m.label} className={cn(PANEL, "p-6")}>
             <p className="eyebrow text-muted-foreground">{m.label}</p>
-            <div className="mt-3 flex items-end justify-between">
-              <span className="num font-display text-4xl leading-none">{m.value}</span>
-              {m.delta ? (
-                <span
-                  className={`num text-xs font-semibold ${
-                    m.up ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  {m.delta}
-                </span>
-              ) : null}
-            </div>
+            <p className="num mt-3 font-display text-4xl leading-none">{m.value}</p>
+            {m.delta ? <p className="num mt-2 font-mono text-xs text-muted-foreground">{m.delta}</p> : null}
           </div>
         ))}
       </div>
 
-      {/* Clients table */}
-      <div className="glass mt-3 overflow-hidden rounded-2xl">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-border text-muted-foreground">
-              <th className="eyebrow px-5 py-4 font-semibold">Client</th>
-              <th className="eyebrow px-5 py-4 font-semibold">Tier</th>
-              <th className="eyebrow px-5 py-4 text-right font-semibold">MRR</th>
-              <th className="eyebrow px-5 py-4 text-right font-semibold">Agents</th>
-              <th className="eyebrow px-5 py-4 text-right font-semibold">ROI</th>
-              <th className="eyebrow px-5 py-4 font-semibold">Churn risk</th>
-              <th className="eyebrow px-5 py-4 font-semibold">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {CLIENTS.map((c) => (
-              <tr
-                key={c.name}
-                className="border-b border-border/60 transition-colors last:border-0 hover:bg-surface"
-              >
-                <td className="px-5 py-4 font-medium">{c.name}</td>
-                <td className="px-5 py-4 text-muted-foreground">{c.tier}</td>
-                <td className="num px-5 py-4 text-right">{c.mrr}</td>
-                <td className="num px-5 py-4 text-right text-muted-foreground">{c.agents}</td>
-                <td className="num px-5 py-4 text-right">{c.roi}</td>
-                <td className={`px-5 py-4 font-medium capitalize ${RISK[c.risk]}`}>
-                  {c.risk}
-                </td>
-                <td className="px-5 py-4">
-                  <span className="surface rounded-full px-2.5 py-1 text-xs text-muted-foreground">
-                    {c.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Client cards (card-first, no table) */}
+      <ul className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {CLIENTS.map((c) => (
+          <li key={c.name} className={cn(PANEL, LIFT, "p-5 hover:border-good/70")}>
+            <div className="flex items-center justify-between gap-3">
+              <p className="truncate font-medium text-foreground">{c.name}</p>
+              <Badge tone={c.status === "Active" ? "good" : "bad"} dot>
+                {c.status}
+              </Badge>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {c.tier} · {c.agents} {c.agents === 1 ? "agent" : "agents"}
+            </p>
+            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4">
+              <div>
+                <p className="eyebrow text-muted-foreground">MRR</p>
+                <p className="num mt-1.5 font-medium text-foreground">{c.mrr}</p>
+              </div>
+              <div>
+                <p className="eyebrow text-muted-foreground">ROI</p>
+                <p className="num mt-1.5 font-medium text-foreground">{c.roi}</p>
+              </div>
+              <div>
+                <p className="eyebrow text-muted-foreground">Intent</p>
+                <Badge tone={INTENT[c.risk].tone} dot className="mt-1">
+                  {INTENT[c.risk].label}
+                </Badge>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
