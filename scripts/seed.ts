@@ -152,7 +152,7 @@ async function clearAll() {
 // ---------------------------------------------------------------------------
 
 const ACCOUNTS = {
-  acme:        { id: "0015A00000A1B2cZAA", name: "Acme Manufacturing", segment: "MM",  arr: 84_000 },
+  acme:        { id: "0015A00000A1B2cZAA", name: "Cobblestone Realty", segment: "MM",  arr: 84_000 },
   riverside:   { id: "0015A00000A1B3dZAA", name: "Riverside Logistics", segment: "MM",  arr: 52_000 },
   brightline:  { id: "0015A00000A1B4eZAA", name: "Brightline Health",   segment: "Ent", arr: 180_000 },
   compass:     { id: "0015A00000A1B5fZAA", name: "Compass Foods",       segment: "MM",  arr: 68_000 },
@@ -394,7 +394,7 @@ const RUN_SPECS: RunSpec[] = [
     status: "succeeded",
     triggered_by: "webhook",
     items_processed: 18,
-    input_summary: "Activity pull for Acme Manufacturing (last 60d)",
+    input_summary: "Activity pull for Cobblestone Realty (last 60d)",
     output_summary: "18 activity records: 6 emails, 9 calls, 3 meetings",
   },
   {
@@ -498,7 +498,7 @@ const RUN_SPECS: RunSpec[] = [
     status: "succeeded",
     triggered_by: "manual",
     items_processed: 14,
-    input_summary: "Ad-hoc: check Acme territory for stale activity",
+    input_summary: "Ad-hoc: check Cobblestone territory for stale activity",
     output_summary: "5/14 stale (>30d since last logged activity)",
   },
   {
@@ -590,7 +590,7 @@ const DECISIONS: DecisionSpec[] = [
     label: "at_risk",
     confidence: 0.82,
     reasoning:
-      "Acme has slipped on three of our standard signals — usage is down, support volume is up, and there is no active save plan on file. The combination matches the 'silent decline' pattern we usually only catch at QBoBR. Recommend operator outreach this week.",
+      "Cobblestone has slipped on three of our standard signals — usage is down, support volume is up, and there is no active save plan on file. The combination matches the 'silent decline' pattern we usually only catch at QBoBR. Recommend operator outreach this week.",
     signals: [
       { name: "days_since_last_login", value: 38, weight: 0.30, source: "salesforce.account.Last_Login__c" },
       { name: "support_tickets_30d", value: 5, weight: 0.25, source: "salesforce.case" },
@@ -657,7 +657,7 @@ const DECISIONS: DecisionSpec[] = [
     label: "priority_high",
     confidence: 0.91,
     reasoning:
-      "Combining hygiene-validator's at-risk flag with the renewal date (94 days) and the $84k ARR puts Acme at the top of today's queue. Touchpoint recommended before EOD.",
+      "Combining hygiene-validator's at-risk flag with the renewal date (94 days) and the $84k ARR puts Cobblestone at the top of today's queue. Touchpoint recommended before EOD.",
     signals: [
       { name: "at_risk_flag", value: true, weight: 0.4, source: "decisions.hygiene-validator" },
       { name: "renewal_in_days", value: 94, weight: 0.3, source: "salesforce.opportunity" },
@@ -959,7 +959,7 @@ const APPROVALS: ApprovalSpec[] = [
         "5/28/26: At-risk flag (0.82). Engagement down (38d since login), 5 support tickets in 30d, VP Ops left in April. Plan to schedule a recovery call with new champion this week.",
     },
     rationale:
-      "Hygiene-validator flagged at-risk with 0.82 confidence. Acme is a $84k MM account with renewal in 94 days. A current-state save plan note is required before any further automated action.",
+      "Hygiene-validator flagged at-risk with 0.82 confidence. Cobblestone is a $84k MM account with renewal in 94 days. A current-state save plan note is required before any further automated action.",
     status: "pending",
     offsetMsCreated: -90 * MIN,
     risk_level: "med",
@@ -1151,7 +1151,7 @@ const APPROVALS: ApprovalSpec[] = [
     target_record_type: "salesforce.account",
     current_value: null,
     proposed_value: {
-      subject: "Recovery call: Acme Manufacturing (at-risk 0.82)",
+      subject: "Recovery call: Cobblestone Realty (at-risk 0.82)",
       due_date: isoDate(2),
       assigned_to: "taylor@example-csm.test",
       related_record: ACCOUNTS.acme.id,
@@ -1230,7 +1230,7 @@ async function seedBriefs(
       brief_date: isoDate(0),
       headline: "5 priorities today. Lighthouse is the clearest churn risk — start there.",
       body_md:
-        "## Today's call\n\nLighthouse Marketing is the strongest at-risk signal in the book (0.91). 62 days no login, renewal in 38. A recovery email is drafted and waiting for your review — soft, no pressure.\n\nAcme Manufacturing is your second-biggest mover. The at-risk flag (0.82) lines up with the missing save plan and the exec sponsor change in April. A save plan note is drafted; review and send.\n\n## Standing items\n\n- 3 hygiene gaps from last night's audit (Riverside, Brightline, Compass) — all in the queue.\n- Northstar upsell signal is still warm. Slack draft to Kim (AE) is waiting.\n- Compass Foods has been a new logo for 14 days with no CSM owner — task is drafted.\n\n## What I didn't do\n\nSF Reader hit a rate limit on the 3am sync. I scheduled a retry for 9am; if you need anything pulled urgently, let me know.",
+        "## Today's call\n\nLighthouse Marketing is the strongest at-risk signal in the book (0.91). 62 days no login, renewal in 38. A recovery email is drafted and waiting for your review — soft, no pressure.\n\nCobblestone Realty is your second-biggest mover. The at-risk flag (0.82) lines up with the missing save plan and the exec sponsor change in April. A save plan note is drafted; review and send.\n\n## Standing items\n\n- 3 hygiene gaps from last night's audit (Riverside, Brightline, Compass) — all in the queue.\n- Northstar upsell signal is still warm. Slack draft to Kim (AE) is waiting.\n- Compass Foods has been a new logo for 14 days with no CSM owner — task is drafted.\n\n## What I didn't do\n\nSF Reader hit a rate limit on the 3am sync. I scheduled a retry for 9am; if you need anything pulled urgently, let me know.",
       structured_data: {
         kpis: [
           { label: "At-risk accounts", value: 4, delta: +1, trend: "up" },
@@ -1240,19 +1240,19 @@ async function seedBriefs(
         ],
         chips: [
           { label: "Lighthouse — 38d to renewal", kind: "danger" },
-          { label: "Acme — at-risk 0.82", kind: "warning" },
+          { label: "Cobblestone — at-risk 0.82", kind: "warning" },
           { label: "Northstar — upsell", kind: "success" },
         ],
         priorities: [
           { rank: 1, summary: "Review Lighthouse renewal email", account_id: ACCOUNTS.lighthouse.id, action: "approve_email" },
-          { rank: 2, summary: "Approve Acme save plan update", account_id: ACCOUNTS.acme.id, action: "approve_update" },
+          { rank: 2, summary: "Approve Cobblestone save plan update", account_id: ACCOUNTS.acme.id, action: "approve_update" },
           { rank: 3, summary: "Sign off Compass CSM-owner task", account_id: ACCOUNTS.compass.id, action: "approve_task" },
           { rank: 4, summary: "Brightline save plan refresh", account_id: ACCOUNTS.brightline.id, action: "approve_update" },
           { rank: 5, summary: "Slack Kim about Northstar", account_id: ACCOUNTS.northstar.id, action: "approve_slack" },
         ],
         refs: [
           { type: "salesforce.account", id: ACCOUNTS.lighthouse.id, label: "Lighthouse Marketing" },
-          { type: "salesforce.account", id: ACCOUNTS.acme.id, label: "Acme Manufacturing" },
+          { type: "salesforce.account", id: ACCOUNTS.acme.id, label: "Cobblestone Realty" },
         ],
       },
       generated_by: runs["galileo-brief-today"].id,
