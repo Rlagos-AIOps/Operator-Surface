@@ -544,20 +544,21 @@ async function seedRuns(agentIds: Record<string, string>): Promise<Record<string
   const { data, error } = await sb
     .from("agent_runs")
     .insert(rows as never)
-    .select("id, started_at, agent_id");
+    .select("id");
   if (error) throw new Error(`insert agent_runs: ${error.message}`);
-
-  // Match returned rows to RUN_SPECS by (agent_id, started_at) — both are
-  // unique among our seed rows.
-  const out: Record<string, SeededRun> = {};
-  for (const spec of RUN_SPECS) {
-    const target_agent_id = agentIds[spec.slug as string];
-    const target_started = iso(spec.startedOffsetMs);
-    const row = data.find(
-      (r) => r.agent_id === target_agent_id && r.started_at === target_started,
+  if (!data || data.length !== RUN_SPECS.length) {
+    throw new Error(
+      `expected ${RUN_SPECS.length} agent_runs back, got ${data?.length ?? 0}`,
     );
-    if (!row) throw new Error(`could not match seeded run for ${spec.key}`);
-    out[spec.key] = { spec, id: row.id };
+  }
+
+  // Match by index — Supabase preserves insert order in the returned
+  // array. String-matching on `started_at` is unreliable because
+  // Postgres timestamptz round-trips with microsecond precision
+  // (`.000000+00:00`) while JS toISOString gives millisecond (`.000Z`).
+  const out: Record<string, SeededRun> = {};
+  for (let i = 0; i < RUN_SPECS.length; i++) {
+    out[RUN_SPECS[i].key] = { spec: RUN_SPECS[i], id: data[i].id };
   }
   return out;
 }
@@ -902,25 +903,20 @@ async function seedDecisions(
   const { data, error } = await sb
     .from("decisions")
     .insert(rows as never)
-    .select("id, agent_run_id, source_record_id, decision_type, created_at");
+    .select("id");
   if (error) throw new Error(`insert decisions: ${error.message}`);
-
-  // Build a lookup so approvals can reference the decision id by
-  // (runKey, account, decision_type).
-  const out: Record<string, string> = {};
-  for (const d of DECISIONS) {
-    const run = runs[d.runKey];
-    const account = ACCOUNTS[d.account];
-    const created = iso(d.offsetMs);
-    const row = data.find(
-      (r) =>
-        r.agent_run_id === run.id &&
-        r.source_record_id === account.id &&
-        r.decision_type === d.decision_type &&
-        r.created_at === created,
+  if (!data || data.length !== DECISIONS.length) {
+    throw new Error(
+      `expected ${DECISIONS.length} decisions back, got ${data?.length ?? 0}`,
     );
-    if (!row) throw new Error(`could not match seeded decision for ${d.runKey} / ${d.account}`);
-    out[`${d.runKey}::${d.account}::${d.decision_type}`] = row.id;
+  }
+
+  // Match by index — same rationale as seedRuns. Approvals reference
+  // decisions by a composite logical key.
+  const out: Record<string, string> = {};
+  for (let i = 0; i < DECISIONS.length; i++) {
+    const d = DECISIONS[i];
+    out[`${d.runKey}::${d.account}::${d.decision_type}`] = data[i].id;
   }
   return out;
 }
