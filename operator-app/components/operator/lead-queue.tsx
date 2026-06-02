@@ -61,7 +61,7 @@ export function LeadQueue({
                 {LEAD_TAGS[lead.id]?.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-border-strong/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground"
+                    className="rounded-full border border-border-strong/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
                   >
                     {t}
                   </span>

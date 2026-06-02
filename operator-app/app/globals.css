@@ -262,6 +262,13 @@
     background: var(--volt);
     color: var(--color-ink);
   }
+  /* Visible keyboard focus on every interactive element (WCAG 2.4.7 / 2.4.11).
+     :where() keeps specificity at 0, so a component's own ring/outline wins. */
+  :where(a, button, input, textarea, select, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
 }
 
 /* ---------------------  two-tone + leaf-blade utilities  --------------------- */
@@ -465,4 +472,56 @@
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+/* =====================  Accessibility — user preferences  =====================
+   All behind media queries → zero change to the default experience. */
+
+/* Reduced motion (WCAG 2.3.3 / motion sensitivity): stop the ambient drift,
+   marquee, pulses, glow rings and load-bar growth; keep state changes instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Reduced transparency: swap the translucent two-tone films for solid surfaces
+   so low-vision users get opaque panels (keeps the green identity). */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --card: #205c35;
+    --surface: #1e5631;
+    --surface-2: #265f3a;
+    --secondary: #205c35;
+    --muted: #1c5230;
+    --accent: #27623b;
+    --input: #2a5e3c;
+  }
+  .dark {
+    --card: #11302a;
+    --surface: #0f2a26;
+    --surface-2: #173a31;
+    --secondary: #14352d;
+    --muted: #11302a;
+    --accent: #1a3f35;
+  }
+}
+
+/* More contrast: strengthen hairlines and make secondary text fully solid. */
+@media (prefers-contrast: more) {
+  :root {
+    --border: rgba(244, 241, 232, 0.5);
+    --border-strong: rgba(244, 241, 232, 0.72);
+    --muted-foreground: #f4f1e8;
+  }
+  .dark {
+    --border: oklch(55% 0.05 165);
+    --border-strong: oklch(70% 0.06 150);
+    --muted-foreground: #fdfdfa;
+  }
 }
