@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 import type { Intent } from "@/lib/data";
 
 const STYLES: Record<Intent, string> = {
-  high: "bg-volt/15 text-volt border-volt/45",
-  mid: "bg-lime/15 text-lime border-lime/40",
-  cold: "bg-paper/[0.06] text-muted-foreground border-paper/15",
+  high: "bg-hot/15 text-foreground border-hot/50 glow-edge-hot",
+  mid: "bg-warm/16 text-foreground border-warm/55 glow-edge-warm",
+  cold: "bg-cold/12 text-foreground border-cold/45 glow-edge-cold",
 };
 
-const LABEL: Record<Intent, string> = { high: "High", mid: "Mid", cold: "Cold" };
+// Temperature colors → temperature labels (hot/warm/cold), matching the
+// dashboard lead filters and the clients risk pills.
+const LABEL: Record<Intent, string> = { high: "Hot", mid: "Warm", cold: "Cold" };
 
 export function IntentChip({
   intent,

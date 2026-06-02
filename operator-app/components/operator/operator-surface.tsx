@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { PANEL } from "@/components/site/surfaces";
 import { TopBar } from "./top-bar";
 import { MetricRow } from "./metric-row";
 import { LeadQueue } from "./lead-queue";
 import { ThreadView } from "./thread-view";
 import { Composer } from "./composer";
+import { AgentChat } from "./agent-chat";
 import { LEADS } from "@/lib/data";
 
-// The operator surface now lives under the global masthead (no side pane).
+// The operator surface — a console of rounded panels under the global masthead.
 export function OperatorSurface() {
   const fallbackLead = LEADS.at(0);
   const [selectedId, setSelectedId] = useState(() => fallbackLead?.id ?? "");
@@ -29,21 +32,21 @@ export function OperatorSurface() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-4.75rem)] flex-col overflow-hidden">
+    <div className="flex flex-col pb-7">
       <TopBar
         highIntentOnly={highIntentOnly}
         onToggleFilter={() => setHighIntentOnly((v) => !v)}
       />
       <MetricRow />
-      <div className="flex min-h-0 flex-1 flex-col border-t border-border lg:grid lg:grid-cols-[minmax(320px,380px)_1fr]">
-        <div className="flex max-h-[44vh] min-h-0 flex-col lg:h-full lg:max-h-none">
+      <div className="grid gap-3 px-7 lg:h-[720px] lg:grid-cols-[minmax(300px,360px)_1fr_minmax(320px,380px)]">
+        <div className={cn(PANEL, "flex max-h-[60vh] min-h-0 flex-col overflow-hidden lg:max-h-none")}>
           <LeadQueue
             leads={visibleLeads}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:h-full">
+        <div className={cn(PANEL, "flex min-h-0 flex-col overflow-hidden")}>
           <ThreadView lead={selected} />
           <Composer
             lead={selected}
@@ -52,6 +55,9 @@ export function OperatorSurface() {
             onApprove={() => setSentIds((s) => new Set(s).add(selected.id))}
             onReject={() => setRejectedIds((s) => new Set(s).add(selected.id))}
           />
+        </div>
+        <div className={cn(PANEL, "flex min-h-0 flex-col overflow-hidden")}>
+          <AgentChat lead={selected} />
         </div>
       </div>
     </div>
