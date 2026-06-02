@@ -29,7 +29,9 @@ function WaveMark({ className }: { className?: string }) {
 }
 
 function useActive() {
-  const pathname = usePathname();
+  // usePathname() can be null (e.g. outside an App Router context / Storybook
+  // mock) — fall back to "/" so the startsWith() below never throws.
+  const pathname = usePathname() ?? "/";
   return (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 }
 

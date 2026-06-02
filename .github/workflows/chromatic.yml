@@ -16,7 +16,7 @@ jobs:
   chromatic:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Chromatic needs full git history for baselines
       - uses: oven-sh/setup-bun@v2
