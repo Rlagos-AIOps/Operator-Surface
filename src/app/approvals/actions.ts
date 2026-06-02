@@ -2,40 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getDemoOperatorId } from "@/lib/supabase/operator";
 
 /**
  * Server Action: decide an approval.
  *
  * Demo-mode behaviour: `decided_by` is the UUID of the operator whose
  * email matches DEMO_OPERATOR_EMAIL (default: taylor@example-csm.test).
- * Cached after the first lookup.
+ * Resolved by the shared helper in lib/supabase/operator.ts.
  *
  * When Task 3 (Auth) lands, this swaps to `auth.getUser().id`.
  */
-
-let cachedOperatorId: string | null = null;
-
-async function getDemoOperatorId(): Promise<string> {
-  if (cachedOperatorId) return cachedOperatorId;
-
-  const email = process.env.DEMO_OPERATOR_EMAIL ?? "taylor@example-csm.test";
-  const sb = createSupabaseAdminClient();
-
-  // listUsers is paginated. Two pages is enough for any dev project.
-  for (let page = 1; page <= 5; page++) {
-    const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 200 });
-    if (error) throw new Error(`listUsers failed: ${error.message}`);
-    const found = data.users.find((u) => u.email === email);
-    if (found) {
-      cachedOperatorId = found.id;
-      return found.id;
-    }
-    if (data.users.length < 200) break;
-  }
-  throw new Error(
-    `Demo operator ${email} not found in auth.users. Re-run npm run db:seed.`,
-  );
-}
 
 export async function decideApproval(
   id: string,
