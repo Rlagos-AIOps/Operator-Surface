@@ -114,7 +114,7 @@ export default function AgentsPage() {
         eyebrow="Agent control room"
         title="Agents"
         subtitle={
-          <span className="inline-flex items-center gap-2">
+          <span role="status" aria-live="polite" className="inline-flex items-center gap-2">
             <StatusDot tone={errored ? "bad" : "good"} pulse={!!errored} className="transition-colors" />
             Live load
           </span>
@@ -225,7 +225,7 @@ export default function AgentsPage() {
                 </Badge>
                 <span className="num font-mono text-xs text-muted-foreground">{t.range}</span>
               </div>
-              <p className="mt-3 text-sm text-foreground">{t.desc}</p>
+              <p className="mt-3 text-base text-foreground">{t.desc}</p>
             </div>
           ))}
         </div>

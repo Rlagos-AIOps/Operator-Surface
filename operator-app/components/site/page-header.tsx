@@ -27,7 +27,7 @@ export function PageHeader({
       <div>
         <p className="eyebrow text-foreground">{eyebrow}</p>
         <h1 className="mt-2 text-4xl sm:text-5xl">{title}</h1>
-        {subtitle ? <p className="mt-2 text-muted-foreground">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-2 text-base leading-relaxed text-muted-foreground">{subtitle}</p> : null}
         {chips && chips.length > 0 ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {chips.map((c) =>

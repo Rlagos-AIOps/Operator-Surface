@@ -67,7 +67,7 @@ export default function LeadsPage() {
               <p className="num mt-1.5 font-mono text-xs text-muted-foreground">
                 {leads.length === 1 ? "lead" : "leads"} · avg {avg}
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-foreground">{t.guidance}</p>
+              <p className="mt-3 text-base leading-relaxed text-foreground">{t.guidance}</p>
             </div>
           );
         })}
@@ -96,7 +96,7 @@ export default function LeadsPage() {
                 <IntentChip intent={lead.intent} score={lead.score} />
               </div>
 
-              <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-foreground">{lead.message}</p>
+              <p className="mt-4 line-clamp-2 text-base leading-relaxed text-foreground">{lead.message}</p>
 
               <div className="mt-4">
                 <div className="flex items-center justify-between">

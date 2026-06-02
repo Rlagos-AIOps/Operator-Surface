@@ -173,7 +173,7 @@ export default function HomePage() {
                 </div>
                 <p className="eyebrow mt-5 text-primary">{s.n}</p>
                 <h3 className="mt-2 font-display text-2xl leading-tight">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-base leading-relaxed text-muted-foreground">
                   {s.blurb}
                 </p>
               </Link>
@@ -198,7 +198,7 @@ export default function HomePage() {
             <div key={s.n} className={cn(PANEL, "p-7")}>
               <p className="eyebrow text-primary">{s.n}</p>
               <h3 className="mt-2 font-display text-2xl leading-tight">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.blurb}</p>
+              <p className="mt-2 text-base leading-relaxed text-muted-foreground">{s.blurb}</p>
             </div>
           ))}
         </div>
@@ -246,10 +246,10 @@ export default function HomePage() {
                 <span className="num font-display text-4xl leading-none">{p.price}</span>
                 <span className="text-sm text-muted-foreground">{p.unit}</span>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">{p.blurb}</p>
+              <p className="mt-3 text-base text-muted-foreground">{p.blurb}</p>
               <ul className="mt-6 grid gap-2.5 border-t border-border pt-5">
                 {p.feats.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
+                  <li key={f} className="flex items-center gap-2.5 text-base text-foreground">
                     <Check className="size-4 shrink-0 text-good" strokeWidth={2.5} />
                     {f}
                   </li>
