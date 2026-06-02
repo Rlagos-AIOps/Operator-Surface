@@ -1,0 +1,33 @@
+name: Chromatic
+
+# Publishes Storybook to Chromatic on push to `design`, giving the team a hosted,
+# versioned Storybook URL + visual review. Requires the CHROMATIC_PROJECT_TOKEN
+# repo secret (Settings → Secrets and variables → Actions). Get it by signing in
+# at chromatic.com and linking this repo to a project.
+on:
+  push:
+    branches: [design]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Chromatic needs full git history for baselines
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install
+        working-directory: operator-app
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: operator-app
+          buildScriptName: build-storybook
+          onlyChanged: true # TurboSnap — snapshot only changed stories
+          exitZeroOnChanges: true # visual changes don't fail CI; review in Chromatic
