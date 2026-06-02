@@ -1436,14 +1436,30 @@ async function main() {
   console.log("→ inserting connections");
   await seedConnections(operators);
 
-  console.log("\n✓ Seed complete.\n");
-  console.log("  Operators: 2");
-  console.log(`  Agents: ${Object.keys(agentIds).length}`);
-  console.log(`  agent_runs: ${RUN_SPECS.length}`);
-  console.log(`  decisions: ${DECISIONS.length}`);
-  console.log(`  approvals: ${APPROVALS.length}`);
-  console.log("  briefs: 3");
-  console.log("  connections: 6");
+  console.log("\n→ verifying row counts (queried from DB)");
+  const tables = [
+    "agents",
+    "agent_runs",
+    "decisions",
+    "approvals",
+    "briefs",
+    "connections",
+  ] as const;
+  let allOk = true;
+  for (const t of tables) {
+    const { count, error } = await sb
+      .from(t)
+      .select("*", { head: true, count: "exact" });
+    if (error) {
+      console.error(`  ✗ ${t}: ${error.message}`);
+      allOk = false;
+    } else {
+      console.log(`  ✓ ${t}: ${count} rows`);
+    }
+  }
+
+  console.log(allOk ? "\n✓ Seed complete." : "\n✗ Seed had errors — see above.");
+  if (!allOk) process.exit(1);
 }
 
 main().catch((err) => {
