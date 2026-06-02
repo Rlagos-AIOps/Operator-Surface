@@ -3,6 +3,7 @@ import { DM_Serif_Display, Manrope, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Masthead } from "@/components/site/masthead";
+import { SiteFooter } from "@/components/site/footer";
 import "./globals.css";
 
 const dmSerif = DM_Serif_Display({
@@ -51,6 +52,7 @@ export default function RootLayout({
           <div className="app-sweep pointer-events-none fixed inset-0 z-[5] animate-wave-drift" aria-hidden />
           <Masthead />
           <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
+          <SiteFooter />
           <Toaster
             position="bottom-right"
             toastOptions={{
