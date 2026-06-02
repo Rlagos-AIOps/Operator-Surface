@@ -23,3 +23,7 @@ dist/
 # os / logs
 .DS_Store
 *.log
+
+# agent task artifacts (Forge/Codex scratch specs — local only)
+.forge-task.md
+**/.forge-task.md
