@@ -62,18 +62,27 @@
   --color-volt: var(--volt);
   --color-amber: var(--amber);
   --color-cyan: var(--cyan);
+  /* SEMANTIC signal palette — color = meaning, never decoration.
+     good=green · hot=orange · warm=yellow · cold=blue · bad=red · pending=violet */
+  --color-good: var(--primary);
+  --color-hot: var(--hot);
+  --color-warm: var(--warm);
+  --color-cold: var(--cold);
+  --color-bad: var(--destructive);
+  --color-pending: var(--pending);
   --color-border-strong: var(--border-strong);
   --color-dot: var(--dot);
 
   /* fixed brand anchors */
   --color-emerald: #1e5631;
   --color-emerald-deep: #163f23;
+  --color-emerald-bright: oklch(0.74 0.14 158); /* chart green — distinct from lime, still in-spectrum */
   --color-mossy: #0f2a26;
   --color-moss-surface: #143832;
   --color-paper: #f4f1e8;
   --color-paper-2: #efeadb;
   --color-ink: #0a1410;
-  --color-bone: #f2f4e5;
+  --color-bone: #fdfdfa;
 
   /* type */
   --font-sans: var(--font-manrope);
@@ -100,6 +109,7 @@
   --animate-glow-ring: glow-ring 2.2s ease-in-out infinite;
   --animate-blink: blink 1.05s steps(1) infinite;
   --animate-bar-load: bar-load 1.1s var(--ease-snap) both;
+  --animate-marquee: marquee 32s linear infinite;
   --ease-snap: cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
@@ -116,12 +126,12 @@
   --popover: #1a4d2c;
   --popover-foreground: #f4f1e8;
 
-  --primary: #d9e879; /* Figma's paler lime */
+  --primary: oklch(0.89 0.18 122); /* Figma lime — bright, less washed than #d9e879 */
   --primary-foreground: #0a1410;
   --secondary: rgba(244, 241, 232, 0.08);
   --secondary-foreground: #f4f1e8;
   --muted: rgba(244, 241, 232, 0.06);
-  --muted-foreground: rgba(244, 241, 232, 0.74);
+  --muted-foreground: #e9e5d5; /* SOLID burnt-in paper — translucent washed out on emerald */
   --accent: rgba(244, 241, 232, 0.1);
   --accent-foreground: #f4f1e8;
   --destructive: #e63946;
@@ -129,22 +139,29 @@
 
   --border: rgba(244, 241, 232, 0.14);
   --input: rgba(244, 241, 232, 0.1);
-  --ring: #d9e879;
+  --ring: var(--primary);
 
   --surface: rgba(244, 241, 232, 0.05);
   --surface-2: rgba(244, 241, 232, 0.1);
   --surface-edge: rgba(244, 241, 232, 0.16);
 
   --volt: #c8f902;
-  --amber: #e6a852;
-  --cyan: #6bc8d6;
+  --amber: oklch(0.78 0.15 64); /* punchier warm */
+  --cyan: oklch(0.74 0.12 205); /* brighter signal cyan */
+  /* semantic signals (light) */
+  --hot: oklch(0.7 0.18 47); /* orange */
+  --warm: oklch(0.84 0.17 92); /* yellow */
+  --cold: oklch(0.66 0.14 245); /* blue */
+  --pending: oklch(0.8 0.014 225); /* luminous cool gray — pending/in-review, NOT grayed-out */
   --border-strong: rgba(244, 241, 232, 0.32);
-  --dot: rgba(244, 241, 232, 0.18);
+  --dot: rgba(244, 241, 232, 0.18); /* subtle grid dots on every panel */
 
   /* soft Figma elevation */
   --shadow-1: 0 0 0 1px rgba(244, 241, 232, 0.14), 0 4px 12px rgba(10, 20, 16, 0.18);
   --shadow-2: 0 0 0 1px rgba(244, 241, 232, 0.16), 0 8px 24px rgba(10, 20, 16, 0.24);
   --shadow-3: 0 0 0 1px rgba(244, 241, 232, 0.18), 0 24px 56px rgba(10, 20, 16, 0.4);
+  /* hover-float: element lifts, casts weight underneath */
+  --lift-shadow: 0 18px 34px -12px rgba(10, 20, 16, 0.45), 0 6px 14px -8px rgba(10, 20, 16, 0.32);
 
   --glass-bg: rgba(30, 86, 49, 0.55);
   --glass-border: rgba(244, 241, 232, 0.16);
@@ -163,53 +180,60 @@
 /* ==================  DARK — Lovable (near-black, flat, diverse)  ================== */
 .dark {
   --background: #0a1f17; /* near-black emerald page */
-  --foreground: #f2f4e5; /* bone */
+  --foreground: #fdfdfa; /* bone */
 
   --card: rgba(242, 244, 229, 0.05); /* present translucent surface */
-  --card-foreground: #f2f4e5;
+  --card-foreground: #fdfdfa;
   --popover: #143832;
-  --popover-foreground: #f2f4e5;
+  --popover-foreground: #fdfdfa;
 
-  --primary: #c7f36a; /* Lovable's brighter lime */
+  --primary: oklch(0.9 0.225 126); /* Lovable's lime at FULL chroma (not the muted #c7f36a swatch) */
   --primary-foreground: #0a1410;
   --secondary: rgba(242, 244, 229, 0.06);
-  --secondary-foreground: #f2f4e5;
+  --secondary-foreground: #fdfdfa;
   --muted: rgba(242, 244, 229, 0.05);
-  --muted-foreground: rgba(242, 244, 229, 0.66);
+  --muted-foreground: rgba(253, 253, 250, 0.85);
   --accent: rgba(242, 244, 229, 0.08);
-  --accent-foreground: #f2f4e5;
-  --destructive: #d14545;
+  --accent-foreground: #fdfdfa;
+  --destructive: oklch(0.62 0.21 25); /* punchier alert red */
   --destructive-foreground: #f7f4ea;
 
   --border: oklch(34% 0.045 165); /* Lovable's visible mossy hairline */
   --border-strong: oklch(50% 0.06 150);
   --input: rgba(242, 244, 229, 0.08);
-  --ring: #c7f36a;
+  --ring: var(--primary);
 
   --surface: rgba(242, 244, 229, 0.03);
   --surface-2: rgba(242, 244, 229, 0.06);
   --surface-edge: oklch(33% 0.045 165); /* present green edge on every box */
 
-  --volt: #e6f462;
-  --amber: #e6a852;
-  --cyan: #6bc8d6;
-  --dot: color-mix(in oklab, var(--primary) 15%, transparent);
+  --volt: oklch(0.93 0.19 108); /* full-chroma agent yellow */
+  --amber: oklch(0.8 0.155 65); /* punchier warm */
+  --cyan: oklch(0.76 0.13 205); /* brighter signal cyan */
+  /* semantic signals (dark) */
+  --hot: oklch(0.72 0.18 47); /* orange */
+  --warm: oklch(0.88 0.17 92); /* yellow */
+  --cold: oklch(0.68 0.14 245); /* blue */
+  --pending: oklch(0.85 0.014 225); /* luminous cool gray — pending/in-review, NOT grayed-out */
+  --dot: color-mix(in oklab, var(--primary) 18%, transparent); /* subtle grid dots on every panel */
 
   /* flatter Lovable elevation — hairline-led, subtle matte depth */
   --shadow-1: 0 0 0 1px rgba(242, 244, 229, 0.08);
   --shadow-2: 0 0 0 1px rgba(242, 244, 229, 0.1), 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-3: 0 0 0 1px rgba(242, 244, 229, 0.12), 0 24px 56px rgba(0, 0, 0, 0.55);
+  /* hover-float: element lifts, casts weight underneath */
+  --lift-shadow: 0 18px 36px -12px rgba(0, 0, 0, 0.68), 0 6px 16px -8px rgba(0, 0, 0, 0.55);
 
   --glass-bg: rgba(15, 42, 38, 0.5);
   --glass-border: rgba(242, 244, 229, 0.1);
   --glass-blur: 12px;
 
   --sidebar: #0f2a26;
-  --sidebar-foreground: #f2f4e5;
+  --sidebar-foreground: #fdfdfa;
   --sidebar-primary: #c7f36a;
   --sidebar-primary-foreground: #0a1410;
   --sidebar-accent: rgba(242, 244, 229, 0.05);
-  --sidebar-accent-foreground: #f2f4e5;
+  --sidebar-accent-foreground: #fdfdfa;
   --sidebar-border: rgba(242, 244, 229, 0.1);
   --sidebar-ring: #c7f36a;
 }
@@ -275,6 +299,47 @@
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--volt) 22%, transparent),
     0 0 24px color-mix(in oklab, var(--volt) 40%, transparent);
 }
+
+/* ---------------------  glow: lift text + elements in BOTH themes  ---------------------
+   The Lovable pop is high-chroma color + a soft halo. `glow-text` haloes text
+   in its OWN color (currentColor) and drops a dark under-shadow so bright accent
+   text also reads on the lighter Figma emerald. `glow-soft` haloes an element in
+   its own color (set the element's text color to the accent). */
+@utility glow-text {
+  text-shadow:
+    0 0 14px color-mix(in oklab, currentColor 38%, transparent),
+    0 1px 2px color-mix(in oklab, var(--color-ink) 55%, transparent);
+}
+@utility glow-text-soft {
+  text-shadow: 0 0 10px color-mix(in oklab, currentColor 26%, transparent);
+}
+@utility glow-soft {
+  box-shadow: 0 0 16px -3px color-mix(in oklab, currentColor 55%, transparent);
+}
+@utility glow-lime {
+  box-shadow: 0 0 22px -4px color-mix(in oklab, var(--primary) 60%, transparent);
+}
+
+/* CONTAINED edge glow — the box edge is bright (Lovable), a tight bloom that
+   hugs the border. NOT a diffuse outer halo. Pairs with a same-tone border. */
+@utility glow-edge-good {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--primary) 65%, transparent);
+}
+@utility glow-edge-hot {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--hot) 65%, transparent);
+}
+@utility glow-edge-warm {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--warm) 65%, transparent);
+}
+@utility glow-edge-cold {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--cold) 65%, transparent);
+}
+@utility glow-edge-bad {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--destructive) 65%, transparent);
+}
+@utility glow-edge-pending {
+  box-shadow: 0 0 7px -2px color-mix(in oklab, var(--pending) 65%, transparent);
+}
 @utility inset-well {
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(0, 0, 0, 0.18);
 }
@@ -302,10 +367,11 @@
    every resize from the smallest phone to ultrawide. */
 @utility app-sweep {
   background:
-    radial-gradient(46% 56% at 18% 16%, color-mix(in oklab, var(--volt) 18%, transparent), transparent 60%),
-    radial-gradient(54% 64% at 84% 78%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 64%),
-    radial-gradient(60% 50% at 60% 40%, color-mix(in oklab, var(--color-emerald) 22%, transparent), transparent 66%);
+    radial-gradient(46% 56% at 18% 16%, color-mix(in oklab, var(--volt) 10%, transparent), transparent 60%),
+    radial-gradient(54% 64% at 84% 78%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 64%),
+    radial-gradient(60% 50% at 60% 40%, color-mix(in oklab, var(--color-emerald) 13%, transparent), transparent 66%);
   mix-blend-mode: screen;
+  opacity: 0.7; /* gentle ambient wash — accents must stay punchy through it */
 }
 
 /* Lovable signature: a fine dotted grid washing a panel (the "retro-modern"
@@ -395,4 +461,8 @@
 @keyframes bar-load {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

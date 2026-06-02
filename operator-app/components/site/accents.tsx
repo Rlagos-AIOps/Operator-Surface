@@ -12,38 +12,56 @@ import { cn } from "@/lib/utils";
    Tailwind v4 scanner keeps them (never build `text-${tone}`).
    ============================================================= */
 
-export type Tone = "lime" | "volt" | "amber" | "cyan" | "red" | "muted";
+// Semantic signal tones — color carries MEANING, never decoration.
+//   good = green · hot = orange · warm = yellow · cold = blue · bad = red ·
+//   pending = violet (queue/draft/pending) · muted = truly idle/disabled.
+export type Tone = "good" | "hot" | "warm" | "cold" | "bad" | "pending" | "muted";
 
 const DOT_BG: Record<Tone, string> = {
-  lime: "bg-primary",
-  volt: "bg-volt",
-  amber: "bg-amber",
-  cyan: "bg-cyan",
-  red: "bg-destructive",
+  good: "bg-good",
+  hot: "bg-hot",
+  warm: "bg-warm",
+  cold: "bg-cold",
+  bad: "bg-bad",
+  pending: "bg-pending",
   muted: "bg-muted-foreground",
 };
 
+// White text always — the TONE lives on the border + a same-tone background
+// tint (Lovable's box construction). Color the element, never the words.
 const BADGE_TONE: Record<Tone, string> = {
-  lime: "text-primary border-primary/45 bg-primary/10",
-  volt: "text-volt border-volt/45 bg-volt/10",
-  amber: "text-amber border-amber/45 bg-amber/10",
-  cyan: "text-cyan border-cyan/45 bg-cyan/10",
-  red: "text-destructive border-destructive/45 bg-destructive/10",
-  muted: "text-muted-foreground border-border-strong bg-transparent",
+  good: "text-foreground border-good/60 bg-good/15",
+  hot: "text-foreground border-hot/65 bg-hot/16",
+  warm: "text-foreground border-warm/65 bg-warm/16",
+  cold: "text-foreground border-cold/60 bg-cold/15",
+  bad: "text-foreground border-bad/70 bg-bad/18",
+  pending: "text-foreground border-pending/65 bg-pending/16",
+  muted: "text-muted-foreground border-border-strong bg-surface-2",
+};
+
+const EDGE_GLOW: Record<Tone, string> = {
+  good: "glow-edge-good",
+  hot: "glow-edge-hot",
+  warm: "glow-edge-warm",
+  cold: "glow-edge-cold",
+  bad: "glow-edge-bad",
+  pending: "glow-edge-pending",
+  muted: "",
 };
 
 export const TEXT_TONE: Record<Tone, string> = {
-  lime: "text-primary",
-  volt: "text-volt",
-  amber: "text-amber",
-  cyan: "text-cyan",
-  red: "text-destructive",
+  good: "text-good",
+  hot: "text-hot",
+  warm: "text-warm",
+  cold: "text-cold",
+  bad: "text-bad",
+  pending: "text-pending",
   muted: "text-muted-foreground",
 };
 
 /* A leading status dot, optionally pulsing (running agents). */
 export function StatusDot({
-  tone = "lime",
+  tone = "good",
   pulse = false,
   className,
 }: {
@@ -54,7 +72,7 @@ export function StatusDot({
   return (
     <span className={cn("relative inline-flex size-2 shrink-0 rounded-full", DOT_BG[tone], className)}>
       {pulse && (
-        <span className={cn("absolute inset-0 animate-ping rounded-full opacity-60", DOT_BG[tone])} aria-hidden />
+        <span className={cn("absolute inset-0 animate-ping rounded-full opacity-50", DOT_BG[tone])} aria-hidden />
       )}
     </span>
   );
@@ -66,12 +84,14 @@ export function Badge({
   tone = "muted",
   dot = false,
   pulse = false,
+  glow = false,
   children,
   className,
 }: {
   tone?: Tone;
   dot?: boolean;
   pulse?: boolean;
+  glow?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -80,6 +100,7 @@ export function Badge({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-[0.13em]",
         BADGE_TONE[tone],
+        glow && EDGE_GLOW[tone],
         className,
       )}
     >
@@ -105,10 +126,12 @@ export function Pill({
     <button
       type="button"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors",
+        // Dashed = a clickable filter. White text always; tone on the border +
+        // same-tone bg fill. Active = solid-feel lime box with a CONTAINED edge glow.
+        "inline-flex items-center gap-1.5 rounded-full border border-dashed px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-foreground transition-colors",
         active
-          ? "border-primary/55 bg-primary/10 text-primary"
-          : "border-border-strong text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+          ? "glow-edge-good border-good/75 bg-good/16"
+          : "border-border-strong bg-surface/50 hover:border-foreground/45 hover:bg-surface-2",
         className,
       )}
     >
@@ -149,7 +172,7 @@ export function IconTile({
 /* Color-matched mini progress bar (RUNNING/QUEUED load meters). */
 export function MiniBar({
   value,
-  tone = "lime",
+  tone = "good",
   className,
 }: {
   value: number;

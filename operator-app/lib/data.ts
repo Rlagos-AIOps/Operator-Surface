@@ -166,6 +166,16 @@ export const LEADS: Lead[] = [
   },
 ];
 
+// At-a-glance thread tags surfaced in the inbound queue.
+export const LEAD_TAGS: Record<string, string[]> = {
+  maya: ["Lead", "Stage 02"],
+  devon: ["Lead", "Pricing"],
+  aileen: ["Lead", "Call back"],
+  ben: ["Lead", "Nurture"],
+  priya: ["Lead", "Demo"],
+  tom: ["Recruiter", "New"],
+};
+
 export type NavIcon =
   | "inbox"
   | "trending-up"
