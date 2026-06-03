@@ -24,6 +24,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const WRAP = "max-w-2xl overflow-hidden";
+const noop = () => {};
 
 // Interactive wrapper — Approve / Reject flip the local sent/rejected state.
 function ComposerDemo() {
@@ -56,6 +57,37 @@ export const Rejected: Story = {
   render: () => (
     <div className={cn(PANEL, WRAP)}>
       <Composer lead={LEADS[0]} sent={false} rejected onApprove={() => {}} onReject={() => {}} />
+    </div>
+  ),
+};
+
+export const Loading: Story = {
+  render: () => (
+    <div className={cn(PANEL, WRAP)}>
+      <Composer
+        lead={LEADS[0]}
+        sent={false}
+        rejected={false}
+        onApprove={noop}
+        onReject={noop}
+        state="loading"
+      />
+    </div>
+  ),
+};
+
+export const Error: Story = {
+  render: () => (
+    <div className={cn(PANEL, WRAP)}>
+      <Composer
+        lead={LEADS[0]}
+        sent={false}
+        rejected={false}
+        onApprove={noop}
+        onReject={noop}
+        state="error"
+        onRetry={noop}
+      />
     </div>
   ),
 };

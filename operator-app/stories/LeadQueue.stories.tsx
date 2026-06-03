@@ -21,6 +21,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const noop = () => {};
+
 // Selection-state wrapper — mirrors how OperatorSurface drives the queue.
 function QueueDemo({ highOnly = false }: { highOnly?: boolean }) {
   const leads = highOnly ? LEADS.filter((l) => l.intent === "high") : LEADS;
@@ -35,3 +37,27 @@ function QueueDemo({ highOnly = false }: { highOnly?: boolean }) {
 export const Playground: Story = { render: () => <QueueDemo /> };
 
 export const HighIntentOnly: Story = { render: () => <QueueDemo highOnly /> };
+
+export const Loading: Story = {
+  render: () => (
+    <div className={cn(PANEL, "flex h-[560px] max-w-sm flex-col overflow-hidden")}>
+      <LeadQueue leads={[]} selectedId="" onSelect={noop} state="loading" />
+    </div>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <div className={cn(PANEL, "flex h-[560px] max-w-sm flex-col overflow-hidden")}>
+      <LeadQueue leads={[]} selectedId="" onSelect={noop} state="empty" />
+    </div>
+  ),
+};
+
+export const Error: Story = {
+  render: () => (
+    <div className={cn(PANEL, "flex h-[560px] max-w-sm flex-col overflow-hidden")}>
+      <LeadQueue leads={[]} selectedId="" onSelect={noop} state="error" onRetry={noop} />
+    </div>
+  ),
+};

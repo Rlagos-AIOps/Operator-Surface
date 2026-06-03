@@ -15,3 +15,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+
+export const Loading: Story = {
+  render: () => (
+    <div className="max-w-3xl">
+      <MetricRow state="loading" />
+    </div>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <div className="max-w-3xl">
+      <MetricRow state="empty" />
+    </div>
+  ),
+};

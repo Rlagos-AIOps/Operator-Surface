@@ -19,12 +19,37 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const WRAP = "flex h-[560px] max-w-sm flex-col overflow-hidden";
+const noop = () => {};
 
 // Maya — hot lead.
 export const Playground: Story = {
   render: () => (
     <div className={cn(PANEL, WRAP)}>
       <AgentChat lead={LEADS[0]} />
+    </div>
+  ),
+};
+
+export const Loading: Story = {
+  render: () => (
+    <div className={cn(PANEL, WRAP)}>
+      <AgentChat lead={LEADS[0]} state="loading" />
+    </div>
+  ),
+};
+
+export const Empty: Story = {
+  render: () => (
+    <div className={cn(PANEL, WRAP)}>
+      <AgentChat lead={LEADS[0]} state="empty" />
+    </div>
+  ),
+};
+
+export const Error: Story = {
+  render: () => (
+    <div className={cn(PANEL, WRAP)}>
+      <AgentChat lead={LEADS[0]} state="error" onRetry={noop} />
     </div>
   ),
 };
