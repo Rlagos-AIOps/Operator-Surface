@@ -56,8 +56,8 @@ function getSdk(): Supernova {
 /** Resolve the {workspaceId, designSystemId, versionId} identifier the read/write APIs need. */
 async function resolve() {
   const sdk = getSdk();
-  const me = await sdk.me();
-  const ds = await sdk.designSystem(DS_ID);
+  const me = await sdk.me.me();
+  const ds = await sdk.designSystems.designSystem(DS_ID);
   if (!ds) throw new Error(`Design system ${DS_ID} not found for this token.`);
   const workspaceId =
     (ds as any).workspaceId ?? (await sdk.workspaces.workspaces((me as any).id))?.[0]?.id;
