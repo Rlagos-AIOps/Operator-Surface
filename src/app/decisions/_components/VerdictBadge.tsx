@@ -1,6 +1,7 @@
 /**
- * VerdictBadge — semantic color per known label. Falls back to
- * a neutral lime tint.
+ * VerdictBadge — semantic color per known label.
+ * Signal grammar: bad=red risk · warm=caution · hot=urgent attention ·
+ * good=working · cold=info/routing · primary=neutral default.
  *
  * Server-safe.
  */
@@ -15,7 +16,7 @@ const VERDICT_TINTS: Record<string, { bg: string; text: string }> = {
 
   // Opportunity labels
   upsell_qualified: { bg: "bg-good/20", text: "text-good" },
-  priority_high: { bg: "bg-volt/20", text: "text-volt" },
+  priority_high: { bg: "bg-hot/20", text: "text-hot" },
   priority_medium: { bg: "bg-primary/20", text: "text-primary" },
 
   // Routing labels

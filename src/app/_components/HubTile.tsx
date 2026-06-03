@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { PANEL, LIFT } from "@/components/ui/surfaces";
 
 interface Props {
   num: string;
@@ -22,7 +23,7 @@ export function HubTile({
   return (
     <Link
       href={href}
-      className="group relative flex h-full flex-col rounded-xl border border-border bg-card p-s6 shadow-e1 transition-all duration-base hover:border-primary/40 hover:shadow-e2"
+      className={`group relative flex h-full flex-col p-s6 ${PANEL} ${LIFT}`}
     >
       <span className="eyebrow mb-s5 text-muted-foreground">
         {num}

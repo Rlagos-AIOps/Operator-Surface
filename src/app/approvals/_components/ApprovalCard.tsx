@@ -12,6 +12,7 @@ import {
 } from "./Badges";
 import { DiffView } from "./DiffView";
 import type { ApprovalRow } from "./types";
+import { PANEL, BTN_PRIMARY, BTN_GHOST } from "@/components/ui/surfaces";
 
 type Mode = "active" | "readonly";
 
@@ -50,7 +51,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
   const isActive = mode === "active" && approval.status === "pending";
 
   return (
-    <article className="rounded-lg border border-border bg-card p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
+    <article className={`p-s5 ${PANEL}`}>
       {/* Top row: agent + action type + risk + status + time */}
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {approval.agent && (
@@ -100,7 +101,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note (recorded as decision_note)…"
-            className="w-full rounded-md border border-border bg-background px-s3 py-s2 text-small text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-1 focus:ring-lime/40"
+            className="w-full rounded-md border border-border bg-background px-s3 py-s2 text-small text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-1 focus:ring-primary/40"
             disabled={pending}
           />
           {error && (
@@ -113,7 +114,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               type="button"
               onClick={() => onDecide("rejected")}
               disabled={pending}
-              className="inline-flex items-center gap-s2 rounded-md border border-border/25 px-s4 py-s2 text-small font-semibold text-foreground transition-colors duration-fast hover:bg-card/5 disabled:opacity-50"
+              className={`gap-s2 px-s4 py-s2 text-small ${BTN_GHOST} disabled:opacity-50`}
             >
               {pending && pendingDecision === "rejected" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -127,7 +128,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               type="button"
               onClick={() => onDecide("approved")}
               disabled={pending}
-              className="inline-flex items-center gap-s2 rounded-md bg-primary px-s5 py-s2 text-small font-bold text-primary-foreground transition-colors duration-fast hover:bg-volt active:bg-primary disabled:opacity-50"
+              className={`gap-s2 px-s5 py-s2 text-small ${BTN_PRIMARY} disabled:opacity-50`}
             >
               {pending && pendingDecision === "approved" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

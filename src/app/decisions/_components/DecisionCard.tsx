@@ -4,6 +4,7 @@ import { DecisionTypeBadge } from "./DecisionTypeBadge";
 import { VerdictBadge } from "./VerdictBadge";
 import { SignalTrace } from "./SignalTrace";
 import type { DecisionRow, SignalEntry } from "./types";
+import { PANEL } from "@/components/ui/surfaces";
 
 interface Props {
   decision: DecisionRow;
@@ -19,7 +20,7 @@ export function DecisionCard({ decision }: Props) {
     decision.confidence == null ? null : Number(decision.confidence);
 
   return (
-    <article className="rounded-lg border border-border bg-card p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
+    <article className={`p-s5 ${PANEL}`}>
       {/* Top row: agent + decision type + confidence + time */}
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {decision.agent && (

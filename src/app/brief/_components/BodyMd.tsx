@@ -54,7 +54,7 @@ export function BodyMd({ source }: Props) {
           a: ({ children, href }) => (
             <a
               href={href}
-              className="text-primary underline decoration-lime/40 underline-offset-2 hover:decoration-lime"
+              className="text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary"
             >
               {children}
             </a>

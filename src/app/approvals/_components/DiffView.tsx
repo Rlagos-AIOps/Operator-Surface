@@ -238,7 +238,7 @@ function DiffPanel({
 }) {
   const surface =
     tone === "lime"
-      ? "bg-gradient-to-br from-lime to-volt"
+      ? "bg-good/15"
       : "bg-card";
   return (
     <div className={`rounded-md border border-border p-s4 ${surface}`}>
