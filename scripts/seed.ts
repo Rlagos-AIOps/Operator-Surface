@@ -151,17 +151,19 @@ async function clearAll() {
 // Fixture accounts — realistic SMB SaaS portfolio
 // ---------------------------------------------------------------------------
 
+// Real Salesforce IDs from Angel's Pass 1+2 seed (2026-06-02).
+// Internal keys (acme, etc.) kept for code stability — only the SF Id changed.
 const ACCOUNTS = {
-  acme:        { id: "0015A00000A1B2cZAA", name: "Cobblestone Realty", segment: "MM",  arr: 84_000 },
-  riverside:   { id: "0015A00000A1B3dZAA", name: "Riverside Logistics", segment: "MM",  arr: 52_000 },
-  brightline:  { id: "0015A00000A1B4eZAA", name: "Brightline Health",   segment: "Ent", arr: 180_000 },
-  compass:     { id: "0015A00000A1B5fZAA", name: "Compass Foods",       segment: "MM",  arr: 68_000 },
-  northstar:   { id: "0015A00000A1B6gZAA", name: "Northstar Print",     segment: "SMB", arr: 24_000 },
-  lighthouse:  { id: "0015A00000A1B7hZAA", name: "Lighthouse Marketing", segment: "SMB", arr: 28_500 },
-  cedar:       { id: "0015A00000A1B8iZAA", name: "Cedar & Co",          segment: "MM",  arr: 96_000 },
-  avalon:      { id: "0015A00000A1B9jZAA", name: "Avalon Auto",          segment: "MM",  arr: 72_000 },
-  polaris:     { id: "0015A00000A1B0kZAA", name: "Polaris Builders",    segment: "MM",  arr: 48_000 },
-  spruce:      { id: "0015A00000A1B1lZAA", name: "Spruce Education",    segment: "Ent", arr: 142_000 },
+  acme:        { id: "001gK0000178newQAA", name: "Cobblestone Realty", segment: "MM",  arr: 84_000 },
+  riverside:   { id: "001gK0000178vNxQAI", name: "Riverside Logistics", segment: "MM",  arr: 52_000 },
+  brightline:  { id: "001gK0000178v6EQAQ", name: "Brightline Health",   segment: "Ent", arr: 180_000 },
+  compass:     { id: "001gK0000178nVGQAY", name: "Compass Foods",       segment: "MM",  arr: 68_000 },
+  northstar:   { id: "001gK0000178DtDQAU", name: "Northstar Print",     segment: "SMB", arr: 24_000 },
+  lighthouse:  { id: "001gK0000178EfcQAE", name: "Lighthouse Marketing", segment: "SMB", arr: 28_500 },
+  cedar:       { id: "001gK0000177lYnQAI", name: "Cedar & Co",          segment: "MM",  arr: 96_000 },
+  avalon:      { id: "001gK0000177oPNQAY", name: "Avalon Auto",          segment: "MM",  arr: 72_000 },
+  polaris:     { id: "001gK0000178TMuQAM", name: "Polaris Builders",    segment: "MM",  arr: 48_000 },
+  spruce:      { id: "001gK0000178Z0tQAE", name: "Spruce Education",    segment: "Ent", arr: 142_000 },
 } as const;
 
 type AccountKey = keyof typeof ACCOUNTS;
@@ -661,7 +663,7 @@ const DECISIONS: DecisionSpec[] = [
     signals: [
       { name: "at_risk_flag", value: true, weight: 0.4, source: "decisions.hygiene-validator" },
       { name: "renewal_in_days", value: 94, weight: 0.3, source: "salesforce.opportunity" },
-      { name: "arr_usd", value: 84_000, weight: 0.3, source: "salesforce.account.AnnualRevenue__c" },
+      { name: "arr_usd", value: 84_000, weight: 0.3, source: "salesforce.account.AnnualRevenue" },
     ],
     offsetMs: -1 * DAY - 17 * HOUR + 2_000,
   },
@@ -677,7 +679,7 @@ const DECISIONS: DecisionSpec[] = [
       "Cedar has missed two scheduled QBR meetings and the primary admin contact deactivated their account last week. Engagement signal is dropping — not yet critical, but worth a check-in this week.",
     signals: [
       { name: "missed_qbr_count", value: 2, weight: 0.4, note: "Last two consecutive quarters" },
-      { name: "primary_contact_active", value: false, weight: 0.3, source: "salesforce.contact.IsActive" },
+      { name: "primary_contact_active", value: false, weight: 0.3, source: "salesforce.contact.IsActive__c" },
       { name: "days_since_last_login", value: 26, weight: 0.3 },
     ],
     offsetMs: -8 * HOUR + 15_000,

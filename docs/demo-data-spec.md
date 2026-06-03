@@ -423,3 +423,70 @@ When this doc and the seed disagree:
 - **For Salesforce IDs**: the live SF org wins. Both the seed and this doc get updated by Angel's mapping script.
 
 This doc is regenerable from the seed — keep `scripts/seed.ts` as the system of record for the dynamic data, and treat this doc as the human-readable derivative.
+
+---
+
+## §7 — Reconciliation log
+
+### 2026-06-02 — Angel's Pass 1+2 → Supabase seed updated
+
+Angel completed both passes (Accounts + custom fields + owners; Cases + Tasks + Contacts + Avalon save plan). All 6 open questions resolved. Real SF IDs swapped into `scripts/seed.ts` and re-seeded.
+
+#### Real Salesforce IDs now in the seed
+
+| Account | Placeholder (was) | Real SF Account Id | Renewal Opportunity Id |
+|---|---|---|---|
+| Lighthouse Marketing 🔥 | `0015A00000A1B7hZAA` | `001gK0000178EfcQAE` | `006gK00000IxsoPQAR` |
+| Cobblestone Realty 🎯 | `0015A00000A1B2cZAA` | `001gK0000178newQAA` | `006gK00000IxGKxQAN` |
+| Brightline Health | `0015A00000A1B4eZAA` | `001gK0000178v6EQAQ` | `006gK00000Ixsq1QAB` |
+| Cedar & Co | `0015A00000A1B8iZAA` | `001gK0000177lYnQAI` | — |
+| Riverside Logistics | `0015A00000A1B3dZAA` | `001gK0000178vNxQAI` | `006gK00000IxrUfQAJ` |
+| Spruce Education | `0015A00000A1B1lZAA` | `001gK0000178Z0tQAE` | — |
+| Northstar Print | `0015A00000A1B6gZAA` | `001gK0000178DtDQAU` | `006gK00000IxsrdQAB` |
+| Compass Foods | `0015A00000A1B5fZAA` | `001gK0000178nVGQAY` | — (new logo) |
+| Avalon Auto | `0015A00000A1B9jZAA` | `001gK0000177oPNQAY` | — |
+| Polaris Builders | `0015A00000A1B0kZAA` | `001gK0000178TMuQAM` | — |
+
+#### CSM Salesforce user IDs
+
+| CSM | SF User Id | Email |
+|---|---|---|
+| Taylor Reeves | `005gK00004MQS1LQAX` | `taylor@example-csm.test` |
+| Morgan Patel | `005gK00004MPRA0QAP` | `morgan@example-csm.test` |
+
+Username carries `.csdemo` suffix in SF (global uniqueness); `User.Email` matches the spec verbatim.
+
+#### Signal-source string corrections to `scripts/seed.ts`
+
+| Was | Now | Reason |
+|---|---|---|
+| `salesforce.contact.IsActive` | `salesforce.contact.IsActive__c` | Standard Contact has no `IsActive`; Angel created it as a custom checkbox |
+| `salesforce.account.AnnualRevenue__c` | `salesforce.account.AnnualRevenue` | Standard field on Account — no `__c` |
+
+#### Salesforce-side schema deviations from the original spec
+
+| Concept | Spec said | Angel's actual field |
+|---|---|---|
+| Health band (canonical) | `Account.Health_Band__c` | `Account.Health_Band__c` ✅ (lowercase green/yellow/red) |
+| Health numeric 0–100 | `Account.Health_Score__c` | **`Account.Health_Score_Num__c`** *(new)* — `Health_Score__c` is a pre-existing restricted picklist that Angel preserved for compatibility |
+| Industry | one-to-one spec value | mapped to nearest standard `Industry` picklist value; exact spec text in `Account.Description` (see §5 of Angel's handoff) |
+| ARR | `Account.ARR__c` *or* `Account.AnnualRevenue` | populated in **both** so either source string resolves |
+| Compass Foods owner | a CSM (unassigned per spec) | the admin/integration user `005gK00004D7Vp7QAF` — keeps `missing_csm_owner` signal true |
+
+### Decision: save plan field location (Delta 1)
+
+The CSM At-Risk Playbook (`docs/csm-playbooks/1.6-at-risk-playbook.md` §1) places the canonical save plan at `Opportunity.CSM_Save_Plan__c`. Both Angel's Salesforce seed and Roberto's Supabase seed currently model it as **`Account.CSM_Save_Plan__c`**.
+
+**For the demo (2026-06-02 → demo day):** stay on Account. Both sides agree, the UI just renders the field name, and the narrative still works ("the agent is updating the save plan field — that's where the CSM records intent before a renewal").
+
+**Post-demo cleanup task:**
+1. Angel adds `Opportunity.CSM_Save_Plan__c` and migrates the 5 renewing accounts' notes from Account → Opp.
+2. Roberto retargets the affected `update_field` approvals in `scripts/seed.ts` to `target_record_type: "salesforce.opportunity"` with the matching Opportunity Id.
+3. Update the field-mapping table above (drop the ⚠️).
+
+Tracked as a follow-up — not blocking demo.
+
+### Confirmed asks back to Angel
+
+- **Industry mapping** (§5 of his handoff): ✅ accepted — standard picklist + exact spec text preserved in `Description` is fine.
+- **Currency**: ✅ confirmed — USD / single-currency. No multi-currency complication.
