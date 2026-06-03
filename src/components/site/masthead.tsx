@@ -10,6 +10,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 const NAV = [
   { label: "Overview", href: "/" },
+  { label: "Book", href: "/accounts" },
   { label: "Operator", href: "/operator" },
   { label: "Daily Brief", href: "/brief" },
   { label: "Approvals", href: "/approvals" },
