@@ -24,24 +24,36 @@ Free-form sidecar on the agent registry row. Recommended keys (all optional):
 | `schedule` | string \| null | Cron expression if scheduled, e.g. `"0 9 * * 1-5"` |
 | `tags` | string[] | Grouping tags, e.g. `["health", "renewals"]` |
 | `model` | object \| null | `{ provider, name, temperature, max_tokens }` |
+| `capabilities` | string[] | What this agent can do (`read_salesforce`, `draft_email`, `execute_field_update`, …). Surfaced in the Connections / Agents UI as chips. |
+| `example_tasks` | string[] | Concrete task descriptions the agent performs. Shown to operators so they understand the agent's job at a glance. |
 | `kill_switch_reason` | string \| null | Why `enabled` was last flipped off |
 | `last_disabled_at` | ISO timestamp \| null | When `enabled` was last flipped off |
 | `last_disabled_by` | uuid \| null | Operator who flipped the switch |
 
-Example for `at-risk-triage`:
+Example for `hygiene-validator`:
 
 ```json
 {
-  "version": "0.4.1",
+  "version": "0.3.0",
   "owner": "csm-platform",
   "runtime": "node-20+claude-sonnet-4.5",
-  "schedule": "0 9 * * 1-5",
-  "tags": ["health", "renewals"],
+  "schedule": "0 6 * * *",
+  "tags": ["hygiene", "audit", "read-only"],
+  "capabilities": [
+    "detect_missing_fields",
+    "detect_stale_records",
+    "flag_sop_gaps"
+  ],
+  "example_tasks": [
+    "Audit all SMB accounts for empty save plans",
+    "Flag accounts with no activity logged in 30 days",
+    "Detect missing CSM ownership on new logos"
+  ],
   "model": {
     "provider": "anthropic",
     "name": "claude-sonnet-4.5",
-    "temperature": 0.2,
-    "max_tokens": 4000
+    "temperature": 0.1,
+    "max_tokens": 3000
   }
 }
 ```
