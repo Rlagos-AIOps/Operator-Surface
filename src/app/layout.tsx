@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Masthead } from "@/components/site/masthead";
+import { SiteFooter } from "@/components/site/footer";
 import "./globals.css";
 
 const serif = DM_Serif_Display({
@@ -39,16 +41,18 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${serif.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground font-sans">
+      <body className="min-h-dvh bg-background text-foreground font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >
-          <div className="app-bg" aria-hidden />
-          <div className="app-sweep animate-wave-drift" aria-hidden />
-          {children}
+          <div className="app-bg pointer-events-none fixed inset-0 -z-10" aria-hidden />
+          <div className="app-sweep pointer-events-none fixed inset-0 -z-10 animate-wave-drift" aria-hidden />
+          <Masthead />
+          <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
+          <SiteFooter />
         </ThemeProvider>
       </body>
     </html>
