@@ -1,0 +1,13 @@
+{
+  "name": "ops-surfer-supernova",
+  "private": true,
+  "type": "module",
+  "description": "Supernova SDK write tooling for the Ops Surfer design system (DS 823274). Reads SUPERNOVA_API_TOKEN from env (Doppler) — never hardcoded. Authors documentation pages + component ties that the read-only Supernova MCP cannot.",
+  "scripts": {
+    "supernova": "bun cli.ts",
+    "whoami": "bun cli.ts whoami"
+  },
+  "dependencies": {
+    "@supernovaio/sdk": "^2.4.4"
+  }
+}
