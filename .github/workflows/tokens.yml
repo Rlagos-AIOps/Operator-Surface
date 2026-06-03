@@ -1,0 +1,28 @@
+name: Tokens
+
+# Drift gate: fails if the generated token outputs (tokens/tokens.json,
+# tokens/figma.tokens.json, app/tokens.generated.css) no longer match the single
+# source of truth, app/globals.css. If someone edits a color/token in globals.css
+# but forgets to regenerate, this check goes red.
+#
+# Fix locally:  cd operator-app && bun run tokens   (then commit the result)
+on:
+  push:
+    branches: [design]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install
+        working-directory: operator-app
+      - name: Check token drift (globals.css ⇄ tokens.json ⇄ figma.tokens.json)
+        run: bun run tokens:check
+        working-directory: operator-app
