@@ -244,8 +244,11 @@ async function mkdocs(commit: boolean) {
 async function publish() {
   const { sdk, id } = await resolve();
   const env = (process.argv[3] as any) ?? "Live";
-  const build = await sdk.documentation.publish(id, env, true);
-  console.log(`✓ publish (${env}) triggered: ${JSON.stringify(build ?? {}).slice(0, 240)}`);
+  // NOTE: the older publish(id, env, isForcing) errors "Design system not found in the workspace" /
+  // "Unsupported!" on this account — publishDrafts is the working endpoint (publishes all pending drafts).
+  const build = (await sdk.documentation.publishDrafts(id as any, env, undefined as any, false)) as any;
+  const url = await sdk.documentation.getDocumentationUrl(id as any).catch(() => null);
+  console.log(`✓ publish (${env}) triggered: build ${build?.id}. Live URL: ${url ?? "(see Supernova UI)"}`);
 }
 
 /** Rename the design system. */
@@ -253,6 +256,115 @@ async function rename() {
   const { sdk } = await resolve();
   await sdk.designSystems.updateDesignSystemMetadata(DS_ID, "Ops Surfer — Design System");
   console.log('✓ renamed DS → "Ops Surfer — Design System"');
+}
+
+/** Runtime discovery: dump live components/tokens + the SDK method surface so we build writes against real shapes, not guesses. */
+async function inspect() {
+  const { sdk, id } = await resolve();
+  const dump = (label: string, fn: () => string[]) => {
+    try { const lines = fn(); console.log(`${label} (${lines.length}):`); for (const l of lines.slice(0, 40)) console.log("  • " + l); }
+    catch (e: any) { console.log(`${label}: ERR ${e?.message ?? e}`); }
+  };
+  const proto = (o: any) => Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter((m) => m !== "constructor" && !m.startsWith("_")).join(", ");
+
+  const dcs = (await sdk.components.getDesignComponents(id as any)) as any[];
+  dump("DESIGN components (Figma)", () => dcs.map((d) => `${d.name}  id=${d.id} pid=${d.persistentId} group=${d.componentGroupId ?? d.groupId ?? "—"}`));
+  const cs = (await sdk.components.getComponents(id as any)) as any[];
+  dump("DS components (the ties)", () => cs.map((c) => `${c.name} id=${c.id} pid=${c.persistentId}`));
+  try {
+    const cgs = (await sdk.components.getComponentGroups(id as any)) as any[];
+    console.log(`component groups (${cgs.length}): ` + cgs.map((g) => `${g.name}${g.isRoot ? "*" : ""}`).join(", "));
+  } catch (e: any) { console.log("component groups: " + (e?.message ?? e) + " (components are a flat list — fine)"); }
+
+  console.log("\nsdk.documentation methods:\n  " + proto(sdk.documentation));
+  console.log("\nsdk.components methods:\n  " + proto(sdk.components));
+  console.log("\nsdk.tokens methods:\n  " + proto(sdk.tokens));
+  console.log("\nsdk.brands methods:\n  " + proto((sdk as any).brands));
+
+  try {
+    const toks = (await sdk.tokens.getTokens({ designSystemId: DS_ID, versionId: id.versionId } as any)) as any[];
+    console.log(`\ntokens (${toks.length}). sample keys: ${Object.keys(toks[0] ?? {}).join(", ")}`);
+    console.log("sample token:\n" + JSON.stringify(toks[0], null, 2).slice(0, 600));
+    const themeFn = (sdk.tokens as any).getTokenThemes ?? (sdk.tokens as any).getThemes;
+    if (themeFn) {
+      const themes = (await themeFn.call(sdk.tokens, { designSystemId: DS_ID, versionId: id.versionId })) as any[];
+      console.log(`\ntoken themes (${themes?.length ?? 0}): ` + (themes ?? []).map((t: any) => `${t.name}(${t.id})`).join(", "));
+    } else console.log("\ntoken themes: no getTokenThemes/getThemes on sdk.tokens");
+  } catch (e: any) { console.log("tokens/themes ERR: " + (e?.message ?? e)); }
+
+  try {
+    const brands = (await (sdk as any).brands.getBrands(id)) as any[];
+    console.log(`\nbrands (${brands?.length ?? 0}): ` + (brands ?? []).map((b: any) => `${b.name}(${b.id})`).join(", "));
+  } catch (e: any) { console.log("brands ERR: " + (e?.message ?? e)); }
+}
+
+// Canonical component registry (the name-parity source of truth) → Supernova DS components.
+const REGISTRY = JSON.parse(readFileSync(join(import.meta.dir, "..", "component-registry.json"), "utf8"));
+const COMP_DESC: Record<string, string> = {
+  Badge: "Tonal status badge — color = signal (good/hot/warm/cold/bad/pending/muted), optional leading dot.",
+  StatusDot: "Live status dot — tone-colored; pulses on active/errored events.",
+  Pill: "Dashed filter pill — default / active states for filter rows.",
+  IntentChip: "Lead-intent chip — Hot/Warm/Cold tier + 0–100 score.",
+  MiniBar: "Compact proportional bar — tone-colored fill for temperature / score.",
+  IconTile: "Tinted icon tile — surface background + tone-colored lucide glyph.",
+  Kbd: "Keyboard key cap — mono, for ⌘K-style shortcut hints.",
+  Bubble: "Leaf-blade speech bubble — human / agent / reasoning variants.",
+  Button: "Primary (lime) / ghost (dashed) action — pill; sizes sm/md/lg. Code: BTN_PRIMARY / BTN_GHOST.",
+  PageHeader: "Interior page header — eyebrow + display title + chips + right slot.",
+  LiveSignage: "Agent-online pulse pill + mono run stamp.",
+  Panel: "Dot-grid surface card — static / lift (clickable) states. Code: PANEL.",
+};
+
+/** Form the design↔code DS components from the registry (idempotent by name). */
+async function tie(commit: boolean) {
+  const { sdk, id } = await resolve();
+  const brands = (await (sdk as any).brands.getBrands(id)) as any[];
+  const brandId = brands?.[0]?.id;
+  if (!brandId) throw new Error("no brand found");
+  const existing = (await sdk.components.getComponents(id as any)) as any[];
+  const have = new Set(existing.map((c) => c.name));
+  const entries = [...REGISTRY.components, ...REGISTRY.uiComponents];
+  console.log(`${commit ? "CREATE" : "DRY-RUN"} — ${entries.length} DS components (existing in DS: ${existing.length}) · brand ${brandId}`);
+  let created = 0;
+  for (const e of entries) {
+    const desc = COMP_DESC[e.name] ?? `${e.name} — shadcn/base-ui primitive.`;
+    const link = `Figma "${e.figma.name}" (${e.figma.nodeId}) · ${e.code.file} [${e.code.symbols.join(", ")}] · Storybook ${e.storybook}`;
+    if (have.has(e.name)) { console.log(`  • exists: ${e.name}`); continue; }
+    if (!commit) { console.log(`  • would create: ${e.name}\n      ${desc}\n      ↳ ${link}`); continue; }
+    try {
+      const local = sdk.components.createLocalComponent(id.versionId, brandId);
+      local.name = e.name;
+      local.description = `${desc}\n\n${link}`;
+      const res = await sdk.components.createComponent(id as any, local);
+      console.log(`  ✓ ${e.name} → ${res.id}`);
+      created++;
+    } catch (err: any) {
+      console.error(`  ✗ ${e.name}: ${(err?.message ?? String(err)).slice(0, 220)}`);
+    }
+  }
+  if (commit) console.log(`\nDone — ${created} created. Re-run \`inspect\` to confirm, then link each to its design component + Storybook in the Supernova UI (or via component detail).`);
+}
+
+// Supernova's default starter-template pages (clutter next to our authored portal). Deletions are restorable via restoreDocumentationPage.
+const TEMPLATE_PAGE_PIDS: Array<[string, string]> = [
+  ["6fb8d6a0-4bae-11ec-a0dd-9f8e86820f15", "Welcome!"],
+  ["52eef460-4bad-11ec-8f5e-29e732ba669c", "Component overview"],
+  ["293bf110-d480-11ed-911b-fb014ea4328e", "Component detail"],
+  ["a8687860-4d3f-11ec-8ce5-cb0f56bcf344", "Typography (template)"],
+  ["4a82edd0-4bae-11ec-a0dd-9f8e86820f15", "Design tokens (template)"],
+];
+async function cleanup(commit: boolean) {
+  const { sdk, id } = await resolve();
+  const structure = (await sdk.documentation.getDocumentationStructure(id)) as any[];
+  const byPid = new Map(structure.map((e) => [e.persistentId, e]));
+  console.log(`${commit ? "DELETE" : "DRY-RUN"} — ${TEMPLATE_PAGE_PIDS.length} default-template pages (restorable)`);
+  for (const [pid, label] of TEMPLATE_PAGE_PIDS) {
+    const e = byPid.get(pid) as any;
+    if (!e) { console.log(`  • already gone: ${label}`); continue; }
+    if (!commit) { console.log(`  • would delete: "${e.title}" (${pid})`); continue; }
+    try { await sdk.documentation.deleteDocumentationPage(id as any, pid); console.log(`  ✓ deleted "${e.title}"`); }
+    catch (err: any) { console.error(`  ✗ "${e.title}": ${(err?.message ?? String(err)).slice(0, 180)}`); }
+  }
 }
 
 const cmd = process.argv[2] ?? "whoami";
@@ -265,13 +377,10 @@ try {
   else if (cmd === "rename") await rename();
   else if (cmd === "whoami") await whoami();
   else if (cmd === "pull") await pull();
+  else if (cmd === "inspect") await inspect();
   else if (cmd === "push-docs") await pushDocs(commit);
-  else if (cmd === "tie")
-    console.log(
-      "tie (scaffold): form design↔code design-system components via sdk.components.createComponent(to, component).\n" +
-        "Map each registry entry (design-system/component-registry.json) → a Supernova component linking its Figma node + code symbol.\n" +
-        "Build the Component objects here after a validated whoami; see the project CLAUDE.md.",
-    );
+  else if (cmd === "tie") await tie(commit);
+  else if (cmd === "cleanup") await cleanup(commit);
   else console.log("commands: whoami | pull | push-docs [--commit] | tie");
 } catch (e: any) {
   console.error(`✗ ${e?.message ?? e}`);
