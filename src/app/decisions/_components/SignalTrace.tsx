@@ -14,13 +14,13 @@ interface Props {
 
 function formatValue(value: unknown): React.ReactNode {
   if (value == null) {
-    return <span className="italic text-muted">null</span>;
+    return <span className="italic text-muted-foreground">null</span>;
   }
   if (typeof value === "boolean") {
     return value ? (
-      <span className="text-paper">true</span>
+      <span className="text-foreground">true</span>
     ) : (
-      <span className="italic text-muted">false</span>
+      <span className="italic text-muted-foreground">false</span>
     );
   }
   if (typeof value === "number") return value.toLocaleString();
@@ -45,7 +45,7 @@ export function SignalTrace({ signals }: Props) {
   return (
     <section className="mt-s5">
       <p className="eyebrow mb-s3">Signals</p>
-      <ol className="overflow-hidden rounded-md border border-surface-edge bg-bg-deep/40">
+      <ol className="overflow-hidden rounded-md border border-border bg-background/40">
         {sorted.map((s, i) => {
           const weightPct =
             typeof s.weight === "number"
@@ -55,16 +55,16 @@ export function SignalTrace({ signals }: Props) {
             <li
               key={i}
               className={`grid grid-cols-[minmax(0,1fr)_auto_140px] items-center gap-s4 px-s4 py-s3 ${
-                i > 0 ? "border-t border-surface-edge/60" : ""
+                i > 0 ? "border-t border-border/60" : ""
               }`}
             >
               {/* Name + source/note */}
               <div className="min-w-0">
-                <p className="font-mono text-small font-medium text-paper">
+                <p className="font-mono text-small font-medium text-foreground">
                   {s.name}
                 </p>
                 {(s.source || s.note) && (
-                  <p className="mt-[2px] truncate text-micro text-muted">
+                  <p className="mt-[2px] truncate text-micro text-muted-foreground">
                     {s.source ? (
                       <span className="font-mono">{s.source}</span>
                     ) : (
@@ -75,7 +75,7 @@ export function SignalTrace({ signals }: Props) {
               </div>
 
               {/* Value */}
-              <div className="font-mono text-small tabular text-right text-paper">
+              <div className="font-mono text-small tabular text-right text-foreground">
                 {formatValue(s.value)}
               </div>
 
@@ -84,21 +84,21 @@ export function SignalTrace({ signals }: Props) {
                 {weightPct != null ? (
                   <>
                     <span
-                      className="h-1 flex-1 overflow-hidden rounded-pill bg-paper/10"
+                      className="h-1 flex-1 overflow-hidden rounded-pill bg-card/10"
                       role="presentation"
                       aria-hidden
                     >
                       <span
-                        className="block h-full bg-lime"
+                        className="block h-full bg-primary"
                         style={{ width: `${weightPct}%` }}
                       />
                     </span>
-                    <span className="text-micro tabular text-muted">
+                    <span className="text-micro tabular text-muted-foreground">
                       {weightPct}%
                     </span>
                   </>
                 ) : (
-                  <span className="ml-auto text-micro text-muted">—</span>
+                  <span className="ml-auto text-micro text-muted-foreground">—</span>
                 )}
               </div>
             </li>

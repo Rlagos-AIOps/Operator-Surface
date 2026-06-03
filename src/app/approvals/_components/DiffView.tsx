@@ -77,10 +77,10 @@ function SendEmailPreview({ proposed }: { proposed: unknown }) {
   return (
     <div className="grid grid-cols-1 gap-s3 md:grid-cols-[1fr_3fr]">
       <DiffPanel label="Current" tone="paper">
-        <p className="font-mono text-small italic text-ink-2">(no email)</p>
+        <p className="font-mono text-small italic text-muted-foreground">(no email)</p>
       </DiffPanel>
       <DiffPanel label={`Proposed ${channel}`} tone="lime">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-ink">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-foreground">
           <dt className="font-semibold opacity-70">To</dt>
           <dd className="font-mono">{to ?? "—"}</dd>
           {cc && (
@@ -93,7 +93,7 @@ function SendEmailPreview({ proposed }: { proposed: unknown }) {
           <dd className="font-semibold">{subject ?? "—"}</dd>
         </dl>
         {body && (
-          <pre className="mt-s3 max-h-48 overflow-y-auto whitespace-pre-wrap font-sans text-small text-ink">
+          <pre className="mt-s3 max-h-48 overflow-y-auto whitespace-pre-wrap font-sans text-small text-foreground">
             {body}
           </pre>
         )}
@@ -114,15 +114,15 @@ function SendSlackPreview({ proposed }: { proposed: unknown }) {
   return (
     <div className="grid grid-cols-1 gap-s3 md:grid-cols-[1fr_3fr]">
       <DiffPanel label="Current" tone="paper">
-        <p className="font-mono text-small italic text-ink-2">(no message)</p>
+        <p className="font-mono text-small italic text-muted-foreground">(no message)</p>
       </DiffPanel>
       <DiffPanel label="Proposed Slack message" tone="lime">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-ink">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-foreground">
           <dt className="font-semibold opacity-70">To</dt>
           <dd className="font-mono">{to ?? "—"}</dd>
         </dl>
         {body && (
-          <pre className="mt-s3 whitespace-pre-wrap font-sans text-small text-ink">{body}</pre>
+          <pre className="mt-s3 whitespace-pre-wrap font-sans text-small text-foreground">{body}</pre>
         )}
       </DiffPanel>
     </div>
@@ -138,10 +138,10 @@ function CreateTaskPreview({ proposed }: { proposed: unknown }) {
   return (
     <div className="grid grid-cols-1 gap-s3 md:grid-cols-[1fr_3fr]">
       <DiffPanel label="Current" tone="paper">
-        <p className="font-mono text-small italic text-ink-2">(no task)</p>
+        <p className="font-mono text-small italic text-muted-foreground">(no task)</p>
       </DiffPanel>
       <DiffPanel label="Proposed task" tone="lime">
-        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-ink">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-foreground">
           <dt className="font-semibold opacity-70">Subject</dt>
           <dd className="font-semibold">{(p.subject as string | undefined) ?? "—"}</dd>
           <dt className="font-semibold opacity-70">Due</dt>
@@ -179,7 +179,7 @@ function RecomputeHealthDiff({ current, proposed }: { current: unknown; proposed
       <DiffPanel label="Proposed health" tone="lime">
         <ScorePill score={propScore} band={p.band as string | undefined} />
         {delta != null && (
-          <div className="mt-s2 font-mono text-small tabular text-ink">
+          <div className="mt-s2 font-mono text-small tabular text-foreground">
             {delta > 0 ? "+" : ""}
             {delta} from previous
           </div>
@@ -191,7 +191,7 @@ function RecomputeHealthDiff({ current, proposed }: { current: unknown; proposed
 
 function ScorePill({ score, band }: { score: number | null; band?: string }) {
   return (
-    <div className="flex items-baseline gap-s3 text-ink">
+    <div className="flex items-baseline gap-s3 text-foreground">
       <span className="font-serif text-h2 tabular">{score ?? "—"}</span>
       {band && (
         <span className="uppercase tracking-wider text-micro font-bold opacity-70">
@@ -210,12 +210,12 @@ function FallbackJsonDiff({ current, proposed }: { current: unknown; proposed: u
   return (
     <div className="grid grid-cols-1 gap-s3 md:grid-cols-2">
       <DiffPanel label="Current" tone="paper">
-        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-ink">
+        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-foreground">
           {current == null ? "(none)" : JSON.stringify(current, null, 2)}
         </pre>
       </DiffPanel>
       <DiffPanel label="Proposed" tone="lime">
-        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-ink">
+        <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-foreground">
           {proposed == null ? "(none)" : JSON.stringify(proposed, null, 2)}
         </pre>
       </DiffPanel>
@@ -239,10 +239,10 @@ function DiffPanel({
   const surface =
     tone === "lime"
       ? "bg-gradient-to-br from-lime to-volt"
-      : "bg-paper";
+      : "bg-card";
   return (
-    <div className={`rounded-md border border-paper-edge p-s4 ${surface}`}>
-      <p className="mb-s2 text-micro font-bold uppercase tracking-wider text-ink/60">
+    <div className={`rounded-md border border-border p-s4 ${surface}`}>
+      <p className="mb-s2 text-micro font-bold uppercase tracking-wider text-foreground/60">
         {label}
       </p>
       {children}
@@ -252,7 +252,7 @@ function DiffPanel({
 
 function FieldLabel({ name }: { name: string }) {
   return (
-    <p className="mb-s2 font-mono text-small font-semibold text-ink/80">
+    <p className="mb-s2 font-mono text-small font-semibold text-foreground/80">
       {name}
     </p>
   );
@@ -266,13 +266,13 @@ function ValueText({
   placeholder: string;
 }) {
   if (value == null || value === "") {
-    return <p className="font-mono text-small italic text-ink-2">{placeholder}</p>;
+    return <p className="font-mono text-small italic text-muted-foreground">{placeholder}</p>;
   }
   if (typeof value === "string") {
-    return <p className="whitespace-pre-wrap font-sans text-small text-ink">{value}</p>;
+    return <p className="whitespace-pre-wrap font-sans text-small text-foreground">{value}</p>;
   }
   return (
-    <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-ink">
+    <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-micro text-foreground">
       {JSON.stringify(value, null, 2)}
     </pre>
   );

@@ -50,7 +50,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
   const isActive = mode === "active" && approval.status === "pending";
 
   return (
-    <article className="rounded-lg border border-surface-edge bg-surface p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
+    <article className="rounded-lg border border-border bg-card p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
       {/* Top row: agent + action type + risk + status + time */}
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {approval.agent && (
@@ -60,7 +60,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
         <RiskBadge level={metadata.risk_level} />
         {!isActive && <StatusBadge status={approval.status} />}
         <div className="flex-1" />
-        <span className="text-micro text-muted tabular">
+        <span className="text-micro text-muted-foreground tabular">
           {timeAgo(approval.created_at)}
         </span>
       </header>
@@ -68,19 +68,19 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       {/* Account + target ID */}
       <div className="mb-s4">
         {metadata.account_name && (
-          <h3 className="font-serif text-h3 text-paper">
+          <h3 className="font-serif text-h3 text-foreground">
             {metadata.account_name}
           </h3>
         )}
-        <p className="mt-[2px] font-mono text-micro text-muted">
+        <p className="mt-[2px] font-mono text-micro text-muted-foreground">
           {approval.target_record_type} ·{" "}
-          <span className="text-muted-light">{approval.target_record_id}</span>
+          <span className="text-muted-foreground">{approval.target_record_id}</span>
         </p>
       </div>
 
       {/* Rationale */}
       {approval.rationale && (
-        <p className="mb-s5 max-w-[72ch] text-body text-paper">
+        <p className="mb-s5 max-w-[72ch] text-body text-foreground">
           {approval.rationale}
         </p>
       )}
@@ -100,11 +100,11 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note (recorded as decision_note)…"
-            className="w-full rounded-md border border-surface-edge bg-bg-deep px-s3 py-s2 text-small text-paper placeholder:text-muted focus:border-lime/60 focus:outline-none focus:ring-1 focus:ring-lime/40"
+            className="w-full rounded-md border border-border bg-background px-s3 py-s2 text-small text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-1 focus:ring-lime/40"
             disabled={pending}
           />
           {error && (
-            <p className="text-small text-danger">
+            <p className="text-small text-bad">
               <span className="font-bold">Action failed:</span> {error}
             </p>
           )}
@@ -113,7 +113,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               type="button"
               onClick={() => onDecide("rejected")}
               disabled={pending}
-              className="inline-flex items-center gap-s2 rounded-md border border-paper/25 px-s4 py-s2 text-small font-semibold text-paper transition-colors duration-fast hover:bg-paper/5 disabled:opacity-50"
+              className="inline-flex items-center gap-s2 rounded-md border border-border/25 px-s4 py-s2 text-small font-semibold text-foreground transition-colors duration-fast hover:bg-card/5 disabled:opacity-50"
             >
               {pending && pendingDecision === "rejected" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -127,7 +127,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               type="button"
               onClick={() => onDecide("approved")}
               disabled={pending}
-              className="inline-flex items-center gap-s2 rounded-md bg-lime px-s5 py-s2 text-small font-bold text-ink transition-colors duration-fast hover:bg-volt active:bg-lime-deep disabled:opacity-50"
+              className="inline-flex items-center gap-s2 rounded-md bg-primary px-s5 py-s2 text-small font-bold text-primary-foreground transition-colors duration-fast hover:bg-volt active:bg-primary disabled:opacity-50"
             >
               {pending && pendingDecision === "approved" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -139,14 +139,14 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </div>
         </footer>
       ) : (
-        <footer className="mt-s5 border-t border-surface-edge pt-s4 text-small text-muted">
+        <footer className="mt-s5 border-t border-border pt-s4 text-small text-muted-foreground">
           {approval.decided_at && (
             <span>
               Decided {timeAgo(approval.decided_at)}
               {approval.decision_note && (
                 <>
                   {" · "}
-                  <span className="italic text-paper/80">
+                  <span className="italic text-foreground/80">
                     &ldquo;{approval.decision_note}&rdquo;
                   </span>
                 </>

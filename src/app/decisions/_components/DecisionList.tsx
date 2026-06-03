@@ -84,7 +84,7 @@ export function DecisionList({ decisions }: Props) {
     <>
       {/* Agent filter row */}
       <div className="mb-s3 flex flex-wrap items-center gap-s2">
-        <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted">
+        <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted-foreground">
           Agent
         </span>
         <Chip
@@ -107,7 +107,7 @@ export function DecisionList({ decisions }: Props) {
 
       {/* Account filter row */}
       <div className="mb-s5 flex flex-wrap items-center gap-s2">
-        <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted">
+        <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted-foreground">
           Account
         </span>
         <Chip
@@ -129,12 +129,12 @@ export function DecisionList({ decisions }: Props) {
 
       {/* Story-mode caption when an account is selected */}
       {selectedAccount && (
-        <div className="mb-s5 rounded-md border-l-4 border-lime bg-surface/40 px-s5 py-s4">
+        <div className="mb-s5 rounded-md border-l-4 border-primary bg-card/40 px-s5 py-s4">
           <p className="eyebrow">Account focus</p>
-          <p className="mt-s1 font-serif text-h3 text-paper">
+          <p className="mt-s1 font-serif text-h3 text-foreground">
             Decision story · {selectedAccount.name}
           </p>
-          <p className="mt-s1 text-small text-muted">
+          <p className="mt-s1 text-small text-muted-foreground">
             {visible.length}{" "}
             {visible.length === 1 ? "decision" : "decisions"}, newest first.
           </p>
@@ -172,8 +172,8 @@ function Chip({
       onClick={onClick}
       className={`inline-flex items-center gap-s2 rounded-pill px-s3 py-[6px] text-small font-semibold transition-colors duration-fast ${
         active
-          ? "bg-lime text-ink"
-          : "border border-paper/15 text-paper hover:bg-paper/5"
+          ? "bg-primary text-primary-foreground"
+          : "border border-border/15 text-foreground hover:bg-card/5"
       }`}
     >
       <span className={mono ? "font-mono" : ""}>{label}</span>

@@ -83,8 +83,8 @@ function Chip({
       onClick={onClick}
       className={`inline-flex items-center gap-s2 rounded-pill px-s4 py-s2 text-small font-semibold transition-colors duration-fast ${
         active
-          ? "bg-lime text-ink"
-          : "border border-paper/15 text-paper hover:bg-paper/5"
+          ? "bg-primary text-primary-foreground"
+          : "border border-border/15 text-foreground hover:bg-card/5"
       }`}
     >
       <span className="capitalize">{label}</span>

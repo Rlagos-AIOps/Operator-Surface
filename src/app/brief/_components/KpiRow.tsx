@@ -18,9 +18,9 @@ export function KpiRow({ kpis }: Props) {
 
 function KpiCard({ kpi }: { kpi: Kpi }) {
   return (
-    <div className="rounded-lg border border-surface-edge bg-surface p-s5 shadow-e1">
-      <p className="eyebrow text-muted">{kpi.label}</p>
-      <p className="mt-s2 font-serif text-h2 text-paper tabular">
+    <div className="rounded-lg border border-border bg-card p-s5 shadow-e1">
+      <p className="eyebrow text-muted-foreground">{kpi.label}</p>
+      <p className="mt-s2 font-serif text-h2 text-foreground tabular">
         {typeof kpi.value === "number"
           ? kpi.value.toLocaleString()
           : kpi.value}
@@ -35,7 +35,7 @@ function TrendBadge({ kpi }: { kpi: Kpi }) {
   const delta = kpi.delta;
   if (trend === "up") {
     return (
-      <p className="mt-s2 flex items-center gap-s1 text-micro text-lime">
+      <p className="mt-s2 flex items-center gap-s1 text-micro text-primary">
         <ArrowUp className="h-3 w-3" strokeWidth={2.5} />
         <span className="font-mono tabular font-semibold">
           {formatDelta(delta, "+")}
@@ -45,7 +45,7 @@ function TrendBadge({ kpi }: { kpi: Kpi }) {
   }
   if (trend === "down") {
     return (
-      <p className="mt-s2 flex items-center gap-s1 text-micro text-muted">
+      <p className="mt-s2 flex items-center gap-s1 text-micro text-muted-foreground">
         <ArrowDown className="h-3 w-3" strokeWidth={2.5} />
         <span className="font-mono tabular font-semibold">
           {formatDelta(delta, "")}
@@ -54,7 +54,7 @@ function TrendBadge({ kpi }: { kpi: Kpi }) {
     );
   }
   return (
-    <p className="mt-s2 flex items-center gap-s1 text-micro text-muted">
+    <p className="mt-s2 flex items-center gap-s1 text-micro text-muted-foreground">
       <Minus className="h-3 w-3" strokeWidth={2.5} />
       <span className="font-mono tabular font-semibold">flat</span>
     </p>

@@ -19,7 +19,7 @@ export function DecisionCard({ decision }: Props) {
     decision.confidence == null ? null : Number(decision.confidence);
 
   return (
-    <article className="rounded-lg border border-surface-edge bg-surface p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
+    <article className="rounded-lg border border-border bg-card p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
       {/* Top row: agent + decision type + confidence + time */}
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {decision.agent && (
@@ -28,7 +28,7 @@ export function DecisionCard({ decision }: Props) {
         <DecisionTypeBadge type={decision.decision_type} />
         <ConfidenceMeter value={confidence} />
         <div className="flex-1" />
-        <span className="text-micro text-muted tabular">
+        <span className="text-micro text-muted-foreground tabular">
           {timeAgo(decision.created_at)}
         </span>
       </header>
@@ -36,19 +36,19 @@ export function DecisionCard({ decision }: Props) {
       {/* Account + target id */}
       <div className="mb-s4">
         {metadata.account_name && (
-          <h3 className="font-serif text-h3 text-paper">
+          <h3 className="font-serif text-h3 text-foreground">
             {metadata.account_name}
           </h3>
         )}
-        <p className="mt-[2px] font-mono text-micro text-muted">
+        <p className="mt-[2px] font-mono text-micro text-muted-foreground">
           {decision.source_record_type} ·{" "}
-          <span className="text-muted-light">{decision.source_record_id}</span>
+          <span className="text-muted-foreground">{decision.source_record_id}</span>
         </p>
       </div>
 
       {/* Verdict */}
       <div className="mb-s4 flex flex-wrap items-center gap-s3">
-        <span className="text-micro font-bold uppercase tracking-wider text-muted">
+        <span className="text-micro font-bold uppercase tracking-wider text-muted-foreground">
           Verdict
         </span>
         <VerdictBadge label={decision.label} />
@@ -56,7 +56,7 @@ export function DecisionCard({ decision }: Props) {
 
       {/* Reasoning */}
       {decision.reasoning && (
-        <p className="max-w-[72ch] text-body text-paper">
+        <p className="max-w-[72ch] text-body text-foreground">
           {decision.reasoning}
         </p>
       )}
@@ -66,9 +66,9 @@ export function DecisionCard({ decision }: Props) {
 
       {/* Source run footer */}
       {run && (
-        <footer className="mt-s5 border-t border-surface-edge pt-s4 text-small text-muted">
+        <footer className="mt-s5 border-t border-border pt-s4 text-small text-muted-foreground">
           Source run ·{" "}
-          <span className="font-mono text-paper">
+          <span className="font-mono text-foreground">
             {decision.agent?.slug ?? "?"}
           </span>
           {run.input_summary && (
@@ -78,7 +78,7 @@ export function DecisionCard({ decision }: Props) {
             </>
           )}{" "}
           · {timeAgo(run.started_at)} · status:{" "}
-          <span className="text-paper">{run.status}</span>
+          <span className="text-foreground">{run.status}</span>
         </footer>
       )}
     </article>

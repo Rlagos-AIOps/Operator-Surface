@@ -5,13 +5,13 @@ interface Props {
 }
 
 const KIND_STYLES: Record<string, string> = {
-  danger: "border-danger/40 bg-danger/10 text-danger",
-  warning: "border-warning/40 bg-warning/10 text-warning",
-  success: "border-success/40 bg-success/10 text-success",
-  info: "border-info/40 bg-info/10 text-info",
+  danger: "border-bad/40 bg-bad/10 text-bad",
+  warning: "border-warm/40 bg-warm/10 text-warm",
+  success: "border-good/40 bg-good/10 text-good",
+  info: "border-cold/40 bg-cold/10 text-cold",
 };
 
-const DEFAULT_STYLE = "border-paper/20 bg-paper/5 text-paper";
+const DEFAULT_STYLE = "border-border/20 bg-card/5 text-foreground";
 
 export function ChipRow({ chips }: Props) {
   if (chips.length === 0) return null;

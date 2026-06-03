@@ -17,50 +17,50 @@ export function BodyMd({ source }: Props) {
       <ReactMarkdown
         components={{
           h1: ({ children }) => (
-            <h2 className="font-serif text-h2 text-paper mt-s7 mb-s4 first:mt-0">
+            <h2 className="font-serif text-h2 text-foreground mt-s7 mb-s4 first:mt-0">
               {children}
             </h2>
           ),
           h2: ({ children }) => (
-            <h3 className="font-serif text-h3 text-paper mt-s6 mb-s3 first:mt-0">
+            <h3 className="font-serif text-h3 text-foreground mt-s6 mb-s3 first:mt-0">
               {children}
             </h3>
           ),
           h3: ({ children }) => (
-            <h4 className="font-sans font-bold text-h4 text-paper mt-s5 mb-s3 first:mt-0">
+            <h4 className="font-sans font-bold text-h4 text-foreground mt-s5 mb-s3 first:mt-0">
               {children}
             </h4>
           ),
           p: ({ children }) => (
-            <p className="text-body text-paper my-s3 leading-relaxed">
+            <p className="text-body text-foreground my-s3 leading-relaxed">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-s3 list-disc space-y-s1 pl-s5 text-body text-paper">
+            <ul className="my-s3 list-disc space-y-s1 pl-s5 text-body text-foreground">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-s3 list-decimal space-y-s1 pl-s5 text-body text-paper">
+            <ol className="my-s3 list-decimal space-y-s1 pl-s5 text-body text-foreground">
               {children}
             </ol>
           ),
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
           strong: ({ children }) => (
-            <strong className="font-bold text-paper">{children}</strong>
+            <strong className="font-bold text-foreground">{children}</strong>
           ),
           em: ({ children }) => <em className="italic">{children}</em>,
           a: ({ children, href }) => (
             <a
               href={href}
-              className="text-lime underline decoration-lime/40 underline-offset-2 hover:decoration-lime"
+              className="text-primary underline decoration-lime/40 underline-offset-2 hover:decoration-lime"
             >
               {children}
             </a>
           ),
           code: ({ children }) => (
-            <code className="rounded-sm bg-bg-deep/60 px-1 py-[1px] font-mono text-small text-paper">
+            <code className="rounded-sm bg-background/60 px-1 py-[1px] font-mono text-small text-foreground">
               {children}
             </code>
           ),

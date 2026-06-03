@@ -41,11 +41,11 @@ export default async function BriefPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-bg-deep px-s5 py-s8">
+      <main className="min-h-screen bg-background px-s5 py-s8">
         <div className="mx-auto max-w-[1000px]">
           <p className="eyebrow mb-s2">Daily Brief</p>
-          <h1 className="font-serif text-h1 text-paper">Something went wrong.</h1>
-          <p className="mt-s4 text-body text-danger">
+          <h1 className="font-serif text-h1 text-foreground">Something went wrong.</h1>
+          <p className="mt-s4 text-body text-bad">
             <span className="font-bold">DB error:</span> {error.message}
           </p>
         </div>
@@ -55,10 +55,10 @@ export default async function BriefPage() {
 
   if (!data) {
     return (
-      <main className="min-h-screen bg-bg-deep">
+      <main className="min-h-screen bg-background">
         <div className="mx-auto max-w-[1000px] px-s5 py-s8">
           <p className="eyebrow mb-s2">Daily Brief</p>
-          <h1 className="font-serif text-h1 text-paper mb-s6">
+          <h1 className="font-serif text-h1 text-foreground mb-s6">
             No brief for you yet.
           </h1>
           <EmptyState operatorEmail={getDemoOperatorEmail()} />
@@ -74,7 +74,7 @@ export default async function BriefPage() {
   const priorities: Priority[] = sd.priorities ?? [];
 
   return (
-    <main className="min-h-screen bg-bg-deep">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1000px] px-s5 py-s8">
         <BriefHeader brief={brief} />
         <KpiRow kpis={kpis} />

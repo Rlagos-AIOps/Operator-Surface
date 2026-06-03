@@ -12,25 +12,25 @@ export function PriorityList({ priorities }: Props) {
   return (
     <section className="mb-s7">
       <p className="eyebrow mb-s4">Priorities</p>
-      <ol className="overflow-hidden rounded-lg border border-surface-edge bg-surface">
+      <ol className="overflow-hidden rounded-lg border border-border bg-card">
         {sorted.map((p, i) => (
           <li
             key={`${p.rank}-${i}`}
-            className={i > 0 ? "border-t border-surface-edge/60" : ""}
+            className={i > 0 ? "border-t border-border/60" : ""}
           >
             <Link
               href="/approvals"
-              className="flex items-center gap-s4 px-s5 py-s4 transition-colors duration-fast hover:bg-surface-2"
+              className="flex items-center gap-s4 px-s5 py-s4 transition-colors duration-fast hover:bg-card"
             >
-              <span className="font-serif text-h3 text-lime tabular w-s7 shrink-0">
+              <span className="font-serif text-h3 text-primary tabular w-s7 shrink-0">
                 {p.rank}
               </span>
-              <span className="flex-1 text-body text-paper">{p.summary}</span>
-              <span className="hidden text-micro uppercase tracking-wider text-muted sm:inline">
+              <span className="flex-1 text-body text-foreground">{p.summary}</span>
+              <span className="hidden text-micro uppercase tracking-wider text-muted-foreground sm:inline">
                 Approvals
               </span>
               <ChevronRight
-                className="h-4 w-4 text-muted"
+                className="h-4 w-4 text-muted-foreground"
                 strokeWidth={1.75}
                 aria-hidden
               />

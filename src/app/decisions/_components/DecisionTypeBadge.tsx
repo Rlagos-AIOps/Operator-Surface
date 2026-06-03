@@ -21,7 +21,7 @@ const LABELS: Record<string, string> = {
 export function DecisionTypeBadge({ type }: { type: string }) {
   const label = LABELS[type] ?? type.replace(/_/g, " ");
   return (
-    <span className="inline-flex items-center rounded-pill border border-lime/40 px-s3 py-[3px] text-micro font-medium uppercase tracking-wider text-lime">
+    <span className="inline-flex items-center rounded-pill border border-primary/40 px-s3 py-[3px] text-micro font-medium uppercase tracking-wider text-primary">
       {label}
     </span>
   );

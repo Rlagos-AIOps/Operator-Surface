@@ -7,31 +7,31 @@
 
 const VERDICT_TINTS: Record<string, { bg: string; text: string }> = {
   // Risk / health labels
-  at_risk: { bg: "bg-danger/20", text: "text-danger" },
-  watch: { bg: "bg-warning/20", text: "text-warning" },
-  red: { bg: "bg-danger/20", text: "text-danger" },
-  yellow: { bg: "bg-warning/20", text: "text-warning" },
-  green: { bg: "bg-success/20", text: "text-success" },
+  at_risk: { bg: "bg-bad/20", text: "text-bad" },
+  watch: { bg: "bg-warm/20", text: "text-warm" },
+  red: { bg: "bg-bad/20", text: "text-bad" },
+  yellow: { bg: "bg-warm/20", text: "text-warm" },
+  green: { bg: "bg-good/20", text: "text-good" },
 
   // Opportunity labels
-  upsell_qualified: { bg: "bg-success/20", text: "text-success" },
+  upsell_qualified: { bg: "bg-good/20", text: "text-good" },
   priority_high: { bg: "bg-volt/20", text: "text-volt" },
-  priority_medium: { bg: "bg-lime/20", text: "text-lime" },
+  priority_medium: { bg: "bg-primary/20", text: "text-primary" },
 
   // Routing labels
-  route_to_executor: { bg: "bg-info/20", text: "text-info" },
+  route_to_executor: { bg: "bg-cold/20", text: "text-cold" },
 
   // Hygiene labels
-  missing_save_plan: { bg: "bg-warning/20", text: "text-warning" },
-  stale_activity: { bg: "bg-warning/20", text: "text-warning" },
-  missing_csm_owner: { bg: "bg-warning/20", text: "text-warning" },
-  sop_section_5_gap: { bg: "bg-warning/20", text: "text-warning" },
+  missing_save_plan: { bg: "bg-warm/20", text: "text-warm" },
+  stale_activity: { bg: "bg-warm/20", text: "text-warm" },
+  missing_csm_owner: { bg: "bg-warm/20", text: "text-warm" },
+  sop_section_5_gap: { bg: "bg-warm/20", text: "text-warm" },
 
   // Generative labels
-  qbobr_checklist_ready: { bg: "bg-info/20", text: "text-info" },
+  qbobr_checklist_ready: { bg: "bg-cold/20", text: "text-cold" },
 };
 
-const DEFAULT_VERDICT = { bg: "bg-lime/20", text: "text-lime" };
+const DEFAULT_VERDICT = { bg: "bg-primary/20", text: "text-primary" };
 
 export function VerdictBadge({ label }: { label: string }) {
   const tint = VERDICT_TINTS[label] ?? DEFAULT_VERDICT;
