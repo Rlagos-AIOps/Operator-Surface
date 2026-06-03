@@ -35,7 +35,7 @@ function useActive() {
   return (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 }
 
-export function Masthead() {
+export function Masthead({ className }: { className?: string }) {
   const isActive = useActive();
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -67,6 +67,7 @@ export function Masthead() {
         className={cn(
           "sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md transition-transform duration-300 ease-out",
           hidden && !open ? "-translate-y-full" : "translate-y-0",
+          className,
         )}
       >
       <div className="flex h-14 w-full items-center gap-6 px-4 sm:px-6 lg:px-8">

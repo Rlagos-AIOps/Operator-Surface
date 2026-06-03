@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Cpu, CircleDot, Inbox, LineChart } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 import { StatusDot, type Tone } from "@/components/site/accents";
 import { LIFT, PANEL } from "@/components/site/surfaces";
+import { EmptyState, Skeleton, type SurfaceState } from "@/components/site/states";
 
 // Pipeline broken down by temperature + drafts pending (mock).
 const BREAKDOWN: { label: string; value: number; tone: Tone; pct: number; bar: string }[] = [
@@ -61,9 +63,43 @@ function PillBody({ pill }: { pill: (typeof PILLS)[number] }) {
   );
 }
 
-export function MetricRow() {
+export function MetricRow({
+  state = "ready",
+  className,
+  loadingState,
+  emptyState,
+}: {
+  state?: SurfaceState;
+  className?: string;
+  loadingState?: ReactNode;
+  emptyState?: ReactNode;
+} = {}) {
+  if (state === "loading") {
+    return (
+      <div className={cn("grid gap-3 px-7 py-5", className)}>
+        {loadingState ?? (
+          <div className="grid gap-3 lg:grid-cols-[1.7fr_1fr]">
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+          </div>
+        )}
+      </div>
+    );
+  }
+  if (state === "empty") {
+    return (
+      <div className={cn("grid gap-3 px-7 py-5", className)}>
+        {emptyState ?? (
+          <EmptyState
+            title="No metrics yet"
+            hint="Pipeline numbers appear once leads start flowing."
+          />
+        )}
+      </div>
+    );
+  }
   return (
-    <div className="grid gap-3 px-7 py-5">
+    <div className={cn("grid gap-3 px-7 py-5", className)}>
       <div className="grid gap-3 lg:grid-cols-[1.7fr_1fr]">
         {/* Pipeline — total + temperature distribution + key stats */}
         <div className={cn(PANEL, "p-5")}>

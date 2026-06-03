@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Badge, IconTile, Kbd, MiniBar, Pill, StatusDot, type Tone } from "@/components/site/accents";
 import { LinkedinMark } from "@/components/site/nav-icons";
 import { LIFT, METRIC_CHIP, PANEL } from "@/components/site/surfaces";
+import { RADII } from "@/lib/tokens.generated";
 
 // The signal grammar — color carries MEANING, never decoration.
 const SIGNALS: { tone: Tone; name: string; means: string }[] = [
@@ -46,14 +47,6 @@ const BASE = [
   { name: "mossy", cls: "bg-mossy", hex: "#0F2A26", role: "Dark canvas" },
   { name: "paper", cls: "bg-paper", hex: "#F4F1E8", role: "Two-tone film" },
   { name: "ink", cls: "bg-ink", hex: "#0A1410", role: "Text on light/lime" },
-];
-
-const RADII: [string, string][] = [
-  ["sm", "rounded-sm"],
-  ["md", "rounded-md"],
-  ["lg", "rounded-lg"],
-  ["xl", "rounded-xl"],
-  ["2xl", "rounded-2xl"],
 ];
 
 // The operator icon vocabulary — one meaning each, thin-stroke. Deployed
@@ -304,10 +297,10 @@ export default function StyleguidePage() {
       {/* RADII */}
       <Block title="Radii · leaf-blade rounding">
         <div className={cn(PANEL, "flex flex-wrap gap-4 p-6")}>
-          {RADII.map(([name, rcls]) => (
-            <div key={name} className="flex flex-col items-center gap-2">
-              <div className={cn("surface-2 size-16", rcls)} />
-              <span className="text-[11px] text-muted-foreground">{name}</span>
+          {RADII.map((r) => (
+            <div key={r.name} className="flex flex-col items-center gap-2">
+              <div className="surface-2 size-16" style={{ borderRadius: r.value }} />
+              <span className="text-[11px] text-muted-foreground">{r.name}</span>
             </div>
           ))}
         </div>

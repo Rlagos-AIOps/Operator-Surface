@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { StatusDot } from "./accents";
 import { NAV_ICON } from "./nav-icons";
 
@@ -43,9 +44,9 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   },
 ];
 
-export function SiteFooter() {
+export function SiteFooter({ className }: { className?: string }) {
   return (
-    <footer className="mt-20 border-t border-border">
+    <footer className={cn("mt-20 border-t border-border", className)}>
       <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-6">
         <div className="grid gap-10 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
           {/* brand */}

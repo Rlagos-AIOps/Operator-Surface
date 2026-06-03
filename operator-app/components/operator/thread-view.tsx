@@ -1,10 +1,52 @@
+import type { ReactNode } from "react";
 import { Bubble } from "./bubble";
 import { Badge } from "@/components/site/accents";
+import { EmptyState, ErrorState, SkeletonRows, type SurfaceState } from "@/components/site/states";
+import { cn } from "@/lib/utils";
 import type { Lead } from "@/lib/data";
 
-export function ThreadView({ lead }: { lead: Lead }) {
+export function ThreadView({
+  lead,
+  state = "ready",
+  className,
+  emptyState,
+  loadingState,
+  errorState,
+  onRetry,
+}: {
+  lead: Lead;
+  /** Surface state — drives the empty/loading/error slots (default "ready"). */
+  state?: SurfaceState;
+  className?: string;
+  emptyState?: ReactNode;
+  loadingState?: ReactNode;
+  errorState?: ReactNode;
+  onRetry?: () => void;
+}) {
+  if (state !== "ready") {
+    return (
+      <div className={cn("flex flex-1 flex-col items-stretch justify-center overflow-hidden", className)}>
+        {state === "loading"
+          ? (loadingState ?? <SkeletonRows rows={3} />)
+          : state === "empty"
+            ? (emptyState ?? (
+                <EmptyState
+                  title="No thread selected"
+                  hint="Pick a lead from the queue to see the conversation."
+                />
+              ))
+            : (errorState ?? (
+                <ErrorState
+                  title="Couldn't load the thread"
+                  detail="The conversation didn't load. Try again."
+                  onRetry={onRetry}
+                />
+              ))}
+      </div>
+    );
+  }
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className={cn("flex flex-1 flex-col overflow-hidden", className)}>
       <div className="flex items-center gap-3.5 border-b border-[color:var(--surface-edge)] px-7 py-5">
         <span
           aria-hidden="true"

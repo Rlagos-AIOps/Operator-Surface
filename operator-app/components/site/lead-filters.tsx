@@ -36,10 +36,10 @@ const ACTIVE: Record<Tone, string> = {
   muted: "border-border-strong bg-surface-2",
 };
 
-export function LeadFilters() {
+export function LeadFilters({ className }: { className?: string }) {
   const [active, setActive] = useState(0);
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <Filter className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
       {FILTERS.map((f, i) => {
         const on = i === active;

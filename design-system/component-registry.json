@@ -1,0 +1,20 @@
+{
+  "$comment": "Canonical name-parity registry — the single source for the Figma ↔ CONTRACT ↔ code ↔ Storybook bridge. The `figma` block is the COMMITTED snapshot (CI cannot auth Figma live); update it when the Figma library changes, then the gate keeps code+Storybook+CONTRACT aligned to it. Enforced by design-system/scripts/check-name-parity.ts.",
+  "figmaFileKey": "rtzOAMl5gPIwav7lp1bNXP",
+  "figmaComponentsPage": "2:3",
+  "kitExceptions": ["Kit/Charts", "Kit/Mark", "Kit/State"],
+  "components": [
+    { "name": "Badge",       "figma": { "nodeId": "39:23", "name": "Badge" },      "storybook": "Kit/Badge",         "code": { "file": "components/site/accents.tsx",        "symbols": ["Badge"] } },
+    { "name": "StatusDot",   "figma": { "nodeId": "34:13", "name": "StatusDot" },  "storybook": "Kit/StatusDot",     "code": { "file": "components/site/accents.tsx",        "symbols": ["StatusDot"] } },
+    { "name": "Pill",        "figma": { "nodeId": "42:6",  "name": "Pill" },       "storybook": "Kit/Pill",          "code": { "file": "components/site/accents.tsx",        "symbols": ["Pill"] } },
+    { "name": "IntentChip",  "figma": { "nodeId": "42:15", "name": "IntentChip" }, "storybook": "Kit/IntentChip",    "code": { "file": "components/operator/intent-chip.tsx","symbols": ["IntentChip"] } },
+    { "name": "MiniBar",     "figma": { "nodeId": "44:14", "name": "MiniBar" },    "storybook": "Kit/MiniBar",       "code": { "file": "components/site/accents.tsx",        "symbols": ["MiniBar"] } },
+    { "name": "IconTile",    "figma": { "nodeId": "45:26", "name": "IconTile" },   "storybook": "Kit/IconTile",      "code": { "file": "components/site/accents.tsx",        "symbols": ["IconTile"] } },
+    { "name": "Kbd",         "figma": { "nodeId": "44:17", "name": "Kbd" },        "storybook": "Kit/Kbd",           "code": { "file": "components/site/accents.tsx",        "symbols": ["Kbd"] } },
+    { "name": "Bubble",      "figma": { "nodeId": "46:12", "name": "Bubble" },     "storybook": "Kit/Bubble",        "code": { "file": "components/operator/bubble.tsx",     "symbols": ["Bubble"] } },
+    { "name": "Button",      "figma": { "nodeId": "47:17", "name": "Buttons" },    "storybook": "Kit/Buttons",       "code": { "file": "components/site/surfaces.ts",        "symbols": ["BTN_PRIMARY", "BTN_GHOST"] } },
+    { "name": "PageHeader",  "figma": { "nodeId": "48:5",  "name": "PageHeader" }, "storybook": "Kit/PageHeader",    "code": { "file": "components/site/page-header.tsx",    "symbols": ["PageHeader"] } },
+    { "name": "LiveSignage", "figma": { "nodeId": "49:5",  "name": "LiveSignage" },"storybook": "Kit/LiveSignage",   "code": { "file": "components/site/page-header.tsx",    "symbols": ["LiveSignage"] } },
+    { "name": "Panel",       "figma": { "nodeId": "49:21", "name": "Surfaces" },   "storybook": "Foundations/Surfaces","code": { "file": "components/site/surfaces.ts",      "symbols": ["PANEL"] } }
+  ]
+}

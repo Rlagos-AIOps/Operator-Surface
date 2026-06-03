@@ -29,3 +29,6 @@ storybook-static/
 # agent task artifacts (Forge/Codex scratch specs — local only)
 .forge-task.md
 **/.forge-task.md
+
+# brand re-skin verification screenshots
+operator-app/.brand-proof/

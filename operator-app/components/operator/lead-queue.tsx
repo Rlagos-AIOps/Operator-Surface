@@ -1,21 +1,76 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyState, ErrorState, SkeletonRows, type SurfaceState } from "@/components/site/states";
 import { IntentChip } from "./intent-chip";
 import { LEAD_TAGS, type Lead } from "@/lib/data";
+
+function QueueHeader({ count }: { count?: number }) {
+  return (
+    <div className="flex items-baseline justify-between px-6 py-5">
+      <h2 className="flex items-center gap-2 font-display text-2xl">
+        <Inbox className="size-[18px] text-muted-foreground" strokeWidth={1.75} />
+        Inbound queue
+      </h2>
+      {count != null && (
+        <span className="num text-[13px] text-muted-foreground">{count} threads</span>
+      )}
+    </div>
+  );
+}
 
 export function LeadQueue({
   leads,
   selectedId,
   onSelect,
+  state = "ready",
+  className,
+  emptyState,
+  loadingState,
+  errorState,
+  onRetry,
 }: {
   leads: Lead[];
   selectedId: string;
   onSelect: (id: string) => void;
+  /** Surface state — drives the empty/loading/error slots (default "ready"). */
+  state?: SurfaceState;
+  className?: string;
+  emptyState?: ReactNode;
+  loadingState?: ReactNode;
+  errorState?: ReactNode;
+  onRetry?: () => void;
 }) {
+  if (state !== "ready") {
+    return (
+      <div className={cn("flex h-full flex-col overflow-hidden", className)}>
+        <QueueHeader />
+        <div className="flex flex-1 items-center justify-center">
+          {state === "loading"
+            ? (loadingState ?? <SkeletonRows rows={5} className="w-full self-start" />)
+            : state === "empty"
+              ? (emptyState ?? (
+                  <EmptyState
+                    icon={<Inbox strokeWidth={1.75} />}
+                    title="No leads in queue"
+                    hint="New inbound will appear here as the agents triage it."
+                  />
+                ))
+              : (errorState ?? (
+                  <ErrorState
+                    title="Couldn't load the queue"
+                    detail="The inbound feed didn't respond. Try again."
+                    onRetry={onRetry}
+                  />
+                ))}
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className={cn("flex h-full flex-col overflow-hidden", className)}>
       <div className="flex items-baseline justify-between px-6 py-5">
         <h2 className="flex items-center gap-2 font-display text-2xl">
           <Inbox className="size-[18px] text-muted-foreground" strokeWidth={1.75} />

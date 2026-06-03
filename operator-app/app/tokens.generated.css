@@ -2,14 +2,39 @@
    :root/.dark token block in globals.css with: @import "./tokens.generated.css"; */
 
 :root {
-  --radius: 14px;
-  --background: #1e5631;
-  --foreground: #f4f1e8;
+  --brand-accent: oklch(0.89 0.18 122);
+  --brand-accent-dark: oklch(0.9 0.225 126);
+  --brand-accent-2: #c8f902;
+  --brand-accent-2-dark: oklch(0.93 0.19 108);
+  --brand-canvas: #1e5631;
+  --brand-canvas-dark: #0a1f17;
+  --brand-canvas-deep: #163f23;
+  --brand-paper: #f4f1e8;
+  --brand-paper-2: #efeadb;
+  --brand-ink: #0a1410;
+  --brand-bone: #fdfdfa;
+  --brand-hot: oklch(0.7 0.18 47);
+  --brand-hot-dark: oklch(0.72 0.18 47);
+  --brand-warm: oklch(0.84 0.17 92);
+  --brand-warm-dark: oklch(0.88 0.17 92);
+  --brand-cold: oklch(0.66 0.14 245);
+  --brand-cold-dark: oklch(0.68 0.14 245);
+  --brand-bad: #e63946;
+  --brand-bad-dark: oklch(0.62 0.21 25);
+  --brand-pending: oklch(0.8 0.014 225);
+  --brand-pending-dark: oklch(0.85 0.014 225);
+  --brand-font-display: var(--font-dm-serif);
+  --brand-font-sans: var(--font-manrope);
+  --brand-font-mono: var(--font-jetbrains);
+  --brand-radius: 14px;
+  --radius: var(--brand-radius);
+  --background: var(--brand-canvas);
+  --foreground: var(--brand-paper);
   --card: rgba(244, 241, 232, 0.08);
   --card-foreground: #f4f1e8;
   --popover: #1a4d2c;
   --popover-foreground: #f4f1e8;
-  --primary: oklch(0.89 0.18 122);
+  --primary: var(--brand-accent);
   --primary-foreground: #0a1410;
   --secondary: rgba(244, 241, 232, 0.08);
   --secondary-foreground: #f4f1e8;
@@ -17,7 +42,7 @@
   --muted-foreground: #e9e5d5;
   --accent: rgba(244, 241, 232, 0.1);
   --accent-foreground: #f4f1e8;
-  --destructive: #e63946;
+  --destructive: var(--brand-bad);
   --destructive-foreground: #f7f4ea;
   --border: rgba(244, 241, 232, 0.14);
   --input: rgba(244, 241, 232, 0.1);
@@ -25,13 +50,13 @@
   --surface: rgba(244, 241, 232, 0.05);
   --surface-2: rgba(244, 241, 232, 0.1);
   --surface-edge: rgba(244, 241, 232, 0.16);
-  --volt: #c8f902;
+  --volt: var(--brand-accent-2);
   --amber: oklch(0.78 0.15 64);
   --cyan: oklch(0.74 0.12 205);
-  --hot: oklch(0.7 0.18 47);
-  --warm: oklch(0.84 0.17 92);
-  --cold: oklch(0.66 0.14 245);
-  --pending: oklch(0.8 0.014 225);
+  --hot: var(--brand-hot);
+  --warm: var(--brand-warm);
+  --cold: var(--brand-cold);
+  --pending: var(--brand-pending);
   --border-strong: rgba(244, 241, 232, 0.32);
   --dot: rgba(244, 241, 232, 0.18);
   --shadow-1: 0 0 0 1px rgba(244, 241, 232, 0.14), 0 4px 12px rgba(10, 20, 16, 0.18);
@@ -52,13 +77,13 @@
 }
 
 .dark {
-  --background: #0a1f17;
-  --foreground: #fdfdfa;
+  --background: var(--brand-canvas-dark);
+  --foreground: var(--brand-bone);
   --card: rgba(242, 244, 229, 0.05);
   --card-foreground: #fdfdfa;
   --popover: #143832;
   --popover-foreground: #fdfdfa;
-  --primary: oklch(0.9 0.225 126);
+  --primary: var(--brand-accent-dark);
   --primary-foreground: #0a1410;
   --secondary: rgba(242, 244, 229, 0.06);
   --secondary-foreground: #fdfdfa;
@@ -66,7 +91,7 @@
   --muted-foreground: rgba(253, 253, 250, 0.85);
   --accent: rgba(242, 244, 229, 0.08);
   --accent-foreground: #fdfdfa;
-  --destructive: oklch(0.62 0.21 25);
+  --destructive: var(--brand-bad-dark);
   --destructive-foreground: #f7f4ea;
   --border: oklch(34% 0.045 165);
   --border-strong: oklch(50% 0.06 150);
@@ -75,13 +100,13 @@
   --surface: rgba(242, 244, 229, 0.03);
   --surface-2: rgba(242, 244, 229, 0.06);
   --surface-edge: oklch(33% 0.045 165);
-  --volt: oklch(0.93 0.19 108);
+  --volt: var(--brand-accent-2-dark);
   --amber: oklch(0.8 0.155 65);
   --cyan: oklch(0.76 0.13 205);
-  --hot: oklch(0.72 0.18 47);
-  --warm: oklch(0.88 0.17 92);
-  --cold: oklch(0.68 0.14 245);
-  --pending: oklch(0.85 0.014 225);
+  --hot: var(--brand-hot-dark);
+  --warm: var(--brand-warm-dark);
+  --cold: var(--brand-cold-dark);
+  --pending: var(--brand-pending-dark);
   --dot: color-mix(in oklab, var(--primary) 18%, transparent);
   --shadow-1: 0 0 0 1px rgba(242, 244, 229, 0.08);
   --shadow-2: 0 0 0 1px rgba(242, 244, 229, 0.1), 0 8px 24px rgba(0, 0, 0, 0.4);

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Sparkles, Send } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { StatusDot } from "@/components/site/accents";
+import { EmptyState, ErrorState, SkeletonRows, type SurfaceState } from "@/components/site/states";
 import { LinkedinMark } from "@/components/site/nav-icons";
 import { Bubble } from "./bubble";
 import type { Lead, Intent } from "@/lib/data";
@@ -17,12 +19,53 @@ const REACTION: Record<Intent, string> = {
 
 const SUGGESTIONS = ["Book a call", "Check LinkedIn", "Summarize thread"];
 
-export function AgentChat({ lead }: { lead: Lead }) {
+export function AgentChat({
+  lead,
+  state = "ready",
+  className,
+  loadingState,
+  errorState,
+  emptyState,
+  onRetry,
+}: {
+  lead: Lead;
+  /** Surface state — drives the thinking/empty/error slots (default "ready"). */
+  state?: SurfaceState;
+  className?: string;
+  loadingState?: ReactNode;
+  errorState?: ReactNode;
+  emptyState?: ReactNode;
+  onRetry?: () => void;
+}) {
   const [input, setInput] = useState("");
   const first = lead.name.split(" ")[0];
 
+  if (state !== "ready") {
+    return (
+      <aside className={cn("flex h-full min-h-0 flex-col items-stretch justify-center overflow-hidden", className)}>
+        {state === "loading"
+          ? (loadingState ?? <SkeletonRows rows={3} />)
+          : state === "empty"
+            ? (emptyState ?? (
+                <EmptyState
+                  icon={<Sparkles strokeWidth={1.75} />}
+                  title="No agent activity"
+                  hint="The agent's read on a thread appears here once you select a lead."
+                />
+              ))
+            : (errorState ?? (
+                <ErrorState
+                  title="Agent unavailable"
+                  detail="The copilot couldn't respond. Try again."
+                  onRetry={onRetry}
+                />
+              ))}
+      </aside>
+    );
+  }
+
   return (
-    <aside className="flex h-full min-h-0 flex-col overflow-hidden">
+    <aside className={cn("flex h-full min-h-0 flex-col overflow-hidden", className)}>
       <div className="flex items-center gap-2.5 border-b border-[color:var(--surface-edge)] px-6 py-5">
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-good text-ink">
           <Sparkles className="size-[18px]" strokeWidth={1.75} />

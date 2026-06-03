@@ -8,12 +8,14 @@ import { BTN_GHOST, BTN_PRIMARY } from "@/components/site/surfaces";
 export function TopBar({
   highIntentOnly,
   onToggleFilter,
+  className,
 }: {
   highIntentOnly: boolean;
   onToggleFilter: () => void;
+  className?: string;
 }) {
   return (
-    <header className="flex items-center gap-3.5 border-b border-[color:var(--surface-edge)] bg-background px-7 py-3.5">
+    <header className={cn("flex items-center gap-3.5 border-b border-[color:var(--surface-edge)] bg-background px-7 py-3.5", className)}>
       <div className="flex min-w-0 items-center gap-2">
         <Inbox className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
         <span className="eyebrow truncate text-foreground">Inbound triage</span>

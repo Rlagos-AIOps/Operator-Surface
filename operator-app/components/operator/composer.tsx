@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Send, Check, Minimize2, Maximize2, Flame, Snowflake, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { BTN_GHOST, BTN_PRIMARY } from "@/components/site/surfaces";
+import { ErrorState, SkeletonRows, type SurfaceState } from "@/components/site/states";
 import type { Lead } from "@/lib/data";
 
 const REVISE_OPTIONS = [
@@ -20,16 +21,49 @@ export function Composer({
   rejected,
   onApprove,
   onReject,
+  state = "ready",
+  className,
+  loadingState,
+  errorState,
+  onRetry,
 }: {
   lead: Lead;
   sent: boolean;
   rejected: boolean;
   onApprove: () => void;
   onReject: () => void;
+  /** "loading" = agent drafting · "error" = draft failed (default "ready"). */
+  state?: SurfaceState;
+  className?: string;
+  loadingState?: ReactNode;
+  errorState?: ReactNode;
+  onRetry?: () => void;
 }) {
   const [reviseOpen, setReviseOpen] = useState(false);
+  if (state === "loading" || state === "error") {
+    return (
+      <div className={cn("border-t border-surface-edge bg-surface px-7 py-[18px]", className)}>
+        <div className="mb-2.5 flex items-baseline justify-between">
+          <span className="eyebrow inline-flex items-center gap-1.5 text-foreground">
+            <Sparkles className="size-3.5" strokeWidth={1.75} />
+            Agent draft · {state === "loading" ? "Drafting…" : "Failed"}
+          </span>
+        </div>
+        {state === "loading"
+          ? (loadingState ?? <SkeletonRows rows={2} className="px-0 py-2" />)
+          : (errorState ?? (
+              <ErrorState
+                className="py-6"
+                title="Draft failed to send"
+                detail="The agent couldn't send this reply. Retry, or write one manually."
+                onRetry={onRetry}
+              />
+            ))}
+      </div>
+    );
+  }
   return (
-    <div className="border-t border-surface-edge bg-surface px-7 py-[18px]">
+    <div className={cn("border-t border-surface-edge bg-surface px-7 py-[18px]", className)}>
       <div className="mb-2.5 flex items-baseline justify-between">
         <span className="eyebrow inline-flex items-center gap-1.5 text-foreground">
           <Sparkles className="size-3.5" strokeWidth={1.75} />

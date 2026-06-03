@@ -1,0 +1,20 @@
+name: Name parity
+
+# Guardrail for the design ↔ code bridge: the Figma component-set name, the
+# CONTRACT.md entry, the code symbol, and the Storybook title must stay 1:1.
+# If they drift, Supernova can no longer link design to code. This gate blocks
+# the merge on drift. Source of truth: design-system/component-registry.json.
+
+on:
+  push:
+    branches: [design]
+  pull_request:
+
+jobs:
+  name-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - name: Check Figma ↔ CONTRACT ↔ code ↔ Storybook name parity
+        run: bun design-system/scripts/check-name-parity.ts

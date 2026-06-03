@@ -25,6 +25,108 @@
     }
   ],
   "global": {
+    "brand": {
+      "accent": {
+        "$type": "color",
+        "$value": "#C7ED55"
+      },
+      "accent-dark": {
+        "$type": "color",
+        "$value": "#B9F719"
+      },
+      "accent-2": {
+        "$type": "color",
+        "$value": "#C8F902"
+      },
+      "accent-2-dark": {
+        "$type": "color",
+        "$value": "#F5F031"
+      },
+      "canvas": {
+        "$type": "color",
+        "$value": "#1E5631"
+      },
+      "canvas-dark": {
+        "$type": "color",
+        "$value": "#0A1F17"
+      },
+      "canvas-deep": {
+        "$type": "color",
+        "$value": "#163F23"
+      },
+      "paper": {
+        "$type": "color",
+        "$value": "#F4F1E8"
+      },
+      "paper-2": {
+        "$type": "color",
+        "$value": "#EFEADB"
+      },
+      "ink": {
+        "$type": "color",
+        "$value": "#0A1410"
+      },
+      "bone": {
+        "$type": "color",
+        "$value": "#FDFDFA"
+      },
+      "hot": {
+        "$type": "color",
+        "$value": "#F57323"
+      },
+      "hot-dark": {
+        "$type": "color",
+        "$value": "#FC7A2C"
+      },
+      "warm": {
+        "$type": "color",
+        "$value": "#F2C50E"
+      },
+      "warm-dark": {
+        "$type": "color",
+        "$value": "#FFD32E"
+      },
+      "cold": {
+        "$type": "color",
+        "$value": "#3899E2"
+      },
+      "cold-dark": {
+        "$type": "color",
+        "$value": "#3F9FE8"
+      },
+      "bad": {
+        "$type": "color",
+        "$value": "#E63946"
+      },
+      "bad-dark": {
+        "$type": "color",
+        "$value": "#EA3C3F"
+      },
+      "pending": {
+        "$type": "color",
+        "$value": "#B5C0C5"
+      },
+      "pending-dark": {
+        "$type": "color",
+        "$value": "#C5D0D5"
+      },
+      "font-display": {
+        "$type": "fontFamily",
+        "$value": "var(--font-dm-serif)"
+      },
+      "font-sans": {
+        "$type": "fontFamily",
+        "$value": "var(--font-manrope)"
+      },
+      "font-mono": {
+        "$type": "fontFamily",
+        "$value": "var(--font-jetbrains)"
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "14px"
+      }
+    },
     "radius": {
       "sm": {
         "$type": "dimension",
