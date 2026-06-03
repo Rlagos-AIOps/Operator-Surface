@@ -48,6 +48,23 @@ Atomic kit — `operator-app/components/site/accents.tsx`, `surfaces.ts`, `page-
 
 Compositions (eng wires telemetry into these — not atomic Figma components, document as patterns): `MetricRow`, `LeadQueue`, `ThreadView`, `Composer`, `AgentChat`, `TopBar`, `Masthead`, `Footer`.
 
+### UI primitives (vendored shadcn / base-ui layer)
+
+A **separate layer** from the designed kit above — the `components/ui/*` shadcn primitives. Built in Figma on the **"UI Primitives"** page (2026-06-03), variable-bound, named `UI/<Name>` to mirror the Storybook `UI/*` titles, and **name-linked** (no Code Connect — see the `ops-surfer-figma-codeconnect` memory). Covered by the name-parity gate via `component-registry.json` → `uiComponents`.
+
+| Component | Code | Storybook | Figma |
+|---|---|---|---|
+| **UI/Button** | ui/button.tsx | UI/Button | UI/Button (variant ×6) |
+| **UI/Badge** | ui/badge.tsx | UI/Badge | UI/Badge (variant ×4) |
+| **UI/Input** | ui/input.tsx | UI/Input | UI/Input |
+| **UI/Textarea** | ui/textarea.tsx | UI/Textarea | UI/Textarea |
+| **UI/Separator** | ui/separator.tsx | UI/Separator | UI/Separator |
+| **UI/Avatar** | ui/avatar.tsx | UI/Avatar | UI/Avatar |
+| **UI/Card** | ui/card.tsx | UI/Card | UI/Card |
+| **UI/Tooltip** | ui/tooltip.tsx | UI/Tooltip | UI/Tooltip |
+
+`ui/scroll-area` and `ui/sonner` (Toaster) are **runtime behaviors** (a scroll container / a transient toast host), intentionally not static Figma components.
+
 ---
 
 ## 3. aria-live contract (for the agent-run / hot-swap model)

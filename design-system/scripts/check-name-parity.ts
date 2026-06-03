@@ -31,7 +31,7 @@ type Component = {
 
 const registry = JSON.parse(
   readFileSync(join(dsDir, "component-registry.json"), "utf8"),
-) as { components: Component[]; kitExceptions?: string[] };
+) as { components: Component[]; uiComponents?: Component[]; kitExceptions?: string[] };
 
 const contractPath = join(dsDir, "CONTRACT.md");
 const contract = existsSync(contractPath) ? readFileSync(contractPath, "utf8") : "";
@@ -54,6 +54,14 @@ for (const f of walk(join(app, "stories"))) {
   for (const m of src.matchAll(/title:\s*["'`]([^"'`]+)["'`]/g)) storyTitles.add(m[1]);
 }
 
+// A symbol counts as exported if it's `export function/const/class X` OR named in an
+// `export { … }` block (multi-line included) — the shadcn ui/* layer uses the latter.
+function isExported(src: string, sym: string): boolean {
+  if (new RegExp(`export\\s+(?:function|const|class)\\s+${sym}\\b`).test(src)) return true;
+  const blocks = src.match(/export\s*\{[\s\S]*?\}/g) ?? [];
+  return blocks.some((b) => new RegExp(`\\b${sym}\\b`).test(b));
+}
+
 const errors: string[] = [];
 const warnings: string[] = [];
 
@@ -64,9 +72,7 @@ for (const c of registry.components) {
     errors.push(`${c.name}: code file missing — ${c.code.file}`);
   } else {
     const src = readFileSync(codeFile, "utf8");
-    const found = c.code.symbols.some((s) =>
-      new RegExp(`export\\s+(?:function|const|class)\\s+${s}\\b`).test(src),
-    );
+    const found = c.code.symbols.some((s) => isExported(src, s));
     if (!found)
       errors.push(
         `${c.name}: no export {${c.code.symbols.join(" | ")}} in ${c.code.file}`,
@@ -79,6 +85,23 @@ for (const c of registry.components) {
   if (contract && !new RegExp(`\\b${c.name}\\b`).test(contract))
     errors.push(`${c.name}: not named in design-system/CONTRACT.md`);
   // 4. committed Figma snapshot is intact
+  if (!c.figma?.name || !c.figma?.nodeId)
+    errors.push(`${c.name}: missing figma snapshot fields in component-registry.json`);
+}
+
+// UI primitives (vendored shadcn layer) — validated for code + Storybook + figma
+// snapshot parity, but NOT required in CONTRACT.md (CONTRACT scopes the designed kit).
+for (const c of registry.uiComponents ?? []) {
+  const codeFile = join(app, c.code.file);
+  if (!existsSync(codeFile)) {
+    errors.push(`${c.name}: code file missing — ${c.code.file}`);
+  } else {
+    const src = readFileSync(codeFile, "utf8");
+    if (!c.code.symbols.some((s) => isExported(src, s)))
+      errors.push(`${c.name}: no export {${c.code.symbols.join(" | ")}} in ${c.code.file}`);
+  }
+  if (!storyTitles.has(c.storybook))
+    errors.push(`${c.name}: Storybook title "${c.storybook}" not found in stories/`);
   if (!c.figma?.name || !c.figma?.nodeId)
     errors.push(`${c.name}: missing figma snapshot fields in component-registry.json`);
 }
@@ -106,7 +129,7 @@ if (errors.length) {
 }
 
 console.log(
-  `✓ name-parity: ${registry.components.length} components aligned across Figma snapshot, CONTRACT.md, code, and Storybook` +
+  `✓ name-parity: ${registry.components.length} kit + ${(registry.uiComponents ?? []).length} ui components aligned across Figma snapshot, CONTRACT.md, code, and Storybook` +
     (warnings.length ? ` (${warnings.length} warning(s))` : "") +
     ".",
 );

@@ -16,5 +16,16 @@
     { "name": "PageHeader",  "figma": { "nodeId": "48:5",  "name": "PageHeader" }, "storybook": "Kit/PageHeader",    "code": { "file": "components/site/page-header.tsx",    "symbols": ["PageHeader"] } },
     { "name": "LiveSignage", "figma": { "nodeId": "49:5",  "name": "LiveSignage" },"storybook": "Kit/LiveSignage",   "code": { "file": "components/site/page-header.tsx",    "symbols": ["LiveSignage"] } },
     { "name": "Panel",       "figma": { "nodeId": "49:21", "name": "Surfaces" },   "storybook": "Foundations/Surfaces","code": { "file": "components/site/surfaces.ts",      "symbols": ["PANEL"] } }
+  ],
+  "$uiComment": "Vendored shadcn/base-ui primitives — a SEPARATE layer from the designed kit above. Built in Figma on the 'UI Primitives' page (2026-06-03), name-linked (no Code Connect — see ops-surfer-figma-codeconnect memory). ScrollArea + Sonner are runtime behaviors, intentionally not static Figma components.",
+  "uiComponents": [
+    { "name": "UI/Button",    "figma": { "nodeId": "106:14", "name": "UI/Button" },    "storybook": "UI/Button",    "code": { "file": "components/ui/button.tsx",    "symbols": ["Button"] } },
+    { "name": "UI/Badge",     "figma": { "nodeId": "107:10", "name": "UI/Badge" },     "storybook": "UI/Badge",     "code": { "file": "components/ui/badge.tsx",     "symbols": ["Badge"] } },
+    { "name": "UI/Input",     "figma": { "nodeId": "108:2",  "name": "UI/Input" },     "storybook": "UI/Input",     "code": { "file": "components/ui/input.tsx",     "symbols": ["Input"] } },
+    { "name": "UI/Textarea",  "figma": { "nodeId": "108:6",  "name": "UI/Textarea" },  "storybook": "UI/Textarea",  "code": { "file": "components/ui/textarea.tsx",  "symbols": ["Textarea"] } },
+    { "name": "UI/Separator", "figma": { "nodeId": "108:10", "name": "UI/Separator" }, "storybook": "UI/Separator", "code": { "file": "components/ui/separator.tsx", "symbols": ["Separator"] } },
+    { "name": "UI/Avatar",    "figma": { "nodeId": "109:2",  "name": "UI/Avatar" },    "storybook": "UI/Avatar",    "code": { "file": "components/ui/avatar.tsx",    "symbols": ["Avatar"] } },
+    { "name": "UI/Card",      "figma": { "nodeId": "109:6",  "name": "UI/Card" },      "storybook": "UI/Card",      "code": { "file": "components/ui/card.tsx",      "symbols": ["Card"] } },
+    { "name": "UI/Tooltip",   "figma": { "nodeId": "109:11", "name": "UI/Tooltip" },   "storybook": "UI/Tooltip",   "code": { "file": "components/ui/tooltip.tsx",   "symbols": ["Tooltip"] } }
   ]
 }
