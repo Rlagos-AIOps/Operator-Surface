@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Manrope, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { BrandShell } from "@/components/brand-shell";
 import { Masthead } from "@/components/site/masthead";
 import { SiteFooter } from "@/components/site/footer";
 import "./globals.css";
@@ -48,11 +49,13 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <div className="app-bg pointer-events-none fixed inset-0 -z-10" aria-hidden />
-          <div className="app-sweep pointer-events-none fixed inset-0 z-[5] animate-wave-drift" aria-hidden />
-          <Masthead />
-          <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
-          <SiteFooter />
+          <BrandShell>
+            <div className="app-bg pointer-events-none fixed inset-0 -z-10" aria-hidden />
+            <div className="app-sweep pointer-events-none fixed inset-0 z-[5] animate-wave-drift" aria-hidden />
+            <Masthead />
+            <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
+            <SiteFooter />
+          </BrandShell>
           <Toaster
             position="bottom-right"
             toastOptions={{

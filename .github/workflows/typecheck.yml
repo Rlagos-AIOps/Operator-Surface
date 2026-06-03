@@ -1,0 +1,30 @@
+name: Typecheck
+
+# Closes the "false green" hole: the name-parity gate checks NAMES, not
+# buildability, so it can pass while the build is red. This gate runs the
+# TypeScript compiler, so a type error — or a broken story file, like the
+# RADII import clash that took down tsc + Storybook + Chromatic — blocks the
+# merge instead of shipping to `design`. Pairs with Chromatic (Storybook build)
+# and Tokens (drift) as the third buildability gate.
+#
+# Fix locally:  cd operator-app && bunx tsc --noEmit
+on:
+  push:
+    branches: [design]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install
+        working-directory: operator-app
+      - name: Typecheck (tsc --noEmit)
+        run: bunx tsc --noEmit
+        working-directory: operator-app
