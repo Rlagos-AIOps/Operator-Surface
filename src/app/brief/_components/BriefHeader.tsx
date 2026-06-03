@@ -24,10 +24,10 @@ export function BriefHeader({ brief }: Props) {
       <p className="eyebrow mb-s3">
         Daily Brief · {formatBriefDate(brief.brief_date)}
       </p>
-      <h1 className="font-serif text-paper text-balance mb-s5 max-w-[20ch]">
+      <h1 className="font-serif text-foreground text-balance mb-s5 max-w-[20ch]">
         {brief.headline}
       </h1>
-      <div className="flex items-center gap-s2 text-micro text-muted">
+      <div className="flex items-center gap-s2 text-micro text-muted-foreground">
         <span className="relative inline-flex h-2 w-2">
           {isLive && (
             <span className="absolute inline-flex h-full w-full animate-ping rounded-pill bg-volt opacity-75" />
@@ -40,7 +40,7 @@ export function BriefHeader({ brief }: Props) {
         </span>
         <span
           className={`font-bold uppercase tracking-wider ${
-            isLive ? "text-volt" : "text-muted"
+            isLive ? "text-volt" : "text-muted-foreground"
           }`}
         >
           {isLive ? "Agent live" : "Agent idle"}

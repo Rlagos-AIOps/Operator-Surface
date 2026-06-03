@@ -31,11 +31,11 @@ export default async function ApprovalsPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-bg-deep px-s5 py-s8">
+      <main className="min-h-screen bg-background px-s5 py-s8">
         <div className="mx-auto max-w-[1200px]">
           <p className="eyebrow mb-s2">Approval Queue</p>
-          <h1 className="font-serif text-h1 text-paper">Something went wrong.</h1>
-          <p className="mt-s4 text-body text-danger">
+          <h1 className="font-serif text-h1 text-foreground">Something went wrong.</h1>
+          <p className="mt-s4 text-body text-bad">
             <span className="font-bold">DB error:</span> {error.message}
           </p>
         </div>
@@ -48,13 +48,13 @@ export default async function ApprovalsPage() {
   const decided = approvals.filter((a) => a.status !== "pending");
 
   return (
-    <main className="min-h-screen bg-bg-deep">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1200px] px-s5 py-s7">
         {/* Header row */}
         <div className="mb-s5 flex items-start justify-between gap-s5">
           <div>
             <p className="eyebrow mb-s2">Approval Queue</p>
-            <h1 className="font-serif text-h1 text-paper">
+            <h1 className="font-serif text-h1 text-foreground">
               {pending.length === 0
                 ? "All clear."
                 : `${pending.length} need you`}
@@ -63,14 +63,14 @@ export default async function ApprovalsPage() {
           <button
             type="button"
             aria-label="Settings"
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-paper/20 text-paper transition-colors duration-fast hover:bg-paper/5"
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-border/20 text-foreground transition-colors duration-fast hover:bg-card/5"
           >
             <Settings className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </div>
 
         {/* Agent-live strip */}
-        <div className="mb-s6 flex items-center gap-s2 text-micro text-muted">
+        <div className="mb-s6 flex items-center gap-s2 text-micro text-muted-foreground">
           <span className="relative inline-flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-pill bg-volt opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-pill bg-volt" />

@@ -2,6 +2,8 @@ import type { ApprovalStatus } from "./types";
 
 /* ------------------------------------------------------------------ */
 /* AgentBadge — color-coded pill per CSM agent slug                   */
+/* Semantic tones: galileo=volt · sop-analyst=cold · sf-reader=muted  */
+/* hygiene-validator=warm · controlled-executor=good                  */
 /* ------------------------------------------------------------------ */
 
 const AGENT_TINTS: Record<string, { bg: string; border: string; text: string }> = {
@@ -11,24 +13,24 @@ const AGENT_TINTS: Record<string, { bg: string; border: string; text: string }> 
     text: "text-volt",
   },
   "sop-analyst": {
-    bg: "bg-info/15",
-    border: "border-info/40",
-    text: "text-info",
+    bg: "bg-cold/15",
+    border: "border-cold/40",
+    text: "text-cold",
   },
   "sf-reader": {
-    bg: "bg-paper/10",
-    border: "border-paper/25",
-    text: "text-paper",
+    bg: "bg-surface-2",
+    border: "border-border-strong",
+    text: "text-muted-foreground",
   },
   "hygiene-validator": {
-    bg: "bg-warning/15",
-    border: "border-warning/40",
-    text: "text-warning",
+    bg: "bg-warm/15",
+    border: "border-warm/40",
+    text: "text-warm",
   },
   "controlled-executor": {
-    bg: "bg-lime/15",
-    border: "border-lime/40",
-    text: "text-lime",
+    bg: "bg-good/15",
+    border: "border-good/40",
+    text: "text-good",
   },
 };
 
@@ -54,7 +56,7 @@ export function AgentBadge({
 }
 
 /* ------------------------------------------------------------------ */
-/* ActionTypeBadge — outlined lime pill                               */
+/* ActionTypeBadge — outlined primary pill                            */
 /* ------------------------------------------------------------------ */
 
 const ACTION_LABELS: Record<string, string> = {
@@ -68,7 +70,7 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionTypeBadge({ actionType }: { actionType: string }) {
   const label = ACTION_LABELS[actionType] ?? actionType.replace(/_/g, " ");
   return (
-    <span className="inline-flex items-center rounded-pill border border-lime/40 px-s3 py-[3px] text-micro font-medium uppercase tracking-wider text-lime">
+    <span className="inline-flex items-center rounded-pill border border-primary/40 px-s3 py-[3px] text-micro font-medium uppercase tracking-wider text-primary">
       {label}
     </span>
   );
@@ -76,12 +78,13 @@ export function ActionTypeBadge({ actionType }: { actionType: string }) {
 
 /* ------------------------------------------------------------------ */
 /* RiskBadge — low / med / high                                       */
+/* low=pending (luminous, not disabled) · med=warm · high=bad         */
 /* ------------------------------------------------------------------ */
 
 const RISK_STYLES: Record<string, string> = {
-  low: "border-muted/30 text-muted",
-  med: "border-warning/40 text-warning",
-  high: "border-danger/50 text-danger",
+  low: "border-pending/40 text-pending",
+  med: "border-warm/40 text-warm",
+  high: "border-bad/50 text-bad",
 };
 
 export function RiskBadge({ level }: { level?: string | null }) {
@@ -97,14 +100,15 @@ export function RiskBadge({ level }: { level?: string | null }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* StatusBadge — pending / approved / rejected                         */
+/* StatusBadge — pending / approved / rejected / expired               */
+/* pending=pending (luminous) · approved=good · rejected=bad · expired=muted */
 /* ------------------------------------------------------------------ */
 
 const STATUS_STYLES: Record<ApprovalStatus, string> = {
-  pending: "border-paper/25 text-paper bg-paper/5",
-  approved: "border-lime/50 text-lime bg-lime/10",
-  rejected: "border-danger/50 text-danger bg-danger/10",
-  expired: "border-muted/30 text-muted bg-muted/10",
+  pending: "border-pending/50 text-pending bg-pending/10",
+  approved: "border-good/50 text-good bg-good/10",
+  rejected: "border-bad/50 text-bad bg-bad/10",
+  expired: "border-border-strong text-muted-foreground bg-surface-2",
 };
 
 export function StatusBadge({ status }: { status: ApprovalStatus }) {

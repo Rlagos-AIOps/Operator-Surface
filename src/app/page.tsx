@@ -43,13 +43,13 @@ export default async function HubPage() {
   const latestBrief = latestBriefResp.data;
 
   return (
-    <main className="min-h-screen bg-bg-deep">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1280px] px-s5 py-s8 md:py-s9">
         {/* Hero */}
         <header className="mb-s9 max-w-[36ch]">
           <p className="eyebrow mb-s4">Operator Surface</p>
           <h1
-            className="font-serif text-balance text-paper"
+            className="font-serif text-balance text-foreground"
             style={{
               fontSize: "clamp(56px, 7vw, 96px)",
               lineHeight: 0.96,
@@ -58,7 +58,7 @@ export default async function HubPage() {
           >
             See what your agents did.
           </h1>
-          <p className="mt-s5 max-w-[48ch] text-body text-paper/80 leading-relaxed">
+          <p className="mt-s5 max-w-[48ch] text-body text-foreground/80 leading-relaxed">
             A live view of your CSM agents&rsquo; work — the calls they made,
             the reasoning behind each one, and what&rsquo;s waiting on a human
             decision before it executes.
@@ -78,18 +78,18 @@ export default async function HubPage() {
               latestBrief ? (
                 <>
                   Latest:{" "}
-                  <span className="font-mono text-paper">
+                  <span className="font-mono text-foreground">
                     {formatBriefDate(latestBrief.brief_date)}
                   </span>
                   {" · "}
                   {latestBrief.viewed_at ? (
                     <span>viewed</span>
                   ) : (
-                    <span className="text-lime">not yet viewed</span>
+                    <span className="text-primary">not yet viewed</span>
                   )}
                 </>
               ) : (
-                <span className="text-muted">No brief yet</span>
+                <span className="text-muted-foreground">No brief yet</span>
               )
             }
             href="/brief"
@@ -101,7 +101,7 @@ export default async function HubPage() {
             description="Review proposed agent actions — save plans, emails, tasks, Slack — before they execute."
             meta={
               <>
-                <span className="font-mono text-paper tabular">
+                <span className="font-mono text-foreground tabular">
                   {pendingCount}
                 </span>{" "}
                 pending {pendingCount === 1 ? "approval" : "approvals"}
@@ -116,7 +116,7 @@ export default async function HubPage() {
             description="See why the agents reached the verdicts they did — signals, weights, source records."
             meta={
               <>
-                <span className="font-mono text-paper tabular">
+                <span className="font-mono text-foreground tabular">
                   {decisionsCount}
                 </span>{" "}
                 decisions logged
@@ -126,7 +126,7 @@ export default async function HubPage() {
           />
         </section>
 
-        <p className="mt-s9 text-micro text-muted">
+        <p className="mt-s9 text-micro text-muted-foreground">
           Pre-auth demo. Operator scoped to{" "}
           <span className="font-mono">
             {process.env.DEMO_OPERATOR_EMAIL ?? "taylor@example-csm.test"}

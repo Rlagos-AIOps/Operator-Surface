@@ -14,15 +14,15 @@ export function DecidedList({ decided }: Props) {
 
   return (
     <details className="mt-s8 group">
-      <summary className="flex cursor-pointer items-center gap-s3 border-t border-surface-edge pt-s5 text-paper">
+      <summary className="flex cursor-pointer items-center gap-s3 border-t border-border pt-s5 text-foreground">
         <span className="font-serif text-h3">Recently decided</span>
-        <span className="tabular text-small text-muted">
+        <span className="tabular text-small text-muted-foreground">
           {decided.length}
         </span>
-        <span className="ml-auto text-micro uppercase tracking-wider text-muted group-open:hidden">
+        <span className="ml-auto text-micro uppercase tracking-wider text-muted-foreground group-open:hidden">
           show
         </span>
-        <span className="ml-auto text-micro uppercase tracking-wider text-muted hidden group-open:inline">
+        <span className="ml-auto text-micro uppercase tracking-wider text-muted-foreground hidden group-open:inline">
           hide
         </span>
       </summary>

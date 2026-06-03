@@ -9,10 +9,10 @@ export function BriefFooter({ brief }: Props) {
   const run = brief.generated_run;
   const isLive = run?.status === "running";
   return (
-    <footer className="mt-s7 border-t border-surface-edge pt-s5 text-small text-muted">
+    <footer className="mt-s7 border-t border-border pt-s5 text-small text-muted-foreground">
       <p>
         Generated {timeAgo(brief.generated_at)} by{" "}
-        <span className="font-mono text-paper">galileo</span>
+        <span className="font-mono text-foreground">galileo</span>
         {run?.input_summary && (
           <>
             {" · "}
@@ -32,7 +32,7 @@ export function BriefFooter({ brief }: Props) {
             viewed {timeAgo(brief.viewed_at)}
           </>
         ) : (
-          <span className="text-lime">not yet viewed</span>
+          <span className="text-primary">not yet viewed</span>
         )}
       </p>
     </footer>
