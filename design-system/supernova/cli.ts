@@ -93,7 +93,12 @@ async function pull() {
   const { sdk, id } = await resolve();
   const structure = await sdk.documentation.getDocumentationStructure(id);
   console.log(`Docs structure (${structure.length}):`);
-  for (const e of structure as any[]) console.log(`  • [${e.type ?? "?"}] ${e.title ?? e.name ?? e.id}`);
+  for (const e of structure as any[])
+    console.log(
+      `  • [${e.type ?? "?"}] "${e.title ?? e.name ?? "?"}" id=${e.id} pid=${e.persistentId} parent=${e.parentPersistentId ?? e.parentGroupId ?? e.parentId ?? "—"}`,
+    );
+  console.log("\nfirst entry keys:", Object.keys((structure as any[])[0] ?? {}).join(", "));
+  console.log("first entry raw:\n" + JSON.stringify((structure as any[])[0], null, 2).slice(0, 900));
 }
 
 async function pushDocs(commit: boolean) {
@@ -121,10 +126,144 @@ async function pushDocs(commit: boolean) {
   if (commit) console.log("Then publish via the Supernova UI or extend this tool with sdk.documentation.publish().");
 }
 
+/** Dump the SDK's mocked block shapes so we know how to build page content. */
+async function blocks() {
+  const sdk = getSdk();
+  try {
+    const defs = sdk.documentation.getDocumentationMockedEditorBlockDefinitions() as any[];
+    console.log(`block definitions (${defs.length}): ` + defs.map((d) => d.type ?? d.variantKey ?? d.key).filter(Boolean).slice(0, 40).join(", "));
+    const textDef = defs.find((d) => /text|markdown/i.test(JSON.stringify(d.type ?? d.key ?? "")));
+    console.log("\na text/markdown def raw:\n" + JSON.stringify(textDef ?? defs[0], null, 2).slice(0, 1100));
+  } catch (e: any) {
+    console.error("defs err:", e?.message ?? e);
+  }
+  try {
+    const mock = sdk.documentation.getDocumentationMockedPageContent("x") as any[];
+    console.log(`\nmocked page content (${mock.length} blocks). first block:\n` + JSON.stringify(mock[0], null, 2).slice(0, 1200));
+  } catch (e: any) {
+    console.error("mock err:", e?.message ?? e);
+  }
+}
+
+/** Discover the exact create-page payload by asking the live API (creates + deletes one page). */
+async function probe() {
+  const { id } = await resolve();
+  console.log("identifier:", JSON.stringify(id));
+  try {
+    const pageId = await getSdk().documentation.createDocumentationPage(id as any, {
+      title: "PROBE — safe to delete",
+    } as any);
+    console.log(`✓ minimal {title} works → page ${pageId}. Deleting probe…`);
+    try {
+      await getSdk().documentation.deleteDocumentationPage(id as any, pageId);
+      console.log("✓ probe deleted.");
+    } catch (de: any) {
+      console.error(`(probe page ${pageId} left — delete manually: ${de?.message ?? de})`);
+    }
+  } catch (e: any) {
+    console.error("✗ create failed — full error:");
+    try {
+      console.error(JSON.stringify(e?.response?.data ?? e?.cause ?? e?.message ?? String(e), null, 2));
+    } catch {
+      console.error(String(e?.message ?? e));
+    }
+  }
+}
+
+// Brand principles (client-facing summaries, from the design language). The page
+// header.description carries the summary; full long-form bodies live in `portal/`
+// + GitHub and can be pasted into Supernova's editor (block bodies aren't a simple SDK write).
+const BRAND_PAGES = [
+  { title: "Overview — Ops Surfer", description: "Ops Surfer is the ops backend for people who run on clients — agencies, consultancies, fractional operators. AI agents absorb the manual 'platform tax' (triage, scoping, ROI pricing, drafting, follow-up); the operator stays human-on-the-loop. A chat-first command console, not tables and ticket queues." },
+  { title: "Brand Voice", description: "Operator-to-operator. Engineering authority, retro-modern, confident — never corporate. DO: lead with the outcome and the ROI; the agent speaks first person ('I flagged 3 leads as cold'). DON'T: corporate jargon (synergy, solutions), servile chatbot tone, or emoji." },
+  { title: "Graphic Language", description: "The wave mark + 'Ops Surfer' mono wordmark. Leaf-blade rounding (60/15 speech bubbles). Two-tone: warm translucent cream-paper over emerald, with a gold accent. mode.com retro-modern — close-to-the-metal, not generic SaaS." },
+  { title: "Color = Signal (the grammar)", description: "Two rules govern everything: (1) color is a SIGNAL, never decoration — every accent means a status (good · hot · warm · cold · bad · pending); (2) text is ONE color (white/foreground) — the elements around it get colored. Motion is a signal too: calm by default, pulse only on real events." },
+  { title: "Customization & White-label", description: "Customers re-skin the entire surface — both themes, every signal — by overriding the --brand-* DNA layer (a CSS override or <BrandProvider>), with no code fork. They recompose which panels/agents render. The design system is a product capability, not an internal asset." },
+];
+
+function portalPages() {
+  if (!existsSync(PORTAL_DIR)) return [];
+  return readdirSync(PORTAL_DIR)
+    .filter((f) => f.endsWith(".md"))
+    .sort()
+    .map((f) => {
+      const md = readFileSync(join(PORTAL_DIR, f), "utf8");
+      const title = (md.match(/^#\s+(.+)$/m)?.[1] ?? f.replace(/\.md$/, "")).trim();
+      const para =
+        md
+          .split("\n")
+          .map((l) => l.trim())
+          .find((l) => l && !l.startsWith("#") && !l.startsWith(">") && !l.startsWith("|") && !l.startsWith("```")) ?? "";
+      return { title, description: para.replace(/\*\*/g, "").replace(/`/g, "").slice(0, 300) };
+    });
+}
+
+/** Create the Ops Surfer docs group + brand-principle + portal pages (idempotent by title). */
+async function mkdocs(commit: boolean) {
+  const { sdk, id } = await resolve();
+  const structure = (await sdk.documentation.getDocumentationStructure(id)) as any[];
+  const root = structure.find((e) => e.isRoot) ?? structure.find((e) => e.type === "Group");
+  const pages = [...BRAND_PAGES, ...portalPages()];
+  console.log(`${commit ? "CREATE" : "DRY-RUN"} — "Ops Surfer — Brand & Design System" group + ${pages.length} pages (under root ${root?.persistentId})`);
+  if (!commit) {
+    for (const p of pages) console.log(`  • ${p.title}\n      ${p.description.slice(0, 130)}…`);
+    console.log("\n(run with --commit to author into Supernova)");
+    return;
+  }
+  let groupPid = structure.find((e) => e.type === "Group" && /Ops Surfer/i.test(e.title))?.persistentId;
+  if (!groupPid) {
+    groupPid = await sdk.documentation.createDocumentationGroup(id, {
+      title: "Ops Surfer — Brand & Design System",
+      parentPersistentId: root.persistentId,
+    } as any);
+    console.log(`  ✓ group → ${groupPid}`);
+  } else {
+    console.log(`  • group exists → ${groupPid}`);
+  }
+  const existing = new Set(structure.map((e) => e.title));
+  for (const p of pages) {
+    if (existing.has(p.title)) {
+      console.log(`  • exists: ${p.title}`);
+      continue;
+    }
+    try {
+      const pid = await sdk.documentation.createDocumentationPage(id, {
+        title: p.title,
+        parentPersistentId: groupPid,
+        configuration: { header: { description: p.description, alignment: "Left", backgroundImageScaleType: "AspectFill", foregroundColor: null, showBackgroundOverlay: false, minHeight: 0, showCoverText: true, backgroundImage: null, backgroundImageAssetId: null, backgroundImageAssetUrl: null } },
+      } as any);
+      console.log(`  ✓ ${p.title} → ${pid}`);
+    } catch (e: any) {
+      console.error(`  ✗ ${p.title}: ${(e?.message ?? String(e)).slice(0, 240)}`);
+    }
+  }
+  console.log("\nDone. Publish in Supernova (or extend with sdk.documentation.publish). Page BODIES: paste the portal/*.md into each page's editor (block bodies aren't a simple SDK write).");
+}
+
+/** Publish the documentation so the portal is live/shareable. env defaults to "Live". */
+async function publish() {
+  const { sdk, id } = await resolve();
+  const env = (process.argv[3] as any) ?? "Live";
+  const build = await sdk.documentation.publish(id, env, true);
+  console.log(`✓ publish (${env}) triggered: ${JSON.stringify(build ?? {}).slice(0, 240)}`);
+}
+
+/** Rename the design system. */
+async function rename() {
+  const { sdk } = await resolve();
+  await sdk.designSystems.updateDesignSystemMetadata(DS_ID, "Ops Surfer — Design System");
+  console.log('✓ renamed DS → "Ops Surfer — Design System"');
+}
+
 const cmd = process.argv[2] ?? "whoami";
 const commit = process.argv.includes("--commit");
 try {
-  if (cmd === "whoami") await whoami();
+  if (cmd === "probe") await probe();
+  else if (cmd === "blocks") await blocks();
+  else if (cmd === "mkdocs") await mkdocs(commit);
+  else if (cmd === "publish") await publish();
+  else if (cmd === "rename") await rename();
+  else if (cmd === "whoami") await whoami();
   else if (cmd === "pull") await pull();
   else if (cmd === "push-docs") await pushDocs(commit);
   else if (cmd === "tie")
