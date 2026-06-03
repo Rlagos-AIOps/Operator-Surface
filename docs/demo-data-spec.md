@@ -6,7 +6,7 @@
 
 **Authority.** This doc describes what's already seeded in Supabase. Any drift between Supabase, Salesforce, and the screens should be reconciled to this doc — not the other way around.
 
-**Last reconciled with:** `scripts/seed.ts` as of 2026-06-02.
+**Last reconciled with:** `scripts/seed.ts` and the CSM playbooks corpus (`docs/csm-playbooks/`) as of 2026-06-02.
 
 ---
 
@@ -326,10 +326,24 @@ What lives where, and how Angel's Salesforce seeder maps to this app's data mode
 | Health score | `Account.Health_Score__c` | *not stored* — implied by `classify_at_risk` confidence and signals |
 | Health band | computed: green / yellow / red | `decisions.signals[].name == "health_band"` value, or the `label` on a `recompute_health_band` decision |
 | CSM owner | `Account.OwnerId` | inferred from which `briefs.operator_id` mentions the account |
-| Save plan | `Account.CSM_Save_Plan__c` (Long Text) | `approvals.proposed_value.value` when `action_type = "update_field"` and `field = "CSM_Save_Plan__c"` |
+| Save plan | `Account.CSM_Save_Plan__c` (Long Text) ⚠️ see note below | `approvals.proposed_value.value` when `action_type = "update_field"` and `field = "CSM_Save_Plan__c"` |
 | Last login | `Account.Last_Login__c` (Datetime) | `decisions.signals[]` where `name = "days_since_last_login"` |
 | Renewal date | `Opportunity.CloseDate` (related) | `decisions.signals[]` where `name = "renewal_in_days"` |
 | New-logo timestamp | `Account.Activated_At__c` | `decisions.signals[]` where `name = "days_since_activation"` |
+
+### ⚠️ Reconciliation note — Save Plan field location
+
+The current Supabase seed models `CSM_Save_Plan__c` as an **`Account`** field. The CSM At-Risk Playbook (§1, see [`docs/csm-playbooks/1.6-at-risk-playbook.md`](csm-playbooks/1.6-at-risk-playbook.md)) is unambiguous that the canonical location is the **`Opportunity`** (the renewal opp):
+
+> CSM Save Plan field on the **Renewal Opp** in SFDC — document the plan here.
+
+The Save Plan is also one of three coordinated artefacts per the playbook: (1) the SFDC Opportunity field, (2) an internal Slack channel, (3) Chatter + Active Risk Flags. Only (1) is in scope for this demo.
+
+**For Angel's Salesforce seeder.** Target **`Opportunity.CSM_Save_Plan__c`** on each open renewal Opportunity, not the Account. For accounts without an active renewal Opportunity (e.g. brand-new logos), the field doesn't exist yet — that's a hygiene gap the agents surface, not a data error.
+
+**For Roberto's Supabase seed.** Optional cleanup, not blocking for demo: swap `target_record_type: "salesforce.account"` → `"salesforce.opportunity"` on the `update_field` approvals where `field = "CSM_Save_Plan__c"`, and update the `signals[].source` from `salesforce.account.CSM_Save_Plan__c` → `salesforce.opportunity.CSM_Save_Plan__c`. The UI just renders the field name — visually nothing changes.
+
+**For the demo narrative.** When you click into an approval to update a save plan, you can correctly say "this updates the **Opportunity** in Salesforce, not the Account — that's where the playbook says the save plan lives, so the renewal team and the CSM both see it on the same record."
 
 ### Signal source attribution
 
@@ -373,7 +387,7 @@ For each of the 10 demo accounts:
 
 1. **Account record** with `Name`, `Industry`, `Segment__c`, `AnnualRevenue` matching the table above.
 2. **Owner assignment** matching the CSM column.
-3. **`CSM_Save_Plan__c`** populated according to the per-account "save plan" state (see each account block — Cobblestone/Riverside/Northstar are blank; Brightline has a stale 3-month-old note; Spruce/Riverside post-approval have updated notes).
+3. **`Opportunity.CSM_Save_Plan__c`** on each renewal Opportunity, populated according to the per-account "save plan" state (Cobblestone/Riverside/Northstar are blank; Brightline has a stale 3-month-old note; Spruce/Riverside post-approval have updated notes). See the ⚠️ reconciliation note above — the playbook canon places this field on the Opportunity, not the Account. The current seed mislabels it but is non-blocking for demo.
 4. **`Last_Login__c`** set so that `today − Last_Login__c == days_since_last_login` from the relevant signal.
 5. **Open Opportunity** with `CloseDate = today + renewal_in_days` (only for accounts with a renewal signal — Lighthouse, Cobblestone, Brightline, Northstar, Riverside).
 6. **Cases**: a count of `support_tickets_30d` open or recently closed cases per account.
