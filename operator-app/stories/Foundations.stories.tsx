@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Badge, type Tone } from "../components/site/accents";
-import { RADII } from "../lib/tokens.generated";
 
 // Foundations — the spine: color = signal, the type ramp, radii, elevation,
 // and the accessibility contract. 1:1 with the Figma Foundations page.

@@ -24,4 +24,7 @@ function SidebarDemo() {
   );
 }
 
-export const Playground: Story = { render: () => <SidebarDemo /> };
+export const Playground: Story = {
+  args: { active: NAV_ITEMS[0]?.id ?? "", onNav: () => {} },
+  render: () => <SidebarDemo />,
+};
