@@ -1,8 +1,10 @@
-# AI Ops OS — Design System
+# Ops Surfer — Design System (legacy scaffold)
+
+> ⚠️ **SUPERSEDED — kept for provenance.** This is the original brand-spec scaffold (lime/volt token names, "no codebase attached"). The CURRENT design system is the **code** (`operator-app/`) + [`CONTRACT.md`](CONTRACT.md) + [`portal/`](portal/) + [`TELOS.md`](../TELOS.md) + the live Figma library. Product name resolved to **Ops Surfer** (was "AI Ops OS") — AK, 2026-06-03.
 
 **Mode.com Retro-Modern**
 
-A design system for **AI Operations Consultant OS** — a platform for managing an AI consultancy end-to-end: client CRM, project scoping, ROI-backed pricing, and multi-agent delivery. The first product surface is an operator-facing UI for the **LinkedIn Inbound Triage Agent**.
+A design system for **Ops Surfer** — a platform for managing an AI consultancy end-to-end: client CRM, project scoping, ROI-backed pricing, and multi-agent delivery. The first product surface is an operator-facing UI for the **LinkedIn Inbound Triage Agent**.
 
 > Engineering authority. Retro-modern. High contrast. Confident, never corporate. Inspired by mode.com — close-to-the-metal, not generic SaaS.
 

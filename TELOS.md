@@ -1,6 +1,6 @@
 # Ops Surfer — TELOS
 
-> Product north star. **Draft v0.2 — 2026-06-03, for AK's sign-off.** This is the "what it's for" that the design system, the agents, and the roadmap all serve. Structure follows the PAI TELOS frame (Mission · Problems · Goals · Strategies · Narratives · Challenges). The starred lines (★) are the ones most worth your judgment; v0.2 adds recommended resolutions (↪) to the open questions at the bottom — confirm or override each.
+> Product north star. **v1.0 — signed off by AK, 2026-06-03.** This is the "what it's for" that the design system, the agents, and the roadmap all serve. Structure follows the PAI TELOS frame (Mission · Problems · Goals · Strategies · Narratives · Challenges). The four open decisions are resolved at the bottom; the starred lines (★) carry AK's framing.
 
 ---
 
@@ -68,9 +68,9 @@ Ops Surfer is the **ops backend for people who run on clients** — agencies, co
 
 ---
 
-## North-star metric (proposed ★)
+## North-star metric (signed off)
 
-**Operator leverage** — the share of client-facing work that is agent-drafted-and-operator-approved rather than hand-done, × the number of operators who have re-skinned/recomposed the product to their own business. (i.e. M0 × M2: busywork absorbed × customers who made it theirs.) *AK to confirm/replace.*
+**Operator leverage** (leading) **+ net revenue retention** (lagging). Operator leverage = the share of client-facing work that is agent-drafted-and-operator-approved rather than hand-done, × the number of operators who have re-skinned/recomposed the product to their own business (M0 × M2: busywork absorbed × customers who made it theirs). Lead product decisions with leverage; report NRR to the business.
 
 ## Context filter
 
@@ -78,15 +78,17 @@ When steering Ops Surfer work, bias toward: the operator feeling powerful; agent
 
 ---
 
-## Open questions → recommended resolutions (confirm or override)
+## Decisions (signed off by AK · 2026-06-03)
+
+_All four confirmed as recommended._
 
 1. **M2 (customer-customization): near-term mission or later-era goal?**
-   ↪ *Near-term mission.* It's foundational ("can't bolt on after components ship hardcoded") and is now *built* — the brand-token indirection + slot/config API shipped this session. Treating it as later-era would strand a capability you already have. Keep M2 as a standing mission; G3 (customer-customization GA) is its near-term goal.
+   ✓ *Near-term mission.* It's foundational ("can't bolt on after components ship hardcoded") and is now *built* — the brand-token indirection + slot/config API shipped this session. Treating it as later-era would strand a capability you already have. Keep M2 as a standing mission; G3 (customer-customization GA) is its near-term goal.
 2. **North-star metric: operator-leverage, or revenue/retention-led?**
-   ↪ *Operator-leverage as the leading indicator, retention as the lagging business metric.* Leverage (busywork-absorbed × customers-who-made-it-theirs) predicts retention; lead with it for product decisions, report net revenue retention to the business. Don't pick one — pair them (leading + lagging).
+   ✓ *Operator-leverage as the leading indicator, retention as the lagging business metric.* Leverage (busywork-absorbed × customers-who-made-it-theirs) predicts retention; lead with it for product decisions, report net revenue retention to the business. Don't pick one — pair them (leading + lagging).
 3. **Sharpest ICP?**
-   ↪ *Boutique agencies + fractional operators running client-success — the Wayfront/SPP switchers.* They feel the "platform tax" most acutely, value the operator-feels-powerful UX, and are small enough to self-serve the customization without an enterprise procurement cycle. Land here first; expand to larger service firms once G3 (customization GA) + roles/permissions exist.
+   ✓ *Boutique agencies + fractional operators running client-success — the Wayfront/SPP switchers.* They feel the "platform tax" most acutely, value the operator-feels-powerful UX, and are small enough to self-serve the customization without an enterprise procurement cycle. Land here first; expand to larger service firms once G3 (customization GA) + roles/permissions exist.
 4. **Name: "Ops Surfer" or "AI Ops OS"?**
-   ↪ *Resolve to one — recommend "Ops Surfer"* (it's the name in active use across the app, repo root, and this telos; "AI Ops OS" survives only in the legacy `design-system/README.md` scaffold). This is your brand call, but the split is real drift worth closing — pick one and retire the other from the docs. (See [[ops-surfer-ds-process-gaps]]: the README is stale legacy.)
+   ✓ *Resolve to one — recommend "Ops Surfer"* (it's the name in active use across the app, repo root, and this telos; "AI Ops OS" survives only in the legacy `design-system/README.md` scaffold). This is your brand call, but the split is real drift worth closing — pick one and retire the other from the docs. (See [[ops-surfer-ds-process-gaps]]: the README is stale legacy.)
 
-*These are recommendations from full project context, not decisions — the "let us create" is still yours. Strike or rewrite any ↪ line.*
+*Signed off 2026-06-03. A telos is living — reopen any line anytime.*
