@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-/* shadcn/tailwind.css import removed — all shadcn tokens are defined locally below */
+/* shadcn/tailwind.css import removed (design-refresh) — AK defines all tokens locally */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -73,23 +73,24 @@
   --color-border-strong: var(--border-strong);
   --color-dot: var(--dot);
 
-  /* fixed brand anchors */
-  --color-emerald: #1e5631;
-  --color-emerald-deep: #163f23;
+  /* fixed brand anchors — read THROUGH the brand-DNA layer (see :root --brand-*),
+     so a white-label re-skin flows into every surface. Defaults are unchanged. */
+  --color-emerald: var(--brand-canvas);
+  --color-emerald-deep: var(--brand-canvas-deep);
   --color-emerald-bright: oklch(0.74 0.14 158); /* chart green — distinct from lime, still in-spectrum */
   --color-mossy: #0f2a26;
   --color-moss-surface: #143832;
-  --color-paper: #f4f1e8;
-  --color-paper-2: #efeadb;
-  --color-ink: #0a1410;
-  --color-bone: #fdfdfa;
+  --color-paper: var(--brand-paper);
+  --color-paper-2: var(--brand-paper-2);
+  --color-ink: var(--brand-ink);
+  --color-bone: var(--brand-bone);
 
-  /* type */
-  --font-sans: var(--font-manrope);
-  --font-serif: var(--font-dm-serif);
-  --font-display: var(--font-dm-serif);
-  --font-heading: var(--font-dm-serif);
-  --font-mono: var(--font-jetbrains);
+  /* type — also brand-DNA, so a re-skin can swap the typeface families */
+  --font-sans: var(--brand-font-sans);
+  --font-serif: var(--brand-font-display);
+  --font-display: var(--brand-font-display);
+  --font-heading: var(--brand-font-display);
+  --font-mono: var(--brand-font-mono);
 
   /* radii — leaf-blade: generous + organic */
   --radius-sm: 4px;
@@ -115,10 +116,49 @@
 
 /* ==================  LIGHT — Figma (emerald + paper, soft)  ================== */
 :root {
-  --radius: 14px;
+  /* ---------------------------------------------------------------------------
+     BRAND DNA — the white-label seam. These primitives are the ONLY thing a
+     consumer overrides to re-skin (`:root { --brand-accent: … }` or a scoped
+     `[data-brand="acme"] { … }`). Every semantic token below reads THROUGH
+     these, so one override flows into BOTH light and dark. Defaults are today's
+     Ops Surfer values → zero visual change unless a consumer opts in.
 
-  --background: #1e5631; /* brighter emerald canvas */
-  --foreground: #f4f1e8; /* paper text */
+     Brand is ORTHOGONAL to light/dark: `*-dark` variants carry the dark-theme
+     resolved value so the .dark block can derive from brand without changing
+     today's output. A re-skin overrides the base var (and, if it wants a
+     distinct dark accent, the `*-dark` var too). */
+  --brand-accent: oklch(0.89 0.18 122); /* lime — primary action (light) */
+  --brand-accent-dark: oklch(0.9 0.225 126); /* lime at full chroma (dark) */
+  --brand-accent-2: #c8f902; /* volt — agent-active (light) */
+  --brand-accent-2-dark: oklch(0.93 0.19 108); /* volt (dark) */
+  --brand-canvas: #1e5631; /* emerald canvas (light) */
+  --brand-canvas-dark: #0a1f17; /* near-black page canvas (dark) */
+  --brand-canvas-deep: #163f23; /* sidebar / deep recess */
+  --brand-paper: #f4f1e8; /* warm cream two-tone film */
+  --brand-paper-2: #efeadb; /* darker paper layer */
+  --brand-ink: #0a1410; /* text on light / lime / paper */
+  --brand-bone: #fdfdfa; /* bright bone foreground */
+  /* signal hues — meaning, not decoration (light + dark resolved) */
+  --brand-hot: oklch(0.7 0.18 47);
+  --brand-hot-dark: oklch(0.72 0.18 47);
+  --brand-warm: oklch(0.84 0.17 92);
+  --brand-warm-dark: oklch(0.88 0.17 92);
+  --brand-cold: oklch(0.66 0.14 245);
+  --brand-cold-dark: oklch(0.68 0.14 245);
+  --brand-bad: #e63946;
+  --brand-bad-dark: oklch(0.62 0.21 25);
+  --brand-pending: oklch(0.8 0.014 225);
+  --brand-pending-dark: oklch(0.85 0.014 225);
+  /* type families + base shape */
+  --brand-font-display: var(--font-dm-serif);
+  --brand-font-sans: var(--font-manrope);
+  --brand-font-mono: var(--font-jetbrains);
+  --brand-radius: 14px;
+
+  --radius: var(--brand-radius);
+
+  --background: var(--brand-canvas); /* emerald canvas — routed through brand (one re-skin path) */
+  --foreground: var(--brand-paper); /* paper text */
 
   /* warm translucent cream-paper surfaces = the two-tone */
   --card: rgba(244, 241, 232, 0.08);
@@ -126,7 +166,7 @@
   --popover: #1a4d2c;
   --popover-foreground: #f4f1e8;
 
-  --primary: oklch(0.89 0.18 122); /* Figma lime — bright, less washed than #d9e879 */
+  --primary: var(--brand-accent); /* Figma lime — bright, less washed than #d9e879 */
   --primary-foreground: #0a1410;
   --secondary: rgba(244, 241, 232, 0.08);
   --secondary-foreground: #f4f1e8;
@@ -134,7 +174,7 @@
   --muted-foreground: #e9e5d5; /* SOLID burnt-in paper — translucent washed out on emerald */
   --accent: rgba(244, 241, 232, 0.1);
   --accent-foreground: #f4f1e8;
-  --destructive: #e63946;
+  --destructive: var(--brand-bad);
   --destructive-foreground: #f7f4ea;
 
   --border: rgba(244, 241, 232, 0.14);
@@ -145,14 +185,14 @@
   --surface-2: rgba(244, 241, 232, 0.1);
   --surface-edge: rgba(244, 241, 232, 0.16);
 
-  --volt: #c8f902;
+  --volt: var(--brand-accent-2);
   --amber: oklch(0.78 0.15 64); /* punchier warm */
   --cyan: oklch(0.74 0.12 205); /* brighter signal cyan */
-  /* semantic signals (light) */
-  --hot: oklch(0.7 0.18 47); /* orange */
-  --warm: oklch(0.84 0.17 92); /* yellow */
-  --cold: oklch(0.66 0.14 245); /* blue */
-  --pending: oklch(0.8 0.014 225); /* luminous cool gray — pending/in-review, NOT grayed-out */
+  /* semantic signals (light) — read through brand DNA */
+  --hot: var(--brand-hot); /* orange */
+  --warm: var(--brand-warm); /* yellow */
+  --cold: var(--brand-cold); /* blue */
+  --pending: var(--brand-pending); /* luminous cool gray — pending/in-review, NOT grayed-out */
   --border-strong: rgba(244, 241, 232, 0.32);
   --dot: rgba(244, 241, 232, 0.18); /* subtle grid dots on every panel */
 
@@ -179,15 +219,15 @@
 
 /* ==================  DARK — Lovable (near-black, flat, diverse)  ================== */
 .dark {
-  --background: #0a1f17; /* near-black emerald page */
-  --foreground: #fdfdfa; /* bone */
+  --background: var(--brand-canvas-dark); /* near-black page — routed through brand */
+  --foreground: var(--brand-bone); /* bone */
 
   --card: rgba(242, 244, 229, 0.05); /* present translucent surface */
   --card-foreground: #fdfdfa;
   --popover: #143832;
   --popover-foreground: #fdfdfa;
 
-  --primary: oklch(0.9 0.225 126); /* Lovable's lime at FULL chroma (not the muted #c7f36a swatch) */
+  --primary: var(--brand-accent-dark); /* Lovable's lime at FULL chroma (not the muted #c7f36a swatch) */
   --primary-foreground: #0a1410;
   --secondary: rgba(242, 244, 229, 0.06);
   --secondary-foreground: #fdfdfa;
@@ -195,7 +235,7 @@
   --muted-foreground: rgba(253, 253, 250, 0.85);
   --accent: rgba(242, 244, 229, 0.08);
   --accent-foreground: #fdfdfa;
-  --destructive: oklch(0.62 0.21 25); /* punchier alert red */
+  --destructive: var(--brand-bad-dark); /* punchier alert red */
   --destructive-foreground: #f7f4ea;
 
   --border: oklch(34% 0.045 165); /* Lovable's visible mossy hairline */
@@ -207,14 +247,14 @@
   --surface-2: rgba(242, 244, 229, 0.06);
   --surface-edge: oklch(33% 0.045 165); /* present green edge on every box */
 
-  --volt: oklch(0.93 0.19 108); /* full-chroma agent yellow */
+  --volt: var(--brand-accent-2-dark); /* full-chroma agent yellow */
   --amber: oklch(0.8 0.155 65); /* punchier warm */
   --cyan: oklch(0.76 0.13 205); /* brighter signal cyan */
-  /* semantic signals (dark) */
-  --hot: oklch(0.72 0.18 47); /* orange */
-  --warm: oklch(0.88 0.17 92); /* yellow */
-  --cold: oklch(0.68 0.14 245); /* blue */
-  --pending: oklch(0.85 0.014 225); /* luminous cool gray — pending/in-review, NOT grayed-out */
+  /* semantic signals (dark) — read through brand DNA */
+  --hot: var(--brand-hot-dark); /* orange */
+  --warm: var(--brand-warm-dark); /* yellow */
+  --cold: var(--brand-cold-dark); /* blue */
+  --pending: var(--brand-pending-dark); /* luminous cool gray — pending/in-review, NOT grayed-out */
   --dot: color-mix(in oklab, var(--primary) 18%, transparent); /* subtle grid dots on every panel */
 
   /* flatter Lovable elevation — hairline-led, subtle matte depth */
@@ -236,6 +276,77 @@
   --sidebar-accent-foreground: #fdfdfa;
   --sidebar-border: rgba(242, 244, 229, 0.1);
   --sidebar-ring: #c7f36a;
+}
+
+/* ---------------------------------------------------------------------------
+   BRAND SCOPE — subtree re-skin. <BrandProvider> sets `data-brand-scope` plus the
+   `--brand-*` overrides inline; this rule re-declares the semantic layer THROUGH
+   brand AT THE SCOPE, so a re-skin re-resolves inside the subtree. (Custom props
+   compute at their declaring element, so a nested `--brand-*` override alone can't
+   reach the :root semantic tokens — this mirrors exactly how `.dark` re-declares
+   them for theme switching.) Applies ONLY under [data-brand-scope], so the global
+   defaults above are untouched → zero regression. Whole-tenant white-label is
+   simpler still: override `--brand-*` on `:root` / `html[data-brand="acme"]`. */
+[data-brand-scope] {
+  --radius: var(--brand-radius);
+  --background: var(--brand-canvas);
+  --foreground: var(--brand-paper);
+  --card: color-mix(in srgb, var(--brand-paper) 8%, transparent);
+  --card-foreground: var(--brand-paper);
+  --popover: color-mix(in srgb, var(--brand-canvas) 90%, #000);
+  --popover-foreground: var(--brand-paper);
+  --primary: var(--brand-accent);
+  --primary-foreground: var(--brand-ink);
+  --secondary: color-mix(in srgb, var(--brand-paper) 8%, transparent);
+  --secondary-foreground: var(--brand-paper);
+  --muted: color-mix(in srgb, var(--brand-paper) 6%, transparent);
+  --muted-foreground: color-mix(in srgb, var(--brand-paper) 90%, var(--brand-canvas));
+  --accent: color-mix(in srgb, var(--brand-paper) 10%, transparent);
+  --accent-foreground: var(--brand-paper);
+  --destructive: var(--brand-bad);
+  --destructive-foreground: var(--brand-bone);
+  --border: color-mix(in srgb, var(--brand-paper) 14%, transparent);
+  --border-strong: color-mix(in srgb, var(--brand-paper) 32%, transparent);
+  --input: color-mix(in srgb, var(--brand-paper) 10%, transparent);
+  --ring: var(--brand-accent);
+  --surface: color-mix(in srgb, var(--brand-paper) 5%, transparent);
+  --surface-2: color-mix(in srgb, var(--brand-paper) 10%, transparent);
+  --surface-edge: color-mix(in srgb, var(--brand-paper) 16%, transparent);
+  --volt: var(--brand-accent-2);
+  --hot: var(--brand-hot);
+  --warm: var(--brand-warm);
+  --cold: var(--brand-cold);
+  --pending: var(--brand-pending);
+  --dot: color-mix(in srgb, var(--brand-paper) 18%, transparent);
+}
+.dark [data-brand-scope],
+[data-brand-scope].dark {
+  --background: var(--brand-canvas-dark);
+  --foreground: var(--brand-bone);
+  --card: color-mix(in srgb, var(--brand-bone) 5%, transparent);
+  --card-foreground: var(--brand-bone);
+  --popover: color-mix(in srgb, var(--brand-canvas) 55%, #000);
+  --popover-foreground: var(--brand-bone);
+  --primary: var(--brand-accent-dark);
+  --secondary: color-mix(in srgb, var(--brand-bone) 6%, transparent);
+  --secondary-foreground: var(--brand-bone);
+  --muted: color-mix(in srgb, var(--brand-bone) 5%, transparent);
+  --muted-foreground: color-mix(in srgb, var(--brand-bone) 85%, transparent);
+  --accent: color-mix(in srgb, var(--brand-bone) 8%, transparent);
+  --accent-foreground: var(--brand-bone);
+  --destructive: var(--brand-bad-dark);
+  --border: color-mix(in srgb, var(--brand-bone) 12%, transparent);
+  --border-strong: color-mix(in srgb, var(--brand-bone) 22%, transparent);
+  --input: color-mix(in srgb, var(--brand-bone) 8%, transparent);
+  --surface: color-mix(in srgb, var(--brand-bone) 3%, transparent);
+  --surface-2: color-mix(in srgb, var(--brand-bone) 6%, transparent);
+  --surface-edge: color-mix(in srgb, var(--brand-bone) 11%, transparent);
+  --volt: var(--brand-accent-2-dark);
+  --hot: var(--brand-hot-dark);
+  --warm: var(--brand-warm-dark);
+  --cold: var(--brand-cold-dark);
+  --pending: var(--brand-pending-dark);
+  --dot: color-mix(in oklab, var(--brand-accent-dark) 18%, transparent);
 }
 
 @layer base {
