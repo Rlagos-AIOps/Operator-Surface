@@ -164,6 +164,8 @@ const ACCOUNTS = {
   avalon:      { id: "001gK0000177oPNQAY", name: "Avalon Auto",          segment: "MM",  arr: 72_000 },
   polaris:     { id: "001gK0000178TMuQAM", name: "Polaris Builders",    segment: "MM",  arr: 48_000 },
   spruce:      { id: "001gK0000178Z0tQAE", name: "Spruce Education",    segment: "Ent", arr: 142_000 },
+  // Pass 3 (Angel, 2026-06-03): the data-quality landmine — green band hides 95-day silence.
+  beacon:      { id: "001gK000017QMpxQAG", name: "Beacon Logistics",    segment: "MM",  arr: 60_000 },
 } as const;
 
 type AccountKey = keyof typeof ACCOUNTS;
@@ -513,6 +515,79 @@ const RUN_SPECS: RunSpec[] = [
     items_processed: 96,
     input_summary: "Scheduled 30-min activity sync across all accounts",
     output_summary: "96 records ingested from 28 accounts",
+  },
+
+  // ============================================================
+  // Pass 3 — Angel's 2026-06-03 additive batch.
+  // Narrative beats: Lighthouse recovery, Bell-drafted Cedar QBR
+  // follow-up, Beacon (the data-quality landmine), plus 3 days of
+  // nightly hygiene runs to give the brief a real time dimension.
+  // ============================================================
+  {
+    key: "galileo-recovery-lighthouse",
+    slug: "galileo",
+    startedOffsetMs: -60 * MIN,
+    durationMs: 5 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 1,
+    input_summary: "Re-score Lighthouse after recovery-outreach reply",
+    output_summary: "Lighthouse downgraded at_risk -> watch",
+  },
+  {
+    key: "bell-qbr-cedar",
+    slug: "controlled-executor",
+    startedOffsetMs: -35 * MIN,
+    durationMs: 2 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 1,
+    input_summary: "Draft QBR follow-up email — Cedar & Co",
+    output_summary: "1 follow-up email drafted for review",
+  },
+  {
+    key: "hygiene-beacon-landmine",
+    slug: "hygiene-validator",
+    startedOffsetMs: -45 * MIN,
+    durationMs: 1 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 1,
+    input_summary: "Data-hygiene audit — new logo Beacon Logistics",
+    output_summary: "1 data conflict flagged",
+  },
+  {
+    key: "hygiene-nightly-1d",
+    slug: "hygiene-validator",
+    startedOffsetMs: -1 * DAY,
+    durationMs: 6 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 10,
+    input_summary: "Nightly audit across active book",
+    output_summary: "Audit complete",
+  },
+  {
+    key: "hygiene-nightly-2d",
+    slug: "hygiene-validator",
+    startedOffsetMs: -2 * DAY,
+    durationMs: 6 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 10,
+    input_summary: "Nightly audit across active book",
+    output_summary: "Audit complete",
+  },
+  {
+    key: "hygiene-nightly-3d",
+    slug: "hygiene-validator",
+    startedOffsetMs: -3 * DAY,
+    durationMs: 6 * MIN,
+    status: "succeeded",
+    triggered_by: "cron",
+    items_processed: 10,
+    input_summary: "Nightly audit across active book",
+    output_summary: "Audit complete",
   },
 ];
 
@@ -870,6 +945,44 @@ const DECISIONS: DecisionSpec[] = [
     ],
     offsetMs: -2 * HOUR + 1_000,
   },
+
+  // ============================================================
+  // Pass 3 — Angel's 2026-06-03 additive batch.
+  // ============================================================
+  {
+    runKey: "galileo-recovery-lighthouse",
+    agentSlug: "galileo",
+    decision_type: "classify_renewal_risk",
+    account: "lighthouse",
+    source_record_type: "account",
+    label: "recovering",
+    confidence: 0.45,
+    reasoning:
+      "Recovery outreach was approved and sent. Chris replied within 4 hours and booked a renewal-readiness call for Thursday; he has logged in twice since. Downgrading Lighthouse from at_risk (0.91) to watch — the momentum has reversed. Keep the call and hold the renewal-readiness prep.",
+    signals: [
+      { name: "days_since_last_login", value: 1, weight: 0.4, source: "salesforce.account.Last_Login__c", note: "re-engaged after outreach" },
+      { name: "outreach_reply_hours", value: 4, weight: 0.35, note: "Chris replied same morning" },
+      { name: "call_booked", value: true, weight: 0.25, note: "renewal-readiness call Thursday" },
+    ],
+    offsetMs: -55 * MIN,
+  },
+  {
+    runKey: "hygiene-beacon-landmine",
+    agentSlug: "hygiene-validator",
+    decision_type: "flag_data_gap",
+    account: "beacon",
+    source_record_type: "account",
+    label: "data_conflict",
+    confidence: null,
+    reasoning:
+      "Beacon's health band reads GREEN (score 78) but there has been no login in 95 days and zero logged activity. The health score is stale and directly contradicts the engagement signals — do NOT trust the green band. Treat as unverified pending a data refresh; this is exactly the kind of contradiction that hides churn.",
+    signals: [
+      { name: "health_band", value: "green", weight: 0.4, source: "salesforce.account.Health_Band__c" },
+      { name: "days_since_last_login", value: 95, weight: 0.4, source: "salesforce.account.Last_Login__c" },
+      { name: "activity_30d", value: 0, weight: 0.2, source: "salesforce.task" },
+    ],
+    offsetMs: -44 * MIN,
+  },
 ];
 
 async function seedDecisions(
@@ -943,6 +1056,10 @@ interface ApprovalSpec {
   offsetMsCreated: number;
   offsetMsDecided?: number;
   risk_level?: "low" | "med" | "high";
+  // Extra metadata merged into the row's `metadata` JSONB. Used for tags
+  // like `drafted_by: "bell"` that Hermes side-channels write but my
+  // standard ACCOUNTS-derived metadata doesn't cover.
+  extraMetadata?: Record<string, unknown>;
 }
 
 const APPROVALS: ApprovalSpec[] = [
@@ -1165,6 +1282,56 @@ const APPROVALS: ApprovalSpec[] = [
     offsetMsCreated: -1 * DAY - 16 * HOUR,
     risk_level: "med",
   },
+
+  // ============================================================
+  // Pass 3 — Angel's 2026-06-03 additive batch.
+  // ============================================================
+  {
+    runKey: "galileo-recovery-lighthouse",
+    agentSlug: "controlled-executor",
+    decisionKey: "galileo-recovery-lighthouse::lighthouse::classify_renewal_risk",
+    action_type: "create_task",
+    account: "lighthouse",
+    target_record_type: "salesforce.account",
+    current_value: null,
+    proposed_value: {
+      subject: "Prep renewal-readiness deck for Lighthouse — Thursday call",
+      due_date: isoDate(2),
+      priority: "High",
+      assigned_to: "taylor@example-csm.test",
+      related_record: "001gK0000178EfcQAE",
+    },
+    rationale:
+      "Chris booked a renewal-readiness call after the recovery outreach. Prep the deck before Thursday.",
+    status: "approved",
+    decided_by_email: "taylor@example-csm.test",
+    decision_note: "Approved — prepping now.",
+    offsetMsCreated: -52 * MIN,
+    offsetMsDecided: -50 * MIN,
+    risk_level: "low",
+  },
+  {
+    runKey: "bell-qbr-cedar",
+    agentSlug: "controlled-executor",
+    action_type: "send_email",
+    account: "cedar",
+    target_record_type: "contact",
+    current_value: null,
+    proposed_value: {
+      channel: "email",
+      to: ["pat.delgado@cedar-co.example"],
+      cc: [],
+      subject: "Recap of today's QBR + the two open items",
+      body_md:
+        "Hi Pat,\n\nGreat to finally reconnect today — thank you for making the time. Quick recap of what we covered and where we landed:\n\n- The reporting bug and the onboarding gap from earlier in the year are both confirmed resolved.\n- We aligned on a Q3 expansion review (the three new regional teams).\n- Next touchpoint: I'll send a short readiness summary and we'll book the expansion review in ~3 weeks.\n\nIf I missed anything from your side, just reply and I'll fold it in.\n\nBest,\nTaylor",
+    },
+    rationale:
+      "Drafted by Bell from the 2026-06-03 QBR with Cedar & Co (first QBR in two quarters). Recaps the two previously-open items now resolved + the agreed expansion review. Awaiting CSM review before send.",
+    status: "pending",
+    offsetMsCreated: -30 * MIN,
+    risk_level: "med",
+    extraMetadata: { drafted_by: "bell" },
+  },
 ];
 
 async function seedApprovals(
@@ -1206,6 +1373,7 @@ async function seedApprovals(
         seeded: true,
         account_name: account.name,
         risk_level: a.risk_level ?? "low",
+        ...(a.extraMetadata ?? {}),
       },
       created_at: iso(a.offsetMsCreated),
     };
