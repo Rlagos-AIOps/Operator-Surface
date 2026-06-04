@@ -12,25 +12,27 @@
 
 ## At a glance
 
-10 accounts in the seed. The top 8 carry the demo narrative; the bottom 2 are supporting cast (present so the queue feels real, not the demo's hero moments).
+11 accounts in the seed. Lighthouse is the demo hero (clearest churn risk). Cobblestone is the richest decision trail. Beacon (new in Pass 3) is the "looks healthy but actually isn't" data-quality landmine that lets the demo show how the agents surface contradictions the dashboards miss.
 
 | Rank | Account | Industry | Segment | ARR | Renewal in | Health (implied) | Risk flags | CSM |
 |---|---|---|---|---:|---:|---|---|---|
-| 1 | **Lighthouse Marketing** 🔥 | Marketing agency | SMB | $28.5k | **38 d** | **35 · red** | at_risk (0.91), silent | Taylor |
+| 1 | **Lighthouse Marketing** 🔥 *(recovering)* | Marketing agency | SMB | $28.5k | **38 d** | **35 → ~55 · red→watch** | at_risk (0.91) downgraded to `recovering` (0.45) after Pass-3 reply | Taylor |
 | 2 | Cobblestone Realty 🎯 | Real estate | MM | $84k | 94 d | 50 · red | at_risk (0.82), missing save plan, exec sponsor change | Taylor |
 | 3 | Brightline Health | Healthcare | Ent | $180k | 73 d | 60 · yellow | stale_activity (41d), renewal_risk (0.68), thin forecast | Taylor |
-| 4 | Cedar & Co | Professional services | MM | $96k | n/a | 55 · red | at_risk (0.74), missed 2 QBRs, primary contact deactivated | Taylor |
+| 4 | Cedar & Co | Professional services | MM | $96k | n/a | 55 · red | at_risk (0.74), missed 2 QBRs, primary contact deactivated. Bell-drafted QBR follow-up email pending (Pass 3). | Taylor |
 | 5 | Riverside Logistics | Logistics | MM | $52k | 110 d | 70 · yellow | missing_save_plan, priority_high (0.84) | Morgan |
 | 6 | Spruce Education | EdTech | Ent | $142k | n/a | 67 · yellow | recompute green→yellow, engagement −14 | Taylor |
 | 7 | Northstar Print | Print services | SMB | $24k | 51 d | 82 · green | upsell_qualified (0.79) **and** missing_save_plan | Taylor |
 | 8 | Compass Foods | Food & beverage | MM | $68k | n/a (new) | 75 · green | missing_csm_owner (14d), brand-new logo | Taylor |
 | 9 | Avalon Auto | Automotive | MM | $72k | n/a | 65 · yellow | stale_activity (47d) | Morgan |
 | 10 | Polaris Builders | Construction | MM | $48k | n/a | 60 · yellow | watch (0.55), sop_section_5_gap, 71d yellow band | Morgan |
+| 11 | **Beacon Logistics** 💣 | Logistics | MM | $60k | n/a | **78 · green ⚠** | `data_conflict` — green band hides 95-day silence + 0 activity (Pass 3) | unassigned |
 
 🔥 = hero of the brief ("clearest churn risk — start there")
 🎯 = richest decision trail (the demo's signal-to-action narrative)
+💣 = the trust-but-verify moment — agents flag a contradiction the dashboard hides
 
-**Book totals**: $794k ARR, 4 at-risk, 6 pending approvals, 3 renewals within 90d.
+**Book totals**: $854k ARR, 4 at-risk (1 now recovering), 7 pending approvals (1 just approved), 3 renewals within 90d, 1 data-quality landmine flagged.
 
 > **Health score caveat.** The current Supabase schema does NOT store an explicit `health_score` column. The numbers above are inferred from the at-risk decisions' confidence + signal mix. Salesforce can provide the canonical score via `Account.Health_Score__c`; when it does, the agents will recompute and write `recompute_health` decisions that supersede these inferences.
 
@@ -490,3 +492,35 @@ Tracked as a follow-up — not blocking demo.
 
 - **Industry mapping** (§5 of his handoff): ✅ accepted — standard picklist + exact spec text preserved in `Description` is fine.
 - **Currency**: ✅ confirmed — USD / single-currency. No multi-currency complication.
+
+### 2026-06-03 — Angel's Pass 3 → Supabase seed updated
+
+Angel added 4 demo items live (so they show on the platform now) and Roberto folded them into `scripts/seed.ts` so a future re-seed reproduces them. Did NOT re-seed — live state already matches.
+
+#### New SF Ids in the seed
+
+| Account | Real SF Account Id | Notes |
+|---|---|---|
+| **Beacon Logistics** *(new)* | `001gK000017QMpxQAG` | Green health band + score 78 but `Last_Login__c` 95 days ago, 0 activity in 30d — the data-quality landmine |
+
+#### Narrative beats added
+
+1. **Lighthouse recovery story** — `galileo` re-scored Lighthouse from `at_risk` (0.91) → `recovering` (0.45) after Chris replied to the recovery email within 4 hours and booked a renewal-readiness call. A `create_task` approval (approved by Taylor) preps the deck for Thursday. The hero of the demo brief now has a *visible save-in-progress*.
+2. **Cedar QBR follow-up** — Bell drafted a recap email after the 2026-06-03 QBR with Cedar & Co (first QBR in two quarters). Pending approval with `extraMetadata.drafted_by: "bell"`. Use this to demo the "Bell drafted, you approve" surface.
+3. **Beacon data-conflict flag** — `hygiene-validator` raises `flag_data_gap` with `label: data_conflict` because the green band contradicts the engagement signals. No confidence — the agent refuses to score until the data is reconciled. The trust-but-verify moment.
+4. **Agent-run history** — 3 nightly `hygiene-validator` runs at −1d / −2d / −3d. Gives the brief a real time dimension instead of a thin "everything happened today" feel.
+
+#### Code change in `scripts/seed.ts`
+
+`ApprovalSpec` gained an optional `extraMetadata?: Record<string, unknown>` field. Merged into the row's `metadata` JSONB by `seedApprovals`. Lets Hermes-side tags (like `drafted_by`) survive a re-seed without changing the metadata shape per row.
+
+#### Things Angel handled on the Salesforce side (no Supabase impact)
+
+- `Beacon` account record created with the contradiction baked in (green band + 95-day login gap)
+- `Lighthouse.Last_Login__c` refreshed to ~1 day ago; recovery Chatter note logged
+- `Cedar` Chatter note with the Bell QBR follow-up
+
+#### Reversal path (if Angel ever wants to wipe rather than fold)
+
+- Supabase: `delete from <table> where metadata->>'seed_batch' = 'angel-2026-06-03'` (applies to approvals, decisions, agent_runs)
+- Full undo (Supabase + SF): `python3 /home/hermes/seed_revert.py` on Angel's droplet
