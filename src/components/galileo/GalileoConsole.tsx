@@ -42,6 +42,15 @@ export function GalileoConsole({
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [turns]);
+  // Defensive: when this panel mounts, make sure the window itself is at the
+  // top. Without this, /operator and /galileo can land with the page scrolled
+  // down (Next.js scroll restoration / browser anchor behavior on the tall
+  // chat container). Only resets if the page is more than a hair down — so a
+  // user who deliberately scrolled before nav-finish doesn't get yanked.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.scrollY > 4) window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, []);
   useEffect(() => () => {
     if (pollRef.current) clearInterval(pollRef.current);
   }, []);
@@ -128,6 +137,7 @@ export function GalileoConsole({
       <div
         ref={scrollRef}
         onScroll={onScroll}
+        style={{ overflowAnchor: "none" }}
         className="flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4"
       >
         {turns.length === 0 && (
