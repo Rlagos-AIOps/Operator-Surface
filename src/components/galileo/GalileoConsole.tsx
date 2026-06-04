@@ -25,10 +25,22 @@ export function GalileoConsole({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  // Scroll the chat container directly (NOT scrollIntoView, which scrolls the
+  // whole page). Stick to bottom only if the user was already there — so if
+  // they scrolled up to re-read, polls don't yank them back down.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const pinnedRef = useRef(true);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    pinnedRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64;
+  }
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!pinnedRef.current) return;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [turns]);
   useEffect(() => () => {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -62,6 +74,8 @@ export function GalileoConsole({
     if (!text || busy) return;
     setBusy(true);
     setInput("");
+    // user-initiated send: always pin to bottom for the new message
+    pinnedRef.current = true;
     const res = await askGalileo(text, account || null, conv);
     if (!res.ok) {
       setBusy(false);
@@ -111,7 +125,11 @@ export function GalileoConsole({
         )}
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4"
+      >
         {turns.length === 0 && (
           <p className="text-small text-muted-foreground">
             {lockedAccount
@@ -144,7 +162,6 @@ export function GalileoConsole({
             </div>
           </div>
         ))}
-        <div ref={endRef} />
       </div>
 
       <div className="border-t border-border p-3">
