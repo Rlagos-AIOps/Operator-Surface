@@ -36,6 +36,11 @@ export async function decideApproval(
 
     if (error) return { ok: false, error: error.message };
 
+    // Hub renders the pending-count chip and Brief shows the priority
+    // list — both read the same approvals data live. Revalidate them
+    // so the count doesn't visibly stay stale after a decision.
+    revalidatePath("/");
+    revalidatePath("/brief");
     revalidatePath("/approvals");
     return { ok: true };
   } catch (err) {
