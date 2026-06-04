@@ -8,7 +8,7 @@ import { MetricRow } from "./metric-row";
 import { LeadQueue } from "./lead-queue";
 import { ThreadView } from "./thread-view";
 import { Composer } from "./composer";
-import { AgentChat } from "./agent-chat";
+import { GalileoConsole } from "@/components/galileo/GalileoConsole";
 import type { Lead } from "@/lib/data";
 import { decideApproval } from "@/app/approvals/actions";
 
@@ -107,7 +107,7 @@ export function OperatorSurface({
         )}
         {panels.copilot && (
           <div className={cn(PANEL, "flex min-h-0 flex-col overflow-hidden")}>
-            <AgentChat lead={selected} />
+            <GalileoConsole embedded lockedAccount={selected.company} accounts={[]} />
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { GalileoConsole } from "./_components/GalileoConsole";
+import { GalileoConsole } from "@/components/galileo/GalileoConsole";
 
 export const dynamic = "force-dynamic";
 
