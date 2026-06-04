@@ -2,8 +2,43 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { PANEL } from "@/components/ui/surfaces";
 import { askGalileo, getConversation, type GalileoTurn } from "@/app/galileo/actions";
+
+// Chat-tuned markdown renderer. Galileo answers in markdown (**bold**, lists,
+// occasional headings) — render those rather than printing raw asterisks.
+// Smaller text + tighter spacing than the brief's BodyMd (full-width prose).
+function ChatMd({ source }: { source: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        h1: ({ children }) => <h3 className="font-serif text-h4 text-foreground mt-3 mb-1.5 first:mt-0">{children}</h3>,
+        h2: ({ children }) => <h4 className="font-sans font-bold text-foreground mt-3 mb-1.5 first:mt-0">{children}</h4>,
+        h3: ({ children }) => <h5 className="font-sans font-bold text-foreground mt-2.5 mb-1 first:mt-0">{children}</h5>,
+        p: ({ children }) => <p className="my-1.5 text-small leading-relaxed text-foreground first:mt-0 last:mb-0">{children}</p>,
+        ul: ({ children }) => <ul className="my-1.5 list-disc space-y-1 pl-5 text-small text-foreground">{children}</ul>,
+        ol: ({ children }) => <ol className="my-1.5 list-decimal space-y-1 pl-5 text-small text-foreground">{children}</ol>,
+        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+        strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        a: ({ children, href }) => (
+          <a href={href} className="text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary">
+            {children}
+          </a>
+        ),
+        code: ({ children }) => (
+          <code className="rounded-sm bg-background/60 px-1 py-[1px] font-mono text-[12px] text-foreground">{children}</code>
+        ),
+        blockquote: ({ children }) => (
+          <blockquote className="my-1.5 border-l-2 border-volt/40 pl-3 italic text-muted-foreground">{children}</blockquote>
+        ),
+      }}
+    >
+      {source}
+    </ReactMarkdown>
+  );
+}
 
 export function GalileoConsole({
   accounts,
@@ -154,8 +189,8 @@ export function GalileoConsole({
             </div>
             <div className="max-w-[92%]">
               {t.status === "done" ? (
-                <div className="whitespace-pre-wrap rounded-2xl border border-border bg-card px-4 py-3 text-small text-foreground">
-                  {t.response}
+                <div className="rounded-2xl border border-border bg-card px-4 py-3 text-small text-foreground">
+                  <ChatMd source={t.response ?? ""} />
                 </div>
               ) : t.status === "error" ? (
                 <div className="rounded-2xl border border-bad/40 bg-bad/10 px-4 py-3 text-small text-bad">
