@@ -30,34 +30,32 @@ Terminology and quick lookups.
 user-manual/
 ├── README.md ............................. you are here
 ├── quick-start.md ........................ ✅ DRAFTED
-├── concepts.md ........................... 🔲 to write — the mental model
+├── concepts.md ........................... ✅ DRAFTED — the mental model
 ├── workflows/
-│   ├── morning-brief.md .................. 🔲 to write — start your day
-│   ├── triage-approvals.md ............... 🔲 to write — review the queue
-│   ├── post-meeting.md ................... 🔲 to write — Bell's loop
-│   ├── deep-dive-account.md .............. 🔲 to write — from card to trace
-│   └── talk-to-galileo.md ................ 🔲 to write — the conversational front door
+│   ├── morning-brief.md .................. ✅ DRAFTED — start your day
+│   ├── triage-approvals.md ............... ✅ DRAFTED — review the queue
+│   ├── post-meeting.md ................... 🔲 to write — Bell's loop (mostly out-of-platform)
+│   ├── deep-dive-account.md .............. ✅ DRAFTED — from card to trace
+│   └── talk-to-galileo.md ................ ✅ DRAFTED — the conversational front door
 ├── screens/
-│   ├── hub.md ............................ 🔲 to write — the launcher
-│   ├── the-book.md ....................... 🔲 to write — /accounts portfolio view
-│   ├── operator-console.md ............... 🔲 to write — /operator triage cockpit
-│   ├── galileo.md ........................ 🔲 to write — /galileo (also embedded in operator)
-│   ├── daily-brief.md .................... 🔲 to write — /brief
-│   ├── approvals.md ...................... 🔲 to write — /approvals
-│   └── decisions.md ...................... 🔲 to write — /decisions
-└── glossary.md ........................... 🔲 to write — terminology
+│   ├── hub.md ............................ ✅ DRAFTED — the launcher
+│   ├── the-book.md ....................... ✅ DRAFTED — /accounts portfolio view
+│   ├── operator-console.md ............... ✅ DRAFTED — /operator triage cockpit
+│   ├── galileo.md ........................ ✅ DRAFTED — /galileo (also embedded in operator)
+│   ├── daily-brief.md .................... ✅ DRAFTED — /brief
+│   ├── approvals.md ...................... ✅ DRAFTED — /approvals
+│   └── decisions.md ...................... ✅ DRAFTED — /decisions
+└── glossary.md ........................... 🔲 to write — terminology (write last)
 ```
 
-## What to write next, in priority order
+## What's left to write
 
-1. **`concepts.md`** — the mental model the rest of the manual leans on. Cover: meet your agent team (Galileo as front door, Bell as communications, the background team), what each verdict color means (the signal grammar), and the bright line (agents draft, you decide).
-2. **`workflows/morning-brief.md`** — the highest-frequency task. The 5-minute "start of day" routine that connects the Brief → the Book → the Queue.
-3. **`workflows/triage-approvals.md`** — the bread-and-butter task. How to review a pending approval, what to read first, when to approve vs reject vs rewrite, what happens after you decide.
-4. **`workflows/talk-to-galileo.md`** — the demo's hero. When to ask vs when to act, account-aware scoping, what "Galileo is thinking" actually means.
-5. **`workflows/post-meeting.md`** — Bell's loop. The transcript → Chatter → draft → send-from-your-Gmail story.
-6. **`workflows/deep-dive-account.md`** — the trust-but-verify path. From a Book card → its decision trace → the underlying signals.
-7. **Screens** (in this order: `operator-console.md` → `the-book.md` → `galileo.md` → `daily-brief.md` → `approvals.md` → `decisions.md` → `hub.md`). Lower priority because workflow docs already cover the "how"; screen docs are for "what's this thing on the page?"
-8. **`glossary.md`** — write last. Pull terms out of the docs above.
+Two docs remain, both intentionally deferred:
+
+1. **`workflows/post-meeting.md`** — Bell's loop. The transcript → Chatter → draft → send-from-your-Gmail story. **Deferred** because most of the click path lives *outside* the platform (Gmail inbox, Salesforce Chatter pane), so it needs a different structure than the others.
+2. **`glossary.md`** — terminology lookups. **Write last** so it's based on the actual terms used in the manual rather than guessed in advance.
+
+All other click-path docs for first-time users are drafted.
 
 ## Writing principles
 
