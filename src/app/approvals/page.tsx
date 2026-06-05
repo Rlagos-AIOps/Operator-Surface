@@ -67,6 +67,17 @@ export default async function ApprovalsPage() {
     }
   }
 
+  // Most-recently-decided on top so operators see their last action first.
+  // Source query orders by created_at desc, which is right for the active
+  // queue but wrong here: a row that sat in the queue and was just decided
+  // would otherwise appear below older rows decided earlier. Fall back to
+  // updated_at, then created_at, for legacy rows missing decided_at.
+  decided.sort((a, b) => {
+    const at = a.decided_at ?? a.updated_at ?? a.created_at;
+    const bt = b.decided_at ?? b.updated_at ?? b.created_at;
+    return bt.localeCompare(at);
+  });
+
   const trulyPending = active.filter((a) => getUiState(a) === "pending").length;
   const inFlight = active.filter((a) => getUiState(a) === "processing").length;
   const stalled = active.filter((a) => getUiState(a) === "stalled").length;
