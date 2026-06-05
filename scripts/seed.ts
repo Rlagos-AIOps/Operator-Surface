@@ -734,7 +734,7 @@ const DECISIONS: DecisionSpec[] = [
     label: "priority_high",
     confidence: 0.91,
     reasoning:
-      "Combining hygiene-validator's at-risk flag with the renewal date (94 days) and the $84k ARR puts Cobblestone at the top of today's queue. Touchpoint recommended before EOD.",
+      "Cobblestone is 94 days from renewal and the hygiene audit just flagged it at-risk. At $84k ARR (annual recurring revenue), it's the top priority in your queue today.",
     signals: [
       { name: "at_risk_flag", value: true, weight: 0.4, source: "decisions.hygiene-validator" },
       { name: "renewal_in_days", value: 94, weight: 0.3, source: "salesforce.opportunity" },
@@ -975,7 +975,7 @@ const DECISIONS: DecisionSpec[] = [
     label: "data_conflict",
     confidence: null,
     reasoning:
-      "Beacon's health band reads GREEN (score 78) but there has been no login in 95 days and zero logged activity. The health score is stale and directly contradicts the engagement signals — do NOT trust the green band. Treat as unverified pending a data refresh; this is exactly the kind of contradiction that hides churn.",
+      "Beacon's health band reads GREEN (score 78) but Beacon hasn't logged a single login in 95 days. Health score (green) contradicts the engagement signals (95 days silent). Treat the green band as stale — pending a data refresh.",
     signals: [
       { name: "health_band", value: "green", weight: 0.4, source: "salesforce.account.Health_Band__c" },
       { name: "days_since_last_login", value: 95, weight: 0.4, source: "salesforce.account.Last_Login__c" },
@@ -1398,7 +1398,8 @@ async function seedBriefs(
     {
       operator_id: taylor,
       brief_date: isoDate(0),
-      headline: "5 priorities today. Lighthouse is the clearest churn risk — start there.",
+      headline:
+        "Cobblestone Realty and Lighthouse Marketing are the two clearest churn risks — start with Cobblestone (94 days out, hygiene flag) then Lighthouse (38 days, 0.91 at-risk).",
       body_md:
         "## Today's call\n\nLighthouse Marketing is the strongest at-risk signal in the book (0.91). 62 days no login, renewal in 38. A recovery email is drafted and waiting for your review — soft, no pressure.\n\nCobblestone Realty is your second-biggest mover. The at-risk flag (0.82) lines up with the missing save plan and the exec sponsor change in April. A save plan note is drafted; review and send.\n\n## Standing items\n\n- 3 hygiene gaps from last night's audit (Riverside, Brightline, Compass) — all in the queue.\n- Northstar upsell signal is still warm. Slack draft to Kim (AE) is waiting.\n- Compass Foods has been a new logo for 14 days with no CSM owner — task is drafted.\n\n## What I didn't do\n\nSF Reader hit a rate limit on the 3am sync. I scheduled a retry for 9am; if you need anything pulled urgently, let me know.",
       structured_data: {

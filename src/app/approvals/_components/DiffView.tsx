@@ -111,6 +111,10 @@ function SendSlackPreview({ proposed }: { proposed: unknown }) {
   const to = Array.isArray(p.to) ? (p.to as string[]).join(", ") : (p.to as string | undefined);
   const body = (p.body_md as string | undefined) ?? "";
 
+  // Slack recipients in this app are internal teammates (AEs, CSMs) tied
+  // to a Salesforce account context — not customer endpoints. Label as
+  // "Salesforce account" so junior CSMs don't read the @handle as a
+  // customer destination.
   return (
     <div className="grid grid-cols-1 gap-s3 md:grid-cols-[1fr_3fr]">
       <DiffPanel label="Current" tone="paper">
@@ -118,7 +122,7 @@ function SendSlackPreview({ proposed }: { proposed: unknown }) {
       </DiffPanel>
       <DiffPanel label="Proposed Slack message" tone="lime">
         <dl className="grid grid-cols-[auto_1fr] gap-x-s3 gap-y-s1 text-small text-ink">
-          <dt className="font-semibold opacity-70">To</dt>
+          <dt className="font-semibold opacity-70">Salesforce account</dt>
           <dd className="font-mono">{to ?? "—"}</dd>
         </dl>
         {body && (

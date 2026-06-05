@@ -82,7 +82,10 @@ export function DecisionList({ decisions }: Props) {
 
   return (
     <>
-      {/* Agent filter row */}
+      {/* Agent filter row.
+          We drop the count on the Agent "All" chip — the Account row below
+          shows the same global total. Two identical "All 19" counters read
+          as broken duplication for non-technical CSMs. */}
       <div className="mb-s3 flex flex-wrap items-center gap-s2">
         <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted">
           Agent
@@ -91,7 +94,6 @@ export function DecisionList({ decisions }: Props) {
           active={agentFilter === "all"}
           onClick={() => setAgentFilter("all")}
           label="All"
-          count={agentCounts.all}
         />
         {agents.map((a) => (
           <Chip
@@ -163,7 +165,7 @@ function Chip({
   active: boolean;
   onClick: () => void;
   label: string;
-  count: number;
+  count?: number;
   mono?: boolean;
 }) {
   return (
@@ -177,9 +179,11 @@ function Chip({
       }`}
     >
       <span className={mono ? "font-mono" : ""}>{label}</span>
-      <span className={`tabular ${active ? "opacity-70" : "opacity-60"}`}>
-        {count}
-      </span>
+      {count != null && (
+        <span className={`tabular ${active ? "opacity-70" : "opacity-60"}`}>
+          {count}
+        </span>
+      )}
     </button>
   );
 }

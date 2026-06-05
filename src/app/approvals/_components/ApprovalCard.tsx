@@ -12,6 +12,7 @@ import {
 } from "./Badges";
 import { DiffView } from "./DiffView";
 import type { ApprovalRow } from "./types";
+import { accountDisplayName, plainEnglish } from "@/lib/copy/overrides";
 
 type Mode = "active" | "readonly";
 
@@ -69,7 +70,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       <div className="mb-s4">
         {metadata.account_name && (
           <h3 className="font-serif text-h3 text-paper">
-            {metadata.account_name}
+            {accountDisplayName(metadata.account_name)}
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted">
@@ -81,7 +82,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       {/* Rationale */}
       {approval.rationale && (
         <p className="mb-s5 max-w-[72ch] text-body text-paper">
-          {approval.rationale}
+          {plainEnglish(approval.rationale)}
         </p>
       )}
 

@@ -1,5 +1,6 @@
 import type { BriefRow } from "./types";
 import { timeAgo } from "@/app/approvals/_components/Badges";
+import { plainEnglish } from "@/lib/copy/overrides";
 
 interface Props {
   brief: BriefRow;
@@ -25,7 +26,7 @@ export function BriefHeader({ brief }: Props) {
         Daily Brief · {formatBriefDate(brief.brief_date)}
       </p>
       <h1 className="font-serif text-paper text-balance mb-s5 max-w-[20ch]">
-        {brief.headline}
+        {plainEnglish(brief.headline)}
       </h1>
       <div className="flex items-center gap-s2 text-micro text-muted">
         <span className="relative inline-flex h-2 w-2">
