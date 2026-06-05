@@ -70,10 +70,73 @@ export async function decideApproval(
   }
 }
 
-// retryHermesWebhook removed 2026-06-05. Manual retry is now handled by the
-// server-side auto-retry timer on the droplet (~/hermes-scaled-cs/services/
-// auto-retry/auto_retry.py, fires every 60s, exponential schedule
-// [2, 5, 10, 20] min). The CSM never needs to think about dispatch failures
+/**
+ * Server Action: "Try again" — the only manual recovery affordance.
+ *
+ * Surfaced ONLY on cards that auto-retry has exhausted (4 attempts
+ * failed; metadata.execution_blocker is set). The CSM clicks this when
+ * they want to give it one more shot — usually because the failure was
+ * probably transient (network blip, rate limit) and one fresh dispatch
+ * clears it.
+ *
+ * What it does:
+ *   - resets metadata.retry_attempts to 0 (gives it a full new budget
+ *     of auto-retries if this attempt also fails)
+ *   - clears execution_blocker and execution_error
+ *   - stamps last_retry_at = now so getUiState returns "processing"
+ *     immediately and the card moves out of Needs-attention back into
+ *     the In-flight section
+ *   - fires the Hermes webhook one more time
+ *
+ * Idempotency: Bell + Hopper both check metadata.executed=true before
+ * acting, so re-firing on a row that quietly succeeded after the
+ * blocker was set is still a safe no-op.
+ */
+export async function tryAgainDispatch(
+  approvalId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const sb = createSupabaseAdminClient();
+    const operatorId = await getDemoOperatorId();
+
+    const { data: row, error: readErr } = await sb
+      .from("approvals")
+      .select("status,metadata")
+      .eq("id", approvalId)
+      .single();
+
+    if (readErr || !row) {
+      return { ok: false, error: "approval not found: " + (readErr?.message ?? "no row") };
+    }
+    if (row.status !== "approved") {
+      return { ok: false, error: "cannot retry: approval is " + row.status };
+    }
+    const meta = (row.metadata ?? {}) as { executed?: boolean };
+    if (meta.executed === true) {
+      return { ok: false, error: "already executed — refresh the page" };
+    }
+
+    const fresh = { ...(row.metadata as Record<string, unknown>) };
+    delete fresh.execution_blocker;
+    delete fresh.execution_error;
+    fresh.retry_attempts = 0;
+    fresh.last_retry_at = new Date().toISOString();
+    await sb
+      .from("approvals")
+      .update({ metadata: fresh as Json })
+      .eq("id", approvalId);
+
+    await fireHermesWebhook(approvalId, operatorId);
+
+    revalidatePath("/approvals");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "unknown error",
+    };
+  }
+}
 // — the system retries, and surfaces "Needs attention" only when retries
 // exhaust.
 

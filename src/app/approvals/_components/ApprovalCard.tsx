@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, Check, Loader2, X } from "lucide-react";
-import { decideApproval } from "../actions";
+import { AlertTriangle, Check, Loader2, RotateCw, X } from "lucide-react";
+import { decideApproval, tryAgainDispatch } from "../actions";
 import {
   AgentBadge,
   ActionTypeBadge,
@@ -109,10 +109,18 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     });
   };
 
-  // Manual Retry removed. Auto-retry on the droplet (60s cron) handles
-  // re-dispatch on a [2, 5, 10, 20] minute schedule. The CSM never needs
-  // to think about dispatch failures — when something exhausts retries
-  // we surface "needs attention" and they ping an admin.
+  // "Try again" is the one manual recovery affordance — and it only
+  // appears on Needs-attention cards (auto-retry exhausted). The CSM
+  // is not asked to diagnose; they just give it one fresh shot. Most
+  // failures we'll see are transient (network blip, model 5xx, gmail
+  // token expiry) and one re-dispatch clears them.
+  const onTryAgain = () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await tryAgainDispatch(approval.id);
+      if (!result.ok) setError(result.error);
+    });
+  };
 
   // Left-edge color treatment makes in-flight cards visually distinct.
   //   processing               → volt (active, healthy in-flight)
@@ -281,8 +289,10 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       ) : uiState === "stalled" ? (
         <footer className="mt-s5 flex flex-col gap-s2 border-t border-border pt-s4">
           {execMeta.execution_blocker ? (
-            // Auto-retry has exhausted — surfaces a soft "needs attention"
-            // banner. No action button: the CSM pings an admin out-of-band.
+            // Auto-retry exhausted. Single CSM-friendly affordance: "Try
+            // again". Most exhausted cases are transient (network/model
+            // 5xx, gmail token blip) and one fresh dispatch clears them.
+            // Operator is not asked to diagnose — just to give it a shot.
             <>
               <div className="flex items-center gap-s2 text-small text-bad">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -300,10 +310,31 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
                   {execMeta.execution_blocker}
                 </span>
               </p>
-              <p className="text-micro text-muted-foreground">
-                The decision is recorded. Ping an admin to investigate the
-                dispatch failure.
-              </p>
+              {error && (
+                <p className="text-small text-bad">
+                  <span className="font-bold">Try again failed:</span> {error}
+                </p>
+              )}
+              <div className="mt-s2 flex items-center gap-s3">
+                <p className="text-micro text-muted-foreground">
+                  This is usually transient. If it keeps failing after a few
+                  tries, ping an admin.
+                </p>
+                <div className="flex-1" />
+                <button
+                  type="button"
+                  onClick={onTryAgain}
+                  disabled={pending}
+                  className={`gap-s2 px-s4 py-s2 text-small ${BTN_PRIMARY} disabled:opacity-50`}
+                >
+                  {pending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCw className="h-4 w-4" />
+                  )}
+                  Try again
+                </button>
+              </div>
             </>
           ) : (
             // Stalled but not exhausted — auto-retry will pick this up on
