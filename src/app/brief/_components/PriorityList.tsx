@@ -20,7 +20,7 @@ export function PriorityList({ priorities }: Props) {
             className={i > 0 ? "border-t border-surface-edge/60" : ""}
           >
             <Link
-              href="/approvals"
+              href={p.account_id ? `/approvals?account=${p.account_id}` : "/approvals"}
               className="flex items-center gap-s4 px-s5 py-s4 transition-colors duration-fast hover:bg-surface-2"
             >
               <span className="font-serif text-h3 text-lime tabular w-s7 shrink-0">

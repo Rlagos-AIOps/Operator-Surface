@@ -7,6 +7,8 @@ import type { DecisionRow } from "./types";
 
 interface Props {
   decisions: DecisionRow[];
+  /** Pre-select an account filter when arriving via ?account=<id>. */
+  initialAccountFilter?: string;
 }
 
 /**
@@ -16,9 +18,11 @@ interface Props {
  * lime accent strip — the demo moment for "here's everything we
  * figured out about $ACCOUNT_NAME."
  */
-export function DecisionList({ decisions }: Props) {
+export function DecisionList({ decisions, initialAccountFilter }: Props) {
   const [agentFilter, setAgentFilter] = useState<string>("all");
-  const [accountFilter, setAccountFilter] = useState<string>("all");
+  const [accountFilter, setAccountFilter] = useState<string>(
+    initialAccountFilter ?? "all",
+  );
 
   // ─────────────────────────────────────────────────────────────────
   // Derived: agents and accounts present in the data

@@ -9,7 +9,12 @@ export const metadata = {
   title: "Decision Trace — Operator Surface",
 };
 
-export default async function DecisionsPage() {
+interface PageProps {
+  searchParams: Promise<{ account?: string }>;
+}
+
+export default async function DecisionsPage({ searchParams }: PageProps) {
+  const { account: initialAccount } = await searchParams;
   const sb = createSupabaseAdminClient();
 
   const { data, error } = await sb
@@ -76,7 +81,7 @@ export default async function DecisionsPage() {
           </span>
         </div>
 
-        <DecisionList decisions={decisions} />
+        <DecisionList decisions={decisions} initialAccountFilter={initialAccount} />
       </div>
     </main>
   );
