@@ -2,11 +2,11 @@ import { Settings } from "lucide-react";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ApprovalQueue } from "./_components/ApprovalQueue";
 import { DecidedList } from "./_components/DecidedList";
+import { InFlightSection } from "./_components/InFlightSection";
 import { RealtimeWatcher } from "./_components/RealtimeWatcher";
 import {
   type ApprovalRow,
   getUiState,
-  isActiveApproval,
 } from "./_components/types";
 
 // Always fetch fresh data on the server. The Server Action triggers
@@ -53,18 +53,23 @@ export default async function ApprovalsPage() {
 
   const approvals = (data ?? []) as ApprovalRow[];
 
-  // Split by the UI state, NOT by raw status. Approved-but-not-yet-executed
-  // rows stay in the active queue (showing a Processing… indicator) until
-  // Hermes flips metadata.executed=true. Rejected rows and successfully-
-  // executed rows go to Decided.
-  const active: ApprovalRow[] = [];
-  const decided: ApprovalRow[] = [];
+  // Three buckets:
+  //   pendingCards  → "Need you"           — only thing requiring CSM action
+  //   inFlightCards → "In flight"          — Hermes is executing/auto-retrying
+  //   decidedCards  → "Recently decided"   — done (executed or rejected)
+  //
+  // Auto-retry runs server-side on the droplet so the CSM never has to
+  // diagnose dispatch failures. Their work is purely Approve / Reject;
+  // anything in "In flight" is handled, anything in "Recently decided"
+  // is final.
+  const pendingCards: ApprovalRow[] = [];
+  const inFlightCards: ApprovalRow[] = [];
+  const decidedCards: ApprovalRow[] = [];
   for (const a of approvals) {
-    if (isActiveApproval(getUiState(a))) {
-      active.push(a);
-    } else {
-      decided.push(a);
-    }
+    const s = getUiState(a);
+    if (s === "pending") pendingCards.push(a);
+    else if (s === "processing" || s === "stalled") inFlightCards.push(a);
+    else decidedCards.push(a);
   }
 
   // Most-recently-decided on top so operators see their last action first.
@@ -72,15 +77,11 @@ export default async function ApprovalsPage() {
   // queue but wrong here: a row that sat in the queue and was just decided
   // would otherwise appear below older rows decided earlier. Fall back to
   // updated_at, then created_at, for legacy rows missing decided_at.
-  decided.sort((a, b) => {
+  decidedCards.sort((a, b) => {
     const at = a.decided_at ?? a.updated_at ?? a.created_at;
     const bt = b.decided_at ?? b.updated_at ?? b.created_at;
     return bt.localeCompare(at);
   });
-
-  const trulyPending = active.filter((a) => getUiState(a) === "pending").length;
-  const inFlight = active.filter((a) => getUiState(a) === "processing").length;
-  const stalled = active.filter((a) => getUiState(a) === "stalled").length;
 
   return (
     <main className="min-h-screen bg-background">
@@ -89,11 +90,11 @@ export default async function ApprovalsPage() {
           <div>
             <p className="eyebrow mb-s2">Approval Queue</p>
             <h1 className="font-serif text-h1 text-foreground">
-              {trulyPending === 0
-                ? active.length === 0
+              {pendingCards.length === 0
+                ? inFlightCards.length === 0
                   ? "All clear."
-                  : `${active.length} in flight`
-                : `${trulyPending} need you`}
+                  : `${inFlightCards.length} in flight`
+                : `${pendingCards.length} need you`}
             </h1>
           </div>
           <button
@@ -115,14 +116,16 @@ export default async function ApprovalsPage() {
           </span>
           <span aria-hidden>·</span>
           <span>
-            galileo running · {inFlight} processing · {stalled} stalled ·{" "}
-            {decided.length} decided today · {approvals.length} total in queue
+            galileo running · {inFlightCards.length} in flight ·{" "}
+            {decidedCards.length} decided today · {approvals.length} total in queue
           </span>
         </div>
 
-        <ApprovalQueue pending={active} />
+        <ApprovalQueue pending={pendingCards} />
 
-        <DecidedList decided={decided} />
+        <InFlightSection items={inFlightCards} />
+
+        <DecidedList decided={decidedCards} />
       </div>
 
       {/* Subscribes to Supabase Realtime + 30s polling. No visual output. */}

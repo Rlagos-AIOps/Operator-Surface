@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, Check, Loader2, RotateCw, X } from "lucide-react";
-import { decideApproval, retryHermesWebhook } from "../actions";
+import { AlertTriangle, Check, Loader2, X } from "lucide-react";
+import { decideApproval } from "../actions";
 import {
   AgentBadge,
   ActionTypeBadge,
@@ -75,22 +75,23 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     });
   };
 
-  const onRetry = () => {
-    setError(null);
-    startTransition(async () => {
-      const result = await retryHermesWebhook(approval.id);
-      if (!result.ok) setError(result.error);
-    });
-  };
+  // Manual Retry removed. Auto-retry on the droplet (60s cron) handles
+  // re-dispatch on a [2, 5, 10, 20] minute schedule. The CSM never needs
+  // to think about dispatch failures — when something exhausts retries
+  // we surface "needs attention" and they ping an admin.
 
-  // Left-edge color treatment makes in-flight cards visually pop out of
-  // the list. Processing = active volt (matches the "Agent live" header
-  // indicator). Stalled = red bad. Everything else is unstyled.
+  // Left-edge color treatment makes in-flight cards visually distinct.
+  //   processing               → volt (active, healthy in-flight)
+  //   stalled, no blocker      → warm amber (taking longer; auto-retry pending)
+  //   stalled, blocker set     → bad red (auto-retry exhausted; needs admin)
+  const isExhausted = uiState === "stalled" && !!execMeta.execution_blocker;
   const edgeClass =
     uiState === "processing"
       ? "border-l-4 border-l-volt"
       : uiState === "stalled"
-      ? "border-l-4 border-l-bad"
+      ? isExhausted
+        ? "border-l-4 border-l-bad"
+        : "border-l-4 border-l-warm"
       : "";
 
   return (
@@ -111,9 +112,15 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </span>
         )}
         {uiState === "stalled" && (
-          <span className="inline-flex items-center gap-s2 rounded-pill bg-bad/15 px-s3 py-[2px] text-micro font-bold uppercase tracking-wider text-bad">
+          <span
+            className={`inline-flex items-center gap-s2 rounded-pill px-s3 py-[2px] text-micro font-bold uppercase tracking-wider ${
+              isExhausted
+                ? "bg-bad/15 text-bad"
+                : "bg-warm/15 text-warm"
+            }`}
+          >
             <AlertTriangle className="h-3 w-3" />
-            Stalled
+            {isExhausted ? "Needs attention" : "Slow"}
           </span>
         )}
         {(uiState === "executed" || uiState === "rejected") && (
@@ -195,7 +202,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </div>
         </footer>
       ) : uiState === "processing" ? (
-        <footer className="mt-s5 flex flex-col gap-s3 border-t border-border pt-s4">
+        <footer className="mt-s5 flex flex-col gap-s2 border-t border-border pt-s4">
           <div className="flex items-center gap-s3 text-small">
             <Loader2 className="h-4 w-4 animate-spin text-volt" />
             <span className="font-bold text-foreground">
@@ -210,76 +217,60 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               </span>
             )}
           </div>
-          {error && (
-            <p className="text-small text-bad">
-              <span className="font-bold">Retry failed:</span> {error}
-            </p>
-          )}
-          {/* Retry surfaced from minute 1 so the affordance is discoverable
-              well before the 5-minute stalled threshold. Safe: Hermes is
-              idempotent on metadata.executed=true. */}
-          <div className="flex items-center">
+          {execMeta.retry_attempts && execMeta.retry_attempts > 0 ? (
             <p className="text-micro text-muted-foreground">
-              Taking too long? Retry the dispatch — safe if it already ran.
+              Retried {execMeta.retry_attempts}× automatically — Hermes is
+              still working on it.
             </p>
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={onRetry}
-              disabled={pending}
-              className={`gap-s2 px-s3 py-[6px] text-micro ${BTN_GHOST} disabled:opacity-50`}
-            >
-              {pending ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <RotateCw className="h-3 w-3" />
-              )}
-              Retry
-            </button>
-          </div>
+          ) : null}
         </footer>
       ) : uiState === "stalled" ? (
         <footer className="mt-s5 flex flex-col gap-s2 border-t border-border pt-s4">
-          <div className="flex items-center gap-s2 text-small text-warm">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span className="font-bold">Stalled</span>
-            <span className="opacity-80">
-              {" "}·{" "}execution has not completed in 5 minutes
-            </span>
-          </div>
-          {(execMeta.execution_blocker || execMeta.execution_error) && (
-            <p className="text-small text-foreground/80">
-              <span className="font-bold text-muted-foreground">
-                Hermes reported:
-              </span>{" "}
-              <span className="font-mono text-small">
-                {execMeta.execution_blocker ?? execMeta.execution_error}
-              </span>
-            </p>
+          {execMeta.execution_blocker ? (
+            // Auto-retry has exhausted — surfaces a soft "needs attention"
+            // banner. No action button: the CSM pings an admin out-of-band.
+            <>
+              <div className="flex items-center gap-s2 text-small text-bad">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span className="font-bold">Needs attention</span>
+                <span className="opacity-80">
+                  {" "}·{" "}Hermes couldn&apos;t complete this after several
+                  automatic retries
+                </span>
+              </div>
+              <p className="text-small text-foreground/80">
+                <span className="font-bold text-muted-foreground">
+                  Hermes reported:
+                </span>{" "}
+                <span className="font-mono text-small">
+                  {execMeta.execution_blocker}
+                </span>
+              </p>
+              <p className="text-micro text-muted-foreground">
+                The decision is recorded. Ping an admin to investigate the
+                dispatch failure.
+              </p>
+            </>
+          ) : (
+            // Stalled but not exhausted — auto-retry will pick this up on
+            // its next tick. Reassure the operator that the system has it.
+            <>
+              <div className="flex items-center gap-s2 text-small text-warm">
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span className="font-bold">Taking longer than usual</span>
+                <span className="opacity-80">
+                  {" "}·{" "}auto-retry will pick this up shortly
+                </span>
+              </div>
+              {execMeta.retry_attempts && execMeta.retry_attempts > 0 ? (
+                <p className="text-micro text-muted-foreground">
+                  Retried {execMeta.retry_attempts}× automatically so far.
+                </p>
+              ) : null}
+            </>
           )}
-          {error && (
-            <p className="text-small text-bad">
-              <span className="font-bold">Retry failed:</span> {error}
-            </p>
-          )}
-          <div className="flex items-center gap-s3">
-            <span className="text-micro text-muted-foreground tabular">
-              approved {timeAgo(approval.decided_at ?? approval.created_at)}
-            </span>
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={onRetry}
-              disabled={pending}
-              className={`gap-s2 px-s4 py-s2 text-small ${BTN_GHOST} disabled:opacity-50`}
-            >
-              {pending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RotateCw className="h-4 w-4" />
-              )}
-              Retry
-            </button>
+          <div className="text-micro tabular text-muted-foreground">
+            approved {timeAgo(approval.decided_at ?? approval.created_at)}
           </div>
         </footer>
       ) : (

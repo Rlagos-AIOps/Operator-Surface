@@ -50,11 +50,17 @@ interface ExecutionMetadata {
   execution_blocker?: string;
   execution_error?: string;
   /**
-   * ISO timestamp of the last Retry click. Used to reset the
+   * ISO timestamp of the last auto-retry. Used to reset the
    * stalled-threshold clock so a card returns to Processing
-   * after retry instead of staying visually stalled.
+   * after the retry instead of staying visually stalled.
    */
   last_retry_at?: string;
+  /**
+   * How many times the auto-retry service has re-dispatched this
+   * approval. 0 means original dispatch only. >= 4 means the
+   * service has given up and execution_blocker is set.
+   */
+  retry_attempts?: number;
 }
 
 /**

@@ -59,69 +59,12 @@ export async function decideApproval(
   }
 }
 
-/**
- * Server Action: retry the Hermes webhook for a stalled approval.
- *
- * Called from the ApprovalCard's Retry button when an approval has been
- * sitting in "processing" past the stalled threshold. Verifies the row is
- * actually in a retry-eligible state before re-firing (status="approved"
- * AND metadata.executed not true). Clears prior execution_blocker /
- * execution_error so the UI doesn't keep showing a stale message on
- * successful retry.
- *
- * Idempotency safety net: Hermes-side is already idempotent (Hopper's
- * bright-line check refuses if metadata.executed === true), so re-firing
- * for an already-executed approval is a clean no-op downstream.
- */
-export async function retryHermesWebhook(
-  approvalId: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  try {
-    const sb = createSupabaseAdminClient();
-    const operatorId = await getDemoOperatorId();
-
-    const { data: row, error: readErr } = await sb
-      .from("approvals")
-      .select("status,metadata")
-      .eq("id", approvalId)
-      .single();
-
-    if (readErr || !row) {
-      return { ok: false, error: "approval not found: " + (readErr?.message ?? "no row") };
-    }
-    if (row.status !== "approved") {
-      return { ok: false, error: "cannot retry: approval is " + row.status };
-    }
-    const meta = (row.metadata ?? {}) as { executed?: boolean };
-    if (meta.executed === true) {
-      return { ok: false, error: "already executed — refresh the page" };
-    }
-
-    const cleared = { ...(row.metadata as Record<string, unknown>) };
-    delete cleared.execution_blocker;
-    delete cleared.execution_error;
-    // Stamp the retry moment so getUiState resets the stalled-threshold
-    // clock from THIS click, not from the original decided_at. Without
-    // this, a Retry on a 6-min-old card would re-render still-stalled
-    // and the operator would have no signal we actually re-dispatched.
-    cleared.last_retry_at = new Date().toISOString();
-    // `cleared` is a `Record<string, unknown>` because TS can't prove all
-    // values are JSON-safe; at runtime they came from row.metadata (already Json)
-    // and we only spread/delete, never inject foreign types. Cast satisfies
-    // the generated Json type whose union includes Json[].
-    await sb.from("approvals").update({ metadata: cleared as Json }).eq("id", approvalId);
-
-    await fireHermesWebhook(approvalId, operatorId);
-
-    revalidatePath("/approvals");
-    return { ok: true };
-  } catch (err) {
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : "unknown error",
-    };
-  }
-}
+// retryHermesWebhook removed 2026-06-05. Manual retry is now handled by the
+// server-side auto-retry timer on the droplet (~/hermes-scaled-cs/services/
+// auto-retry/auto_retry.py, fires every 60s, exponential schedule
+// [2, 5, 10, 20] min). The CSM never needs to think about dispatch failures
+// — the system retries, and surfaces "Needs attention" only when retries
+// exhaust.
 
 async function fireHermesWebhook(
   approvalId: string,
