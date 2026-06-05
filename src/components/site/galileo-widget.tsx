@@ -164,16 +164,16 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
         aria-expanded={open}
         className={cn(
           "fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full",
-          "bg-primary text-primary-foreground shadow-xl ring-1 ring-primary/40",
+          "bg-background ring-2 ring-primary shadow-xl",
           "transition-all duration-200 hover:scale-105 hover:shadow-2xl",
-          "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40",
+          "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/60",
           "active:scale-95",
         )}
       >
         {/* The "G" in DM Serif Display, same family as the headers. */}
         <span
           aria-hidden
-          className="font-serif text-2xl leading-none text-white"
+          className="font-serif text-2xl leading-none text-primary"
           style={{ transform: "translateY(1px)" }}
         >
           G
