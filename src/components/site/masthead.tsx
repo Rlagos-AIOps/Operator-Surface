@@ -72,7 +72,7 @@ export function Masthead({ className }: { className?: string }) {
           <span className="text-primary">
             <WaveMark className="size-5" />
           </span>
-          <span className="font-mono text-[13px] font-semibold uppercase tracking-[0.18em]">Operator Surface</span>
+          <span className="font-mono text-[13px] font-semibold uppercase tracking-[0.18em]">Ops Surfer</span>
         </Link>
 
         {/* Desktop nav */}
