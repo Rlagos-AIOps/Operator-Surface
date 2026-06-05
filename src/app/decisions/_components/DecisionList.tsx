@@ -10,29 +10,18 @@ interface Props {
 }
 
 /**
- * Two-dimensional client filter: agent + account. Applied AND-wise.
+ * Account-filtered decision list.
  *
  * When an account is selected, the page swaps to "story mode" with a
  * lime accent strip — the demo moment for "here's everything we
  * figured out about $ACCOUNT_NAME."
  */
 export function DecisionList({ decisions }: Props) {
-  const [agentFilter, setAgentFilter] = useState<string>("all");
   const [accountFilter, setAccountFilter] = useState<string>("all");
 
   // ─────────────────────────────────────────────────────────────────
-  // Derived: agents and accounts present in the data
+  // Derived: accounts present in the data
   // ─────────────────────────────────────────────────────────────────
-
-  const agents = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const d of decisions) {
-      if (d.agent && !seen.has(d.agent.slug)) {
-        seen.set(d.agent.slug, d.agent.name);
-      }
-    }
-    return Array.from(seen.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [decisions]);
 
   const accounts = useMemo(() => {
     const seen = new Map<string, { id: string; name: string; count: number }>();
@@ -49,27 +38,14 @@ export function DecisionList({ decisions }: Props) {
     );
   }, [decisions]);
 
-  const agentCounts = useMemo(() => {
-    const out: Record<string, number> = { all: decisions.length };
-    for (const d of decisions) {
-      if (d.agent) out[d.agent.slug] = (out[d.agent.slug] ?? 0) + 1;
-    }
-    return out;
-  }, [decisions]);
-
   // ─────────────────────────────────────────────────────────────────
-  // Visible list — AND of the two filters
+  // Visible list
   // ─────────────────────────────────────────────────────────────────
 
   const visible = useMemo(() => {
-    return decisions.filter((d) => {
-      if (agentFilter !== "all" && d.agent?.slug !== agentFilter) return false;
-      if (accountFilter !== "all" && d.source_record_id !== accountFilter) {
-        return false;
-      }
-      return true;
-    });
-  }, [decisions, agentFilter, accountFilter]);
+    if (accountFilter === "all") return decisions;
+    return decisions.filter((d) => d.source_record_id === accountFilter);
+  }, [decisions, accountFilter]);
 
   const selectedAccount =
     accountFilter !== "all"
@@ -82,29 +58,6 @@ export function DecisionList({ decisions }: Props) {
 
   return (
     <>
-      {/* Agent filter row */}
-      <div className="mb-s3 flex flex-wrap items-center gap-s2">
-        <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted-foreground">
-          Agent
-        </span>
-        <Chip
-          active={agentFilter === "all"}
-          onClick={() => setAgentFilter("all")}
-          label="All"
-          count={agentCounts.all}
-        />
-        {agents.map((a) => (
-          <Chip
-            key={a.slug}
-            active={agentFilter === a.slug}
-            onClick={() => setAgentFilter(a.slug)}
-            label={a.slug}
-            count={agentCounts[a.slug] ?? 0}
-            mono
-          />
-        ))}
-      </div>
-
       {/* Account filter row */}
       <div className="mb-s5 flex flex-wrap items-center gap-s2">
         <span className="mr-s2 text-micro font-bold uppercase tracking-wider text-muted-foreground">
@@ -158,13 +111,11 @@ function Chip({
   onClick,
   label,
   count,
-  mono = false,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   count: number;
-  mono?: boolean;
 }) {
   return (
     <button
@@ -176,7 +127,7 @@ function Chip({
           : "border border-border/15 text-foreground hover:bg-card/5"
       }`}
     >
-      <span className={mono ? "font-mono" : ""}>{label}</span>
+      <span>{label}</span>
       <span className={`tabular ${active ? "opacity-70" : "opacity-60"}`}>
         {count}
       </span>
