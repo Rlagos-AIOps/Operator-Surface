@@ -19,6 +19,17 @@ export function DecisionCard({ decision }: Props) {
   const confidence =
     decision.confidence == null ? null : Number(decision.confidence);
 
+  // Pick the most relevant tooltip variant based on what the decision is
+  // actually about. Junior CSMs reading an at-risk score want the
+  // churn-likelihood explanation, not the generic decision one.
+  const confidenceTooltipKey =
+    decision.decision_type === "classify_at_risk" ||
+    decision.decision_type === "classify_renewal_risk"
+      ? "atRiskConfidence"
+      : decision.decision_type === "classify_upsell_opportunity"
+        ? "upsellConfidence"
+        : "decisionConfidence";
+
   return (
     <article className="rounded-lg border border-surface-edge bg-surface p-s5 shadow-e1 transition-shadow duration-base hover:shadow-e2">
       {/* Top row: agent + decision type + confidence + time */}
@@ -27,7 +38,7 @@ export function DecisionCard({ decision }: Props) {
           <AgentBadge slug={decision.agent.slug} name={decision.agent.name} />
         )}
         <DecisionTypeBadge type={decision.decision_type} />
-        <ConfidenceMeter value={confidence} />
+        <ConfidenceMeter value={confidence} tooltipKey={confidenceTooltipKey} />
         <div className="flex-1" />
         <span className="text-micro text-muted tabular">
           {timeAgo(decision.created_at)}

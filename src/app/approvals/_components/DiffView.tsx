@@ -1,3 +1,5 @@
+import { InfoIcon } from "@/app/_components/InfoIcon";
+
 /**
  * DiffView — render `current_value` vs `proposed_value` per action_type.
  *
@@ -198,8 +200,9 @@ function ScorePill({ score, band }: { score: number | null; band?: string }) {
     <div className="flex items-baseline gap-s3 text-ink">
       <span className="font-serif text-h2 tabular">{score ?? "—"}</span>
       {band && (
-        <span className="uppercase tracking-wider text-micro font-bold opacity-70">
+        <span className="inline-flex items-baseline gap-s1 uppercase tracking-wider text-micro font-bold opacity-70">
           band: {band}
+          <InfoIcon tooltipKey="healthBand" className="opacity-100" />
         </span>
       )}
     </div>
