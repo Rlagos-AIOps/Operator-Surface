@@ -43,7 +43,9 @@ export async function decideApproval(
 
     const { error } = await sb
       .from("approvals")
-      .update(update)
+      // Generated typed-update is too strict for a built-at-runtime
+      // payload; cast keeps the runtime shape intact.
+      .update(update as never)
       .eq("id", id);
 
     if (error) return { ok: false, error: error.message };

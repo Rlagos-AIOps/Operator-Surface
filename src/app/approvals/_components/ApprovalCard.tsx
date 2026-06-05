@@ -46,7 +46,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     JSON.stringify(proposedDraft) !== JSON.stringify(approval.proposed_value);
 
   const onProposedFieldChange = (field: string, value: unknown) => {
-    setProposedDraft((prev) => {
+    setProposedDraft((prev: unknown) => {
       const base =
         prev && typeof prev === "object" && !Array.isArray(prev)
           ? (prev as Record<string, unknown>)
