@@ -100,6 +100,11 @@ export async function retryHermesWebhook(
     const cleared = { ...(row.metadata as Record<string, unknown>) };
     delete cleared.execution_blocker;
     delete cleared.execution_error;
+    // Stamp the retry moment so getUiState resets the stalled-threshold
+    // clock from THIS click, not from the original decided_at. Without
+    // this, a Retry on a 6-min-old card would re-render still-stalled
+    // and the operator would have no signal we actually re-dispatched.
+    cleared.last_retry_at = new Date().toISOString();
     // `cleared` is a `Record<string, unknown>` because TS can't prove all
     // values are JSON-safe; at runtime they came from row.metadata (already Json)
     // and we only spread/delete, never inject foreign types. Cast satisfies

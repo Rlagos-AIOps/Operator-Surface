@@ -49,6 +49,12 @@ interface ExecutionMetadata {
   sent_via?: string;
   execution_blocker?: string;
   execution_error?: string;
+  /**
+   * ISO timestamp of the last Retry click. Used to reset the
+   * stalled-threshold clock so a card returns to Processing
+   * after retry instead of staying visually stalled.
+   */
+  last_retry_at?: string;
 }
 
 /**
@@ -67,11 +73,20 @@ export function getUiState(
   const meta = (approval.metadata ?? {}) as ExecutionMetadata;
   if (meta.executed === true) return "executed";
 
-  // Approved but not executed yet — check age.
+  // Approved but not executed yet — check age. The stalled clock measures
+  // from the most-recent action: original approval OR last Retry click.
+  // Without the retry-aware comparison, hitting Retry on a 6-min-old card
+  // would leave it visually stuck in Stalled even though we just kicked
+  // a fresh dispatch.
   const decidedAt = approval.decided_at
     ? Date.parse(approval.decided_at)
     : null;
-  if (decidedAt !== null && now - decidedAt >= STALLED_THRESHOLD_MS) {
+  const retryAt = meta.last_retry_at ? Date.parse(meta.last_retry_at) : null;
+  const referenceAt =
+    decidedAt !== null && retryAt !== null
+      ? Math.max(decidedAt, retryAt)
+      : decidedAt ?? retryAt;
+  if (referenceAt !== null && now - referenceAt >= STALLED_THRESHOLD_MS) {
     return "stalled";
   }
   return "processing";
