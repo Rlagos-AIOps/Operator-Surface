@@ -9,6 +9,7 @@ import { NAV_ICON } from "./nav-icons";
 import { ThemeToggle } from "./theme-toggle";
 
 const NAV = [
+  { label: "Overview", href: "/" },
   { label: "Daily Brief", href: "/brief" },
   { label: "Book", href: "/accounts" },
   { label: "Operator", href: "/operator" },

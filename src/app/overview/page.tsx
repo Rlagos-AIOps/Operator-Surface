@@ -45,16 +45,13 @@ export default async function HubPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1280px] px-s5 py-s8 md:py-s9">
-        {/* Hero */}
-        <header className="mb-s9 max-w-[36ch]">
+        {/* Hero — responsive sizing prevents single-word stacking on
+            narrow viewports. Lg+ keeps AK's dramatic 96px display. */}
+        <header className="mb-s9 max-w-[44ch]">
           <p className="eyebrow mb-s4">Operator Surface</p>
           <h1
-            className="font-serif text-balance text-foreground"
-            style={{
-              fontSize: "clamp(56px, 7vw, 96px)",
-              lineHeight: 0.96,
-              letterSpacing: "-0.035em",
-            }}
+            className="font-serif text-balance text-foreground text-4xl sm:text-5xl md:text-7xl lg:text-8xl"
+            style={{ lineHeight: 0.96, letterSpacing: "-0.035em" }}
           >
             See what your agents did.
           </h1>
