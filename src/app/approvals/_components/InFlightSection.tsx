@@ -45,10 +45,6 @@ export function InFlightSection({ items }: Props) {
             {needsAttention} needs attention
           </span>
         )}
-        <div className="flex-1" />
-        <span className="text-micro text-muted-foreground">
-          Galileo is working — no action needed
-        </span>
       </div>
 
       <div className="flex flex-col gap-s4">
