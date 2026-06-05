@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, X, Loader2 } from "lucide-react";
-import { decideApproval } from "../actions";
+import { AlertTriangle, Check, Loader2, RotateCw, X } from "lucide-react";
+import { decideApproval, retryHermesWebhook } from "../actions";
 import {
   AgentBadge,
   ActionTypeBadge,
@@ -11,7 +11,11 @@ import {
   timeAgo,
 } from "./Badges";
 import { DiffView } from "./DiffView";
-import type { ApprovalRow } from "./types";
+import {
+  type ApprovalRow,
+  getUiState,
+  getExecutionMetadata,
+} from "./types";
 import { PANEL, BTN_PRIMARY, BTN_GHOST } from "@/components/ui/surfaces";
 
 type Mode = "active" | "readonly";
@@ -34,6 +38,14 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     risk_level?: string;
   };
 
+  const uiState = getUiState(approval);
+  const execMeta = getExecutionMetadata(approval);
+
+  // Show decide buttons only when strictly pending. All other states
+  // (processing / stalled / executed / rejected) render alternative
+  // footers.
+  const showDecideButtons = mode === "active" && uiState === "pending";
+
   const onDecide = (decision: "approved" | "rejected") => {
     setError(null);
     setPendingDecision(decision);
@@ -43,30 +55,34 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
         setError(result.error);
         setPendingDecision(null);
       }
-      // On success the page revalidates; this card unmounts or shifts
-      // into the decided list. No further client state to clean up.
     });
   };
 
-  const isActive = mode === "active" && approval.status === "pending";
+  const onRetry = () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await retryHermesWebhook(approval.id);
+      if (!result.ok) setError(result.error);
+    });
+  };
 
   return (
     <article className={`p-s5 ${PANEL}`}>
-      {/* Top row: agent + action type + risk + status + time */}
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {approval.agent && (
           <AgentBadge slug={approval.agent.slug} name={approval.agent.name} />
         )}
         <ActionTypeBadge actionType={approval.action_type} />
         <RiskBadge level={metadata.risk_level} />
-        {!isActive && <StatusBadge status={approval.status} />}
+        {(uiState === "executed" || uiState === "rejected") && (
+          <StatusBadge status={approval.status} />
+        )}
         <div className="flex-1" />
         <span className="text-micro text-muted-foreground tabular">
           {timeAgo(approval.created_at)}
         </span>
       </header>
 
-      {/* Account + target ID */}
       <div className="mb-s4">
         {metadata.account_name && (
           <h3 className="font-serif text-h3 text-foreground">
@@ -74,27 +90,24 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted-foreground">
-          {approval.target_record_type} ·{" "}
+          {approval.target_record_type}{" "}·{" "}
           <span className="text-muted-foreground">{approval.target_record_id}</span>
         </p>
       </div>
 
-      {/* Rationale */}
       {approval.rationale && (
         <p className="mb-s5 max-w-[72ch] text-body text-foreground">
           {approval.rationale}
         </p>
       )}
 
-      {/* Diff */}
       <DiffView
         actionType={approval.action_type}
         currentValue={approval.current_value}
         proposedValue={approval.proposed_value}
       />
 
-      {/* Decision footer */}
-      {isActive ? (
+      {showDecideButtons ? (
         <footer className="mt-s5 flex flex-col gap-s3">
           <input
             type="text"
@@ -139,20 +152,94 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
             </button>
           </div>
         </footer>
+      ) : uiState === "processing" ? (
+        <footer className="mt-s5 flex items-center gap-s3 border-t border-border pt-s4 text-small text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin opacity-70" />
+          <span className="font-mono">Processing…</span>
+          {approval.decided_at && (
+            <span className="ml-auto text-micro tabular opacity-80">
+              approved {timeAgo(approval.decided_at)}
+            </span>
+          )}
+        </footer>
+      ) : uiState === "stalled" ? (
+        <footer className="mt-s5 flex flex-col gap-s2 border-t border-border pt-s4">
+          <div className="flex items-center gap-s2 text-small text-warm">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span className="font-bold">Stalled</span>
+            <span className="opacity-80">
+              {" "}·{" "}execution has not completed in 5 minutes
+            </span>
+          </div>
+          {(execMeta.execution_blocker || execMeta.execution_error) && (
+            <p className="text-small text-foreground/80">
+              <span className="font-bold text-muted-foreground">
+                Hermes reported:
+              </span>{" "}
+              <span className="font-mono text-small">
+                {execMeta.execution_blocker ?? execMeta.execution_error}
+              </span>
+            </p>
+          )}
+          {error && (
+            <p className="text-small text-bad">
+              <span className="font-bold">Retry failed:</span> {error}
+            </p>
+          )}
+          <div className="flex items-center gap-s3">
+            <span className="text-micro text-muted-foreground tabular">
+              approved {timeAgo(approval.decided_at ?? approval.created_at)}
+            </span>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={onRetry}
+              disabled={pending}
+              className={`gap-s2 px-s4 py-s2 text-small ${BTN_GHOST} disabled:opacity-50`}
+            >
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RotateCw className="h-4 w-4" />
+              )}
+              Retry
+            </button>
+          </div>
+        </footer>
       ) : (
         <footer className="mt-s5 border-t border-border pt-s4 text-small text-muted-foreground">
           {approval.decided_at && (
-            <span>
-              Decided {timeAgo(approval.decided_at)}
-              {approval.decision_note && (
-                <>
-                  {" · "}
-                  <span className="italic text-foreground/80">
-                    &ldquo;{approval.decision_note}&rdquo;
-                  </span>
-                </>
+            <>
+              <div>
+                Decided {timeAgo(approval.decided_at)}
+                {approval.decision_note && (
+                  <>
+                    {" "}·{" "}
+                    <span className="italic text-foreground/80">
+                      &ldquo;{approval.decision_note}&rdquo;
+                    </span>
+                  </>
+                )}
+              </div>
+              {uiState === "executed" && execMeta.outcome && (
+                <div className="mt-s2 text-foreground/80">
+                  <span className="font-bold text-muted-foreground">
+                    Outcome:
+                  </span>{" "}
+                  {execMeta.outcome}
+                  {execMeta.sf_record_id && (
+                    <span className="ml-s2 font-mono text-micro text-muted-foreground">
+                      {" "}·{" "}sf:{execMeta.sf_record_id}
+                    </span>
+                  )}
+                  {execMeta.gmail_message_id && (
+                    <span className="ml-s2 font-mono text-micro text-muted-foreground">
+                      {" "}·{" "}gmail:{execMeta.gmail_message_id}
+                    </span>
+                  )}
+                </div>
               )}
-            </span>
+            </>
           )}
         </footer>
       )}
