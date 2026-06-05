@@ -22,10 +22,23 @@ export function BriefHeader({ brief }: Props) {
   const isLive = run?.status === "running";
   return (
     <header className="mb-s7">
-      <p className="eyebrow mb-s3">
-        Daily Brief · {formatBriefDate(brief.brief_date)}
+      {/* Page identity — Roberto's walkthrough flagged Brief as needing a
+          louder "you are on the Daily Brief" cue. Promote the date+ID
+          line from a micro eyebrow to a proper sub-header. */}
+      <p className="mb-s3 font-mono text-small font-bold uppercase tracking-[0.14em] text-lime">
+        Daily Brief
+        <span className="ml-s2 text-muted">
+          · {formatBriefDate(brief.brief_date)}
+        </span>
       </p>
-      <h1 className="font-serif text-paper text-balance mb-s5 max-w-[20ch]">
+      <h1
+        className="font-serif text-paper text-balance mb-s5 max-w-[22ch]"
+        style={{
+          fontSize: "clamp(56px, 7vw, 80px)",
+          lineHeight: 0.98,
+          letterSpacing: "-0.025em",
+        }}
+      >
         {plainEnglish(brief.headline)}
       </h1>
       <div className="flex items-center gap-s2 text-micro text-muted">

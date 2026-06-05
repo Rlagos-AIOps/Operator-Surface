@@ -35,8 +35,14 @@ export function HubTile({
       <p className="mb-s6 max-w-[34ch] text-body text-paper/80 leading-relaxed">
         {description}
       </p>
+      {/* Walkthrough feedback: tile-count numbers were too small — when
+          a CSM glances at the Hub the count is the signal, not the
+          label. Promote it to display-serif and let the label hang
+          below. */}
       <div className="mt-auto flex items-end justify-between gap-s3">
-        <div className="text-small text-muted">{meta}</div>
+        <div className="text-small text-muted [&_.tabular]:font-serif [&_.tabular]:text-h2 [&_.tabular]:text-paper [&_.tabular]:leading-none">
+          {meta}
+        </div>
         <span
           aria-hidden
           className="flex h-9 w-9 items-center justify-center rounded-pill border border-paper/20 text-paper transition-all duration-base group-hover:border-lime group-hover:bg-lime group-hover:text-ink"

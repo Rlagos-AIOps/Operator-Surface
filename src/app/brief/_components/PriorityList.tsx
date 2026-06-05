@@ -12,7 +12,11 @@ export function PriorityList({ priorities }: Props) {
   const sorted = [...priorities].sort((a, b) => a.rank - b.rank);
   return (
     <section className="mb-s7">
-      <p className="eyebrow mb-s4">Priorities</p>
+      {/* Promoted from eyebrow → proper H3 per walkthrough feedback —
+          "5 priorities today" read as too quiet against the dark bg. */}
+      <h2 className="mb-s4 font-serif text-h3 text-paper">
+        {sorted.length} {sorted.length === 1 ? "priority" : "priorities"} today
+      </h2>
       <ol className="overflow-hidden rounded-lg border border-surface-edge bg-surface">
         {sorted.map((p, i) => (
           <li
