@@ -1,4 +1,5 @@
 import type { ApprovalStatus } from "./types";
+import { InfoIcon } from "@/app/_components/InfoIcon";
 
 /* ------------------------------------------------------------------ */
 /* AgentBadge — color-coded pill per CSM agent slug                   */
@@ -92,9 +93,10 @@ export function RiskBadge({ level }: { level?: string | null }) {
   const style = RISK_STYLES[level] ?? RISK_STYLES.low;
   return (
     <span
-      className={`inline-flex items-center rounded-pill border px-s3 py-[3px] text-micro font-bold uppercase tracking-wider ${style}`}
+      className={`inline-flex items-center gap-s1 rounded-pill border px-s3 py-[3px] text-micro font-bold uppercase tracking-wider ${style}`}
     >
       {level} risk
+      <InfoIcon tooltipKey="riskBand" />
     </span>
   );
 }

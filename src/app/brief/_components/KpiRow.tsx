@@ -1,5 +1,13 @@
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import type { Kpi } from "./types";
+import { InfoIcon } from "@/app/_components/InfoIcon";
+import type { TooltipKey } from "@/lib/copy/tooltips";
+
+function detectAcronymKey(label: string): TooltipKey | null {
+  if (/\bARR\b/.test(label)) return "arr";
+  if (/\bGRR\b/.test(label)) return "grr";
+  return null;
+}
 
 interface Props {
   kpis: Kpi[];
@@ -17,9 +25,13 @@ export function KpiRow({ kpis }: Props) {
 }
 
 function KpiCard({ kpi }: { kpi: Kpi }) {
+  const acronymKey = detectAcronymKey(kpi.label);
   return (
-    <div className="rounded-lg border border-border bg-card p-s5 shadow-e1">
-      <p className="eyebrow text-muted-foreground">{kpi.label}</p>
+    <div className="overflow-visible rounded-lg border border-border bg-card p-s5 shadow-e1">
+      <p className="eyebrow inline-flex items-center gap-s1 text-muted-foreground">
+        {kpi.label}
+        {acronymKey && <InfoIcon tooltipKey={acronymKey} />}
+      </p>
       <p className="mt-s2 font-serif text-h2 text-foreground tabular">
         {typeof kpi.value === "number"
           ? kpi.value.toLocaleString()

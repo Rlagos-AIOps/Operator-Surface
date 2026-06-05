@@ -18,6 +18,7 @@
  */
 
 import { Fragment, useId } from "react";
+import { InfoIcon } from "@/app/_components/InfoIcon";
 
 type Json = unknown;
 
@@ -256,9 +257,10 @@ function BandPill({ band }: { band?: string }) {
       : "bg-muted/15 text-muted-foreground";
   return (
     <span
-      className={`inline-flex items-center rounded-pill px-s3 py-[3px] text-small font-bold uppercase tracking-wider ${cls}`}
+      className={`inline-flex items-center gap-s1 rounded-pill px-s3 py-[3px] text-small font-bold uppercase tracking-wider ${cls}`}
     >
       {band ?? "—"}
+      <InfoIcon tooltipKey="healthBand" />
     </span>
   );
 }

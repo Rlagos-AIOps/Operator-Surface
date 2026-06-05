@@ -20,6 +20,15 @@ export function DecisionCard({ decision }: Props) {
   const confidence =
     decision.confidence == null ? null : Number(decision.confidence);
 
+  // Route tooltip copy to match the decision context.
+  const confidenceTooltipKey =
+    decision.decision_type === "classify_at_risk" ||
+    decision.decision_type === "classify_renewal_risk"
+      ? "atRiskConfidence"
+      : decision.decision_type === "classify_upsell_opportunity"
+        ? "upsellConfidence"
+        : "decisionConfidence";
+
   return (
     <article className={`p-s5 ${PANEL}`}>
       {/* Top row: agent + decision type + confidence + time */}
@@ -28,7 +37,7 @@ export function DecisionCard({ decision }: Props) {
           <AgentBadge slug={decision.agent.slug} name={decision.agent.name} />
         )}
         <DecisionTypeBadge type={decision.decision_type} />
-        <ConfidenceMeter value={confidence} />
+        <ConfidenceMeter value={confidence} tooltipKey={confidenceTooltipKey} />
         <div className="flex-1" />
         <span className="text-micro text-muted-foreground tabular">
           {timeAgo(decision.created_at)}

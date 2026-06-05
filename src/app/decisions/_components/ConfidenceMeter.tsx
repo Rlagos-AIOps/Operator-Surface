@@ -1,3 +1,6 @@
+import { InfoIcon } from "@/app/_components/InfoIcon";
+import type { TooltipKey } from "@/lib/copy/tooltips";
+
 /**
  * ConfidenceMeter — lime bar + percentage when confidence is known,
  * muted "not estimated" pill when null.
@@ -7,9 +10,11 @@
 
 interface Props {
   value: number | null;
+  /** Tooltip variant — at-risk, upsell, or generic decision. */
+  tooltipKey?: TooltipKey;
 }
 
-export function ConfidenceMeter({ value }: Props) {
+export function ConfidenceMeter({ value, tooltipKey = "decisionConfidence" }: Props) {
   if (value == null) {
     return (
       <span
@@ -23,8 +28,9 @@ export function ConfidenceMeter({ value }: Props) {
   const pct = Math.max(0, Math.min(100, Math.round(value * 100)));
   return (
     <span className="inline-flex items-center gap-s2 text-micro">
-      <span className="font-bold uppercase tracking-wider text-muted-foreground">
+      <span className="inline-flex items-center gap-s1 font-bold uppercase tracking-wider text-muted-foreground">
         Confidence
+        <InfoIcon tooltipKey={tooltipKey} />
       </span>
       <span
         className="h-1 w-16 overflow-hidden rounded-pill bg-card/10"
