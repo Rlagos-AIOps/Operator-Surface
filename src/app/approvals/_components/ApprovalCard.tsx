@@ -33,6 +33,30 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     "approved" | "rejected" | null
   >(null);
 
+  // Editable proposed_value: CSM can tweak the draft before approving
+  // (e.g. fix a typo in body_md, adjust the subject). The original
+  // server proposal stays in `approval.proposed_value`; this draft
+  // shadows it while editing. On Approve we save the (possibly edited)
+  // draft to the row alongside the decision so the audit trail reflects
+  // what was actually approved.
+  const [proposedDraft, setProposedDraft] = useState<unknown>(
+    approval.proposed_value,
+  );
+  const proposedDirty =
+    JSON.stringify(proposedDraft) !== JSON.stringify(approval.proposed_value);
+
+  const onProposedFieldChange = (field: string, value: unknown) => {
+    setProposedDraft((prev) => {
+      const base =
+        prev && typeof prev === "object" && !Array.isArray(prev)
+          ? (prev as Record<string, unknown>)
+          : {};
+      return { ...base, [field]: value };
+    });
+  };
+
+  const resetProposed = () => setProposedDraft(approval.proposed_value);
+
   const metadata = (approval.metadata ?? {}) as {
     account_name?: string;
     opportunity_name?: string;
@@ -67,7 +91,17 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     setError(null);
     setPendingDecision(decision);
     startTransition(async () => {
-      const result = await decideApproval(approval.id, decision, note);
+      // Only ship the edited proposed_value when (a) approving and
+      // (b) the operator actually changed something. Rejecting discards
+      // edits — the draft is moot when we're not going to act on it.
+      const editedProposed =
+        decision === "approved" && proposedDirty ? proposedDraft : undefined;
+      const result = await decideApproval(
+        approval.id,
+        decision,
+        note,
+        editedProposed,
+      );
       if (!result.ok) {
         setError(result.error);
         setPendingDecision(null);
@@ -154,7 +188,27 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
         actionType={approval.action_type}
         currentValue={approval.current_value}
         proposedValue={approval.proposed_value}
+        proposedDraft={proposedDraft}
+        editable={showDecideButtons}
+        onProposedFieldChange={onProposedFieldChange}
       />
+
+      {showDecideButtons && proposedDirty && (
+        <div className="mt-s2 flex items-center gap-s3 text-micro text-muted-foreground">
+          <span className="inline-flex items-center gap-s2 rounded-pill bg-warm/15 px-s3 py-[2px] font-bold uppercase tracking-wider text-warm">
+            Edited
+          </span>
+          <span>Your edits will be saved when you approve.</span>
+          <button
+            type="button"
+            onClick={resetProposed}
+            disabled={pending}
+            className="ml-auto text-micro font-semibold text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-foreground"
+          >
+            Reset to original
+          </button>
+        </div>
+      )}
 
       {showDecideButtons ? (
         <footer className="mt-s5 flex flex-col gap-s3">

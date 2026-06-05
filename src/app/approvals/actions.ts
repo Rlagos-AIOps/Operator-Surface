@@ -19,20 +19,31 @@ export async function decideApproval(
   id: string,
   decision: "approved" | "rejected",
   note?: string,
+  editedProposedValue?: unknown,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     const sb = createSupabaseAdminClient();
     const operatorId = await getDemoOperatorId();
 
     const trimmed = note?.trim();
+    // Build the update payload. proposed_value only gets written when the
+    // CSM actually edited the draft AND chose to approve — Reject discards
+    // edits because the action isn't going to happen. Bell/Hopper read
+    // proposed_value at execute time, so the edit must land BEFORE the
+    // webhook fires (which it does — this PATCH is awaited).
+    const update: Record<string, unknown> = {
+      status: decision,
+      decided_by: operatorId,
+      decided_at: new Date().toISOString(),
+      decision_note: trimmed && trimmed.length > 0 ? trimmed : null,
+    };
+    if (editedProposedValue !== undefined) {
+      update.proposed_value = editedProposedValue as Json;
+    }
+
     const { error } = await sb
       .from("approvals")
-      .update({
-        status: decision,
-        decided_by: operatorId,
-        decided_at: new Date().toISOString(),
-        decision_note: trimmed && trimmed.length > 0 ? trimmed : null,
-      })
+      .update(update)
       .eq("id", id);
 
     if (error) return { ok: false, error: error.message };
