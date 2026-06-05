@@ -23,7 +23,7 @@ import {
      "/clients" → CircleDot (a target account)
    ============================================================= */
 export const NAV_ICON: Record<string, LucideIcon> = {
-  "/": Command,
+  "/overview": Command,
   "/dashboard": LineChart,
   "/app": Terminal,
   "/pipeline": Filter,
