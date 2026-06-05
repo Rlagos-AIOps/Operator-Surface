@@ -83,14 +83,39 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     });
   };
 
+  // Left-edge color treatment makes in-flight cards visually pop out of
+  // the list. Processing = active volt (matches the "Agent live" header
+  // indicator). Stalled = red bad. Everything else is unstyled.
+  const edgeClass =
+    uiState === "processing"
+      ? "border-l-4 border-l-volt"
+      : uiState === "stalled"
+      ? "border-l-4 border-l-bad"
+      : "";
+
   return (
-    <article className={`p-s5 ${PANEL}`}>
+    <article className={`p-s5 ${PANEL} ${edgeClass}`}>
       <header className="mb-s4 flex flex-wrap items-center gap-s2">
         {approval.agent && (
           <AgentBadge slug={approval.agent.slug} name={approval.agent.name} />
         )}
         <ActionTypeBadge actionType={approval.action_type} />
         <RiskBadge level={metadata.risk_level} />
+        {uiState === "processing" && (
+          <span className="inline-flex items-center gap-s2 rounded-pill bg-volt/15 px-s3 py-[2px] text-micro font-bold uppercase tracking-wider text-volt">
+            <span className="relative inline-flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-pill bg-volt opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-pill bg-volt" />
+            </span>
+            Galileo working
+          </span>
+        )}
+        {uiState === "stalled" && (
+          <span className="inline-flex items-center gap-s2 rounded-pill bg-bad/15 px-s3 py-[2px] text-micro font-bold uppercase tracking-wider text-bad">
+            <AlertTriangle className="h-3 w-3" />
+            Stalled
+          </span>
+        )}
         {(uiState === "executed" || uiState === "rejected") && (
           <StatusBadge status={approval.status} />
         )}
@@ -170,14 +195,48 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </div>
         </footer>
       ) : uiState === "processing" ? (
-        <footer className="mt-s5 flex items-center gap-s3 border-t border-border pt-s4 text-small text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin opacity-70" />
-          <span className="font-mono">Processing…</span>
-          {approval.decided_at && (
-            <span className="ml-auto text-micro tabular opacity-80">
-              approved {timeAgo(approval.decided_at)}
+        <footer className="mt-s5 flex flex-col gap-s3 border-t border-border pt-s4">
+          <div className="flex items-center gap-s3 text-small">
+            <Loader2 className="h-4 w-4 animate-spin text-volt" />
+            <span className="font-bold text-foreground">
+              Galileo is processing this approval
             </span>
+            <span className="text-muted-foreground">
+              · dispatching to {approval.action_type === "send_reply" ? "Bell" : "Hopper"}
+            </span>
+            {approval.decided_at && (
+              <span className="ml-auto text-micro tabular text-muted-foreground">
+                approved {timeAgo(approval.decided_at)}
+              </span>
+            )}
+          </div>
+          {error && (
+            <p className="text-small text-bad">
+              <span className="font-bold">Retry failed:</span> {error}
+            </p>
           )}
+          {/* Retry surfaced from minute 1 so the affordance is discoverable
+              well before the 5-minute stalled threshold. Safe: Hermes is
+              idempotent on metadata.executed=true. */}
+          <div className="flex items-center">
+            <p className="text-micro text-muted-foreground">
+              Taking too long? Retry the dispatch — safe if it already ran.
+            </p>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={onRetry}
+              disabled={pending}
+              className={`gap-s2 px-s3 py-[6px] text-micro ${BTN_GHOST} disabled:opacity-50`}
+            >
+              {pending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <RotateCw className="h-3 w-3" />
+              )}
+              Retry
+            </button>
+          </div>
         </footer>
       ) : uiState === "stalled" ? (
         <footer className="mt-s5 flex flex-col gap-s2 border-t border-border pt-s4">
