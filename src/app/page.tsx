@@ -21,26 +21,34 @@ export default async function HubPage() {
   const sb = createSupabaseAdminClient();
   const operatorId = await getDemoOperatorId();
 
-  // Run the three count queries in parallel — they're independent and
-  // we want the Hub to land fast.
-  const [pendingResp, decisionsResp, latestBriefResp] = await Promise.all([
-    sb
-      .from("approvals")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending"),
-    sb.from("decisions").select("*", { count: "exact", head: true }),
-    sb
-      .from("briefs")
-      .select("brief_date, viewed_at")
-      .eq("operator_id", operatorId)
-      .order("brief_date", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  // Run the count queries in parallel — they're independent and we want
+  // the Hub to land fast.
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [pendingResp, decisionsResp, latestBriefResp, weekRunsResp] =
+    await Promise.all([
+      sb
+        .from("approvals")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending"),
+      sb.from("decisions").select("*", { count: "exact", head: true }),
+      sb
+        .from("briefs")
+        .select("brief_date, viewed_at")
+        .eq("operator_id", operatorId)
+        .order("brief_date", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      sb
+        .from("agent_runs")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "succeeded")
+        .gte("started_at", sevenDaysAgo),
+    ]);
 
   const pendingCount = pendingResp.count ?? 0;
   const decisionsCount = decisionsResp.count ?? 0;
   const latestBrief = latestBriefResp.data;
+  const weekRuns = weekRunsResp.count ?? 0;
 
   return (
     <main className="min-h-screen bg-bg-deep">
@@ -68,7 +76,7 @@ export default async function HubPage() {
         {/* Tiles */}
         <section
           aria-label="Operator Surface launcher"
-          className="grid grid-cols-1 gap-s5 md:grid-cols-3"
+          className="grid grid-cols-1 gap-s5 md:grid-cols-2 lg:grid-cols-4"
         >
           <HubTile
             num="01"
@@ -123,6 +131,19 @@ export default async function HubPage() {
               </>
             }
             href="/decisions"
+          />
+
+          <HubTile
+            num="04"
+            title="Galileo this week"
+            description="Productivity ROI — what your agents shipped autonomously over the last 7 days."
+            meta={
+              <>
+                <span className="font-mono text-paper tabular">{weekRuns}</span>{" "}
+                runs this week
+              </>
+            }
+            href="/operator"
           />
         </section>
 
