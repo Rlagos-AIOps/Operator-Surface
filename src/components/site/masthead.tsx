@@ -14,6 +14,7 @@ const NAV = [
   { label: "Operator", href: "/operator" },
   { label: "Approvals", href: "/approvals" },
   { label: "Decisions", href: "/decisions" },
+  { label: "Insights", href: "/insights" },
 ] as const;
 
 // Feature flags — kept as named constants (not env vars) so the JSX below
