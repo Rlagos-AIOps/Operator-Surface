@@ -9,7 +9,7 @@ import {
   type ApprovalRow,
   getUiState,
 } from "./_components/types";
-import { accountDisplayName } from "@/lib/copy/overrides";
+import { AccountLink } from "@/app/_components/AccountLink";
 
 // Always fetch fresh data on the server. The Server Action triggers
 // revalidatePath('/approvals') after a decision, which lands here. The
@@ -144,7 +144,10 @@ export default async function ApprovalsPage({ searchParams }: PageProps) {
             <div>
               <p className="eyebrow">Account focus</p>
               <p className="mt-s1 font-serif text-h3 text-foreground">
-                {accountDisplayName(filteredAccountName)}
+                <AccountLink
+                  accountId={accountFilter}
+                  accountName={filteredAccountName}
+                />
               </p>
               <p className="mt-s1 text-small text-muted-foreground">
                 {pendingCards.length} pending, {inFlightCards.length} in flight,{" "}

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DecisionCard } from "./DecisionCard";
 import { EmptyState } from "./EmptyState";
 import type { DecisionRow } from "./types";
+import { AccountLink } from "@/app/_components/AccountLink";
 
 interface Props {
   decisions: DecisionRow[];
@@ -85,7 +86,8 @@ export function DecisionList({ decisions }: Props) {
         <div className="mb-s5 rounded-md border-l-4 border-primary bg-card/40 px-s5 py-s4">
           <p className="eyebrow">Account focus</p>
           <p className="mt-s1 font-serif text-h3 text-foreground">
-            Decision story · {selectedAccount.name}
+            Decision story ·{" "}
+            <AccountLink accountId={selectedAccount.id} accountName={selectedAccount.name} />
           </p>
           <p className="mt-s1 text-small text-muted-foreground">
             {visible.length}{" "}

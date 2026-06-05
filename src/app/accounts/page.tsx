@@ -4,7 +4,7 @@ import { aggregateBook, bookTotals } from "@/lib/book-data";
 import { VerdictBadge } from "@/app/decisions/_components/VerdictBadge";
 import { StatusDot } from "@/components/ui/accents";
 import { PANEL, METRIC_CHIP } from "@/components/ui/surfaces";
-import { accountDisplayName } from "@/lib/copy/overrides";
+import { AccountLink } from "@/app/_components/AccountLink";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +55,7 @@ export default async function AccountsPage() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="truncate font-serif text-h4 text-foreground">
-                  {accountDisplayName(a.name)}
+                  <AccountLink accountId={a.sfId} accountName={a.name} />
                 </h3>
                 <p className="mt-0.5 font-mono text-micro text-muted-foreground">
                   {a.segment} · {fmtArr(a.arr)} ARR

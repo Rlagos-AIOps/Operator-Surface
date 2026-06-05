@@ -79,6 +79,23 @@ export function accountDisplayName(name: string | null | undefined): string {
 }
 
 /**
+ * Salesforce record URL for an account ID. Null when id is missing —
+ * callers fall back to bare text for rows whose source record isn't a
+ * Salesforce Account.
+ *
+ * The instance subdomain is Roberto's dev org. Move to env var when
+ * the demo isn't the next thing on the calendar.
+ */
+const SF_INSTANCE = "orgfarm-f3d0d0ded9-dev-ed.develop";
+
+export function accountSalesforceUrl(
+  accountId: string | null | undefined,
+): string | null {
+  if (!accountId) return null;
+  return `https://${SF_INSTANCE}.lightning.force.com/lightning/r/Account/${accountId}/view`;
+}
+
+/**
  * Expand the first occurrence of bare acronyms (ARR, GRR) per text
  * block. Subsequent occurrences stay bare. Word-boundary safe so we
  * don't munge code identifiers like `currARR`.

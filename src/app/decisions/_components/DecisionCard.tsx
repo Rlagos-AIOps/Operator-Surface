@@ -5,7 +5,8 @@ import { VerdictBadge } from "./VerdictBadge";
 import { SignalTrace } from "./SignalTrace";
 import type { DecisionRow, SignalEntry } from "./types";
 import { PANEL } from "@/components/ui/surfaces";
-import { accountDisplayName, plainEnglish } from "@/lib/copy/overrides";
+import { plainEnglish } from "@/lib/copy/overrides";
+import { AccountLink } from "@/app/_components/AccountLink";
 
 interface Props {
   decision: DecisionRow;
@@ -48,7 +49,14 @@ export function DecisionCard({ decision }: Props) {
       <div className="mb-s4">
         {metadata.account_name && (
           <h3 className="font-serif text-h3 text-foreground">
-            {accountDisplayName(metadata.account_name)}
+            <AccountLink
+              accountId={
+                decision.source_record_type === "salesforce.account"
+                  ? decision.source_record_id
+                  : null
+              }
+              accountName={metadata.account_name}
+            />
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted-foreground">
