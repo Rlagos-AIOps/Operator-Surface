@@ -8,15 +8,10 @@ import { getDemoOperatorId } from "@/lib/supabase/operator";
 /**
  * Server Action: decide an approval.
  *
- * Demo-mode behaviour: `decided_by` is the UUID of the operator whose
- * email matches DEMO_OPERATOR_EMAIL (default: taylor@example-csm.test).
- *
- * Webhook bridge (v1.6.x): after the DB update succeeds, if the decision
- * is "approved" and HERMES_WEBHOOK_URL is configured, fire a webhook to
- * the Hermes droplet so Galileo can dispatch the right worker. The call
- * is fire-and-forget — it does NOT block the UI, and a failure does NOT
- * mark the approval decision as failed (the row IS approved in Supabase
- * regardless).
+ * Webhook bridge (v1.6.x): on approve, fire a webhook to the Hermes
+ * droplet so Galileo can dispatch the right worker. Fire-and-forget —
+ * does NOT block the UI, and a failure does NOT mark the approval as
+ * failed (the row IS approved in Supabase regardless).
  */
 
 export async function decideApproval(
@@ -45,7 +40,6 @@ export async function decideApproval(
     revalidatePath("/brief");
     revalidatePath("/approvals");
 
-    // Bridge to Hermes — fire-and-forget on approve.
     if (decision === "approved") {
       void fireHermesWebhook(id, operatorId).catch((err) => {
         console.error(
@@ -65,19 +59,60 @@ export async function decideApproval(
 }
 
 /**
- * Fire-and-forget HMAC-signed POST to the Hermes webhook receiver.
+ * Server Action: retry the Hermes webhook for a stalled approval.
  *
- * Receiver lives at `${HERMES_WEBHOOK_URL}/webhook/approval` (typically
- * http://137.184.137.125:8080). It verifies the signature, async-spawns
- * Galileo with the approval id, and returns 202 in <100ms. This function
- * tolerates a slow Hermes side via a 5s timeout.
+ * Called from the ApprovalCard's Retry button when an approval has been
+ * sitting in "processing" past the stalled threshold. Verifies the row is
+ * actually in a retry-eligible state before re-firing (status="approved"
+ * AND metadata.executed not true). Clears prior execution_blocker /
+ * execution_error so the UI doesn't keep showing a stale message on
+ * successful retry.
  *
- * Required env vars (Vercel → Project Settings → Environment Variables):
- *   HERMES_WEBHOOK_URL     base URL, no trailing slash
- *   HERMES_WEBHOOK_SECRET  same secret as ~/.hermes/secrets/webhook.env on the droplet
- *
- * If unset, this is a no-op — the rest of the flow still works.
+ * Idempotency safety net: Hermes-side is already idempotent (Hopper's
+ * bright-line check refuses if metadata.executed === true), so re-firing
+ * for an already-executed approval is a clean no-op downstream.
  */
+export async function retryHermesWebhook(
+  approvalId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const sb = createSupabaseAdminClient();
+    const operatorId = await getDemoOperatorId();
+
+    const { data: row, error: readErr } = await sb
+      .from("approvals")
+      .select("status,metadata")
+      .eq("id", approvalId)
+      .single();
+
+    if (readErr || !row) {
+      return { ok: false, error: "approval not found: " + (readErr?.message ?? "no row") };
+    }
+    if (row.status !== "approved") {
+      return { ok: false, error: "cannot retry: approval is " + row.status };
+    }
+    const meta = (row.metadata ?? {}) as { executed?: boolean };
+    if (meta.executed === true) {
+      return { ok: false, error: "already executed — refresh the page" };
+    }
+
+    const cleared = { ...(row.metadata as Record<string, unknown>) };
+    delete cleared.execution_blocker;
+    delete cleared.execution_error;
+    await sb.from("approvals").update({ metadata: cleared }).eq("id", approvalId);
+
+    await fireHermesWebhook(approvalId, operatorId);
+
+    revalidatePath("/approvals");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "unknown error",
+    };
+  }
+}
+
 async function fireHermesWebhook(
   approvalId: string,
   operatorId: string,
