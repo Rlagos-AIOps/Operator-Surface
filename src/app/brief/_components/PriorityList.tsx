@@ -30,7 +30,7 @@ export function PriorityList({ priorities }: Props) {
               <span className="font-serif text-h3 text-lime tabular w-s7 shrink-0">
                 {p.rank}
               </span>
-              <span className="flex-1 text-body text-paper">{plainEnglish(p.summary)}</span>
+              <span className="flex-1 text-h4 font-medium text-paper">{plainEnglish(p.summary)}</span>
               <span className="hidden text-micro uppercase tracking-wider text-muted sm:inline">
                 Approvals
               </span>
