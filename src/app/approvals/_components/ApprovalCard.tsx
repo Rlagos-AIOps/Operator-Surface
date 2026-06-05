@@ -17,6 +17,7 @@ import {
   getExecutionMetadata,
 } from "./types";
 import { PANEL, BTN_PRIMARY, BTN_GHOST } from "@/components/ui/surfaces";
+import { accountDisplayName, plainEnglish } from "@/lib/copy/overrides";
 
 type Mode = "active" | "readonly";
 
@@ -177,7 +178,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       <div className="mb-s4">
         {displayTitle && (
           <h3 className="font-serif text-h3 text-foreground">
-            {displayTitle}
+            {accountDisplayName(displayTitle)}
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted-foreground">
@@ -188,7 +189,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
 
       {approval.rationale && (
         <p className="mb-s5 max-w-[72ch] text-body text-foreground">
-          {approval.rationale}
+          {plainEnglish(approval.rationale)}
         </p>
       )}
 

@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import { plainEnglish } from "@/lib/copy/overrides";
 
 interface Props {
   source: string;
@@ -66,7 +67,7 @@ export function BodyMd({ source }: Props) {
           ),
         }}
       >
-        {source}
+        {plainEnglish(source)}
       </ReactMarkdown>
     </section>
   );

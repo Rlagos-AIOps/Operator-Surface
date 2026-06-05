@@ -5,6 +5,7 @@ import { VerdictBadge } from "./VerdictBadge";
 import { SignalTrace } from "./SignalTrace";
 import type { DecisionRow, SignalEntry } from "./types";
 import { PANEL } from "@/components/ui/surfaces";
+import { accountDisplayName, plainEnglish } from "@/lib/copy/overrides";
 
 interface Props {
   decision: DecisionRow;
@@ -38,7 +39,7 @@ export function DecisionCard({ decision }: Props) {
       <div className="mb-s4">
         {metadata.account_name && (
           <h3 className="font-serif text-h3 text-foreground">
-            {metadata.account_name}
+            {accountDisplayName(metadata.account_name)}
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted-foreground">
@@ -58,7 +59,7 @@ export function DecisionCard({ decision }: Props) {
       {/* Reasoning */}
       {decision.reasoning && (
         <p className="max-w-[72ch] text-body text-foreground">
-          {decision.reasoning}
+          {plainEnglish(decision.reasoning)}
         </p>
       )}
 
