@@ -89,13 +89,24 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
         aria-label="Galileo chat"
         aria-hidden={!open}
         className={cn(
-          "fixed bottom-6 right-6 z-50 flex w-[400px] max-w-[calc(100vw-3rem)] flex-col",
-          "h-[600px] max-h-[calc(100dvh-3rem)]",
-          "rounded-2xl border border-border bg-background shadow-2xl",
-          "origin-bottom-right transition-all duration-200 ease-out",
+          // Always: fixed, flex column, background, shadow, transition.
+          "fixed z-50 flex flex-col bg-background shadow-2xl",
+          "transition-all duration-200 ease-out",
+          // Mobile: edge-to-edge full screen with safe-area inset at the
+          // bottom so the input clears the iPhone home indicator. Trying to
+          // "see the site behind the chat" on a 375px screen isn't useful —
+          // the standard sheet pattern wins here.
+          "inset-0 pb-[env(safe-area-inset-bottom)]",
+          // Desktop (sm+): floating window pinned bottom-right, 400x600 with
+          // the same max-clamps as before. Rounded corners + border return.
+          "sm:inset-auto sm:bottom-6 sm:right-6 sm:pb-0",
+          "sm:w-[400px] sm:max-w-[calc(100vw-3rem)]",
+          "sm:h-[600px] sm:max-h-[calc(100dvh-3rem)]",
+          "sm:rounded-2xl sm:border sm:border-border sm:origin-bottom-right",
+          // Open/close: mobile fades, desktop fades + scales from bottom-right.
           open
-            ? "scale-100 opacity-100"
-            : "pointer-events-none scale-95 opacity-0",
+            ? "opacity-100 sm:scale-100"
+            : "pointer-events-none opacity-0 sm:scale-95",
         )}
       >
         <header className="flex items-center justify-between border-b border-border px-s5 py-s4">
@@ -110,13 +121,13 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close Galileo"
-            className="grid size-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+            className="grid size-11 sm:size-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
           >
-            <X className="size-4" strokeWidth={1.75} />
+            <X className="size-5 sm:size-4" strokeWidth={1.75} />
           </button>
         </header>
-        <div className="flex-1 overflow-hidden px-s4 py-s4">
-          {open && <GalileoConsole accounts={accounts} />}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {open && <GalileoConsole accounts={accounts} embedded />}
         </div>
       </aside>
 
@@ -127,6 +138,7 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
           className={cn(
             PANEL,
             "fixed bottom-24 right-6 z-50 w-[290px] rounded-2xl p-4 shadow-2xl",
+            "hidden sm:block",
           )}
         >
           <button
@@ -162,7 +174,7 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
       {hovered && !open && !ctaVisible && (
         <div
           role="tooltip"
-          className="fixed bottom-24 right-6 z-50 rounded-full border border-border bg-background px-3 py-1.5 shadow-lg font-mono text-[11px] uppercase tracking-[0.16em] text-foreground"
+          className="hidden sm:block fixed bottom-24 right-6 z-50 rounded-full border border-border bg-background px-3 py-1.5 shadow-lg font-mono text-[11px] uppercase tracking-[0.16em] text-foreground"
         >
           Galileo · gateway to your agent team
         </div>
@@ -182,7 +194,7 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
           aria-label="Open Galileo"
           aria-expanded={open}
           className={cn(
-            "fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full",
+            "fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-50 grid size-14 place-items-center rounded-full",
             "bg-background ring-2 ring-primary shadow-xl",
             "transition-all duration-200 hover:scale-105 hover:shadow-2xl",
             "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/60",
