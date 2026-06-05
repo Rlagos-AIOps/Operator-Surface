@@ -11,6 +11,7 @@ import {
   timeAgo,
 } from "./Badges";
 import { DiffView } from "./DiffView";
+import { SteeringInput } from "./SteeringInput";
 import type { ApprovalRow } from "./types";
 import { accountDisplayName, plainEnglish } from "@/lib/copy/overrides";
 
@@ -22,7 +23,6 @@ interface Props {
 }
 
 export function ApprovalCard({ approval, mode = "active" }: Props) {
-  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [pendingDecision, setPendingDecision] = useState<
@@ -38,13 +38,13 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
     setError(null);
     setPendingDecision(decision);
     startTransition(async () => {
-      const result = await decideApproval(approval.id, decision, note);
+      // The decision note is now captured separately via SteeringInput;
+      // Approve/Reject is purely a verdict.
+      const result = await decideApproval(approval.id, decision);
       if (!result.ok) {
         setError(result.error);
         setPendingDecision(null);
       }
-      // On success the page revalidates; this card unmounts or shifts
-      // into the decided list. No further client state to clean up.
     });
   };
 
@@ -96,14 +96,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       {/* Decision footer */}
       {isActive ? (
         <footer className="mt-s5 flex flex-col gap-s3">
-          <input
-            type="text"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Optional note (recorded as decision_note)…"
-            className="w-full rounded-md border border-surface-edge bg-bg-deep px-s3 py-s2 text-small text-paper placeholder:text-muted focus:border-lime/60 focus:outline-none focus:ring-1 focus:ring-lime/40"
-            disabled={pending}
-          />
+          <SteeringInput approvalId={approval.id} />
           {error && (
             <p className="text-small text-danger">
               <span className="font-bold">Action failed:</span> {error}
