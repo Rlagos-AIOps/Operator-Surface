@@ -12,7 +12,11 @@ export function PriorityList({ priorities }: Props) {
   const sorted = [...priorities].sort((a, b) => a.rank - b.rank);
   return (
     <section className="mb-s7">
-      <p className="eyebrow mb-s4">Priorities</p>
+      {/* Promoted from eyebrow → H3 so the priority section reads as a
+          page-level beat, not a sidebar. */}
+      <h2 className="mb-s4 font-serif text-h3 text-foreground">
+        {sorted.length} {sorted.length === 1 ? "priority" : "priorities"} today
+      </h2>
       <ol className="overflow-hidden rounded-lg border border-border bg-card">
         {sorted.map((p, i) => {
           // Deep-link to the account-scoped approval queue when we know
