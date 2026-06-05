@@ -1,4 +1,5 @@
-import { Settings } from "lucide-react";
+import Link from "next/link";
+import { Settings, X } from "lucide-react";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ApprovalQueue } from "./_components/ApprovalQueue";
 import { DecidedList } from "./_components/DecidedList";
@@ -8,6 +9,7 @@ import {
   type ApprovalRow,
   getUiState,
 } from "./_components/types";
+import { accountDisplayName } from "@/lib/copy/overrides";
 
 // Always fetch fresh data on the server. The Server Action triggers
 // revalidatePath('/approvals') after a decision, which lands here. The
@@ -20,7 +22,12 @@ export const metadata = {
   title: "Approval Queue — Operator Surface",
 };
 
-export default async function ApprovalsPage() {
+interface PageProps {
+  searchParams: Promise<{ account?: string }>;
+}
+
+export default async function ApprovalsPage({ searchParams }: PageProps) {
+  const { account: accountFilter } = await searchParams;
   const sb = createSupabaseAdminClient();
 
   const { data, error } = await sb
@@ -51,7 +58,18 @@ export default async function ApprovalsPage() {
     );
   }
 
-  const approvals = (data ?? []) as ApprovalRow[];
+  const allApprovals = (data ?? []) as ApprovalRow[];
+
+  // Account filter from the URL (?account=<sf_account_id>). Filters all
+  // three buckets so the page tells a single account's story.
+  const approvals = accountFilter
+    ? allApprovals.filter((a) => a.target_record_id === accountFilter)
+    : allApprovals;
+
+  const filteredAccountName = accountFilter
+    ? ((approvals[0]?.metadata ?? {}) as { account_name?: string })
+        .account_name ?? accountFilter
+    : null;
 
   // Three buckets:
   //   pendingCards  → "Need you"           — only thing requiring CSM action
@@ -120,6 +138,28 @@ export default async function ApprovalsPage() {
             {decidedCards.length} decided today · {approvals.length} total in queue
           </span>
         </div>
+
+        {filteredAccountName && (
+          <div className="mb-s5 flex items-center justify-between gap-s3 rounded-md border-l-4 border-primary bg-card/40 px-s5 py-s4">
+            <div>
+              <p className="eyebrow">Account focus</p>
+              <p className="mt-s1 font-serif text-h3 text-foreground">
+                {accountDisplayName(filteredAccountName)}
+              </p>
+              <p className="mt-s1 text-small text-muted-foreground">
+                {pendingCards.length} pending, {inFlightCards.length} in flight,{" "}
+                {decidedCards.length} decided.
+              </p>
+            </div>
+            <Link
+              href="/approvals"
+              className="inline-flex items-center gap-s2 rounded-pill border border-border px-s3 py-[6px] text-small font-semibold text-foreground transition-colors duration-fast hover:bg-card/5"
+            >
+              <X className="h-3 w-3" strokeWidth={2} />
+              Clear filter
+            </Link>
+          </div>
+        )}
 
         <ApprovalQueue pending={pendingCards} />
 

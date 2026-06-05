@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { aggregateBook, bookTotals } from "@/lib/book-data";
 import { VerdictBadge } from "@/app/decisions/_components/VerdictBadge";
 import { StatusDot } from "@/components/ui/accents";
 import { PANEL, METRIC_CHIP } from "@/components/ui/surfaces";
+import { accountDisplayName } from "@/lib/copy/overrides";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +54,9 @@ export default async function AccountsPage() {
           <div key={a.name} className={`${PANEL} p-5`}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h3 className="truncate font-serif text-h4 text-foreground">{a.name}</h3>
+                <h3 className="truncate font-serif text-h4 text-foreground">
+                  {accountDisplayName(a.name)}
+                </h3>
                 <p className="mt-0.5 font-mono text-micro text-muted-foreground">
                   {a.segment} · {fmtArr(a.arr)} ARR
                 </p>
@@ -63,9 +67,12 @@ export default async function AccountsPage() {
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {a.latestVerdict && <VerdictBadge label={a.latestVerdict} />}
               {a.pendingApprovals > 0 && (
-                <span className="inline-flex items-center rounded-pill border border-pending/50 bg-pending/10 px-s3 py-[3px] text-micro font-bold uppercase tracking-wider text-pending">
+                <Link
+                  href={`/approvals?account=${encodeURIComponent(a.sfId)}`}
+                  className="inline-flex items-center rounded-pill border border-pending/50 bg-pending/10 px-s3 py-[3px] text-micro font-bold uppercase tracking-wider text-pending transition-colors duration-fast hover:bg-pending/20"
+                >
                   {a.pendingApprovals} pending
-                </span>
+                </Link>
               )}
             </div>
 
@@ -79,8 +86,17 @@ export default async function AccountsPage() {
             )}
 
             <p className="mt-3 font-mono text-micro text-muted-foreground/70">
-              {a.decisionCount} decision{a.decisionCount === 1 ? "" : "s"} · {a.totalApprovals}{" "}
-              approval{a.totalApprovals === 1 ? "" : "s"}
+              {a.decisionCount} decision{a.decisionCount === 1 ? "" : "s"} ·{" "}
+              {a.totalApprovals > 0 ? (
+                <Link
+                  href={`/approvals?account=${encodeURIComponent(a.sfId)}`}
+                  className="underline decoration-muted-foreground/40 underline-offset-2 hover:text-foreground hover:decoration-foreground"
+                >
+                  {a.totalApprovals} approval{a.totalApprovals === 1 ? "" : "s"}
+                </Link>
+              ) : (
+                <>{a.totalApprovals} approvals</>
+              )}
             </p>
           </div>
         ))}
