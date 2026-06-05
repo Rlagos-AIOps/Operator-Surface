@@ -16,6 +16,12 @@ const NAV = [
   { label: "Decisions", href: "/decisions" },
 ] as const;
 
+// Feature flags — kept as named constants (not env vars) so the JSX below
+// stays reachable to the type checker / lint, and re-enabling is a one-line
+// flip when these surfaces are ready to ship.
+const SHOW_SEARCH = false;
+const SHOW_LAUNCH_APP = false;
+
 function WaveMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 28 28" className={className} fill="none" aria-hidden>
@@ -97,6 +103,7 @@ export function Masthead({ className }: { className?: string }) {
 
         <div className="ml-auto flex items-center gap-3 md:ml-0">
           {/* Global search — moved here from the operator app top bar */}
+          {SHOW_SEARCH && (
           <div className="relative hidden lg:block">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
@@ -112,13 +119,16 @@ export function Masthead({ className }: { className?: string }) {
               <span className="text-[11px] leading-none">⌘</span>K
             </kbd>
           </div>
+          )}
           <ThemeToggle />
+          {SHOW_LAUNCH_APP && (
           <Link
             href="/app"
             className="hidden font-mono text-[11px] uppercase tracking-[0.16em] text-foreground transition-colors hover:text-primary md:inline-flex"
           >
             Launch app ↗
           </Link>
+          )}
           {/* Mobile menu toggle */}
           <button
             type="button"
@@ -153,6 +163,7 @@ export function Masthead({ className }: { className?: string }) {
                 </Link>
               );
             })}
+            {SHOW_LAUNCH_APP && (
             <Link
               href="/app"
               onClick={() => setOpen(false)}
@@ -160,6 +171,7 @@ export function Masthead({ className }: { className?: string }) {
             >
               Launch app ↗
             </Link>
+            )}
           </nav>
         </div>
       )}
