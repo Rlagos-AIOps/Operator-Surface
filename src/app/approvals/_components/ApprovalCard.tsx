@@ -11,6 +11,7 @@ import {
   timeAgo,
 } from "./Badges";
 import { DiffView } from "./DiffView";
+import { SteeringInput } from "./SteeringInput";
 import {
   type ApprovalRow,
   getUiState,
@@ -262,6 +263,13 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
               )}
               Approve
             </button>
+          </div>
+          {/* Human-AI steering loop: instead of approving/rejecting the
+              current draft, the CSM can re-prompt Galileo with a
+              correction. Persists to metadata.steering for Angel to
+              wire on the agent side. */}
+          <div className="border-t border-border/60 pt-s3">
+            <SteeringInput approvalId={approval.id} />
           </div>
         </footer>
       ) : uiState === "processing" ? (
