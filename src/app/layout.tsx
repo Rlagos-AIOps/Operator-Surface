@@ -3,6 +3,8 @@ import { DM_Serif_Display, Manrope, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Masthead } from "@/components/site/masthead";
 import { SiteFooter } from "@/components/site/footer";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { GalileoWidget } from "@/components/site/galileo-widget";
 import "./globals.css";
 
 const serif = DM_Serif_Display({
@@ -32,9 +34,25 @@ export const metadata: Metadata = {
     "See what your AI agents did. Approve what they want to do next.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Fetch the account-name set once at the root so the floating Galileo widget
+  // can render on every page without each page re-fetching. Mirrors what the
+  // /galileo route did before the widget existed.
+  const sb = createSupabaseAdminClient();
+  const { data: decisions } = await sb.from("decisions").select("metadata");
+  const accountNames = Array.from(
+    new Set(
+      (decisions ?? [])
+        .map(
+          (d) =>
+            (d.metadata as { account_name?: string } | null)?.account_name,
+        )
+        .filter((n): n is string => Boolean(n)),
+    ),
+  ).sort();
+
   return (
     <html
       lang="en"
@@ -53,6 +71,7 @@ export default function RootLayout({
           <Masthead />
           <main className="min-h-[calc(100dvh-4.75rem)]">{children}</main>
           <SiteFooter />
+          <GalileoWidget accounts={accountNames} />
         </ThemeProvider>
       </body>
     </html>
