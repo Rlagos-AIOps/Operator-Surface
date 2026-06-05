@@ -47,7 +47,7 @@ export function InFlightSection({ items }: Props) {
         )}
         <div className="flex-1" />
         <span className="text-micro text-muted-foreground">
-          Hermes is working — no action needed
+          Galileo is working — no action needed
         </span>
       </div>
 

@@ -219,7 +219,7 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
           </div>
           {execMeta.retry_attempts && execMeta.retry_attempts > 0 ? (
             <p className="text-micro text-muted-foreground">
-              Retried {execMeta.retry_attempts}× automatically — Hermes is
+              Retried {execMeta.retry_attempts}× automatically — Galileo is
               still working on it.
             </p>
           ) : null}
@@ -234,13 +234,13 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 <span className="font-bold">Needs attention</span>
                 <span className="opacity-80">
-                  {" "}·{" "}Hermes couldn&apos;t complete this after several
+                  {" "}·{" "}Galileo couldn&apos;t complete this after several
                   automatic retries
                 </span>
               </div>
               <p className="text-small text-foreground/80">
                 <span className="font-bold text-muted-foreground">
-                  Hermes reported:
+                  Galileo reported:
                 </span>{" "}
                 <span className="font-mono text-small">
                   {execMeta.execution_blocker}
