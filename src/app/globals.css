@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =============================================================
-   Ops Surfer — dual-theme token system  (rebuilt to spec)
+   Operator Surface — dual-theme token system  (rebuilt to spec)
    ------------------------------------------------------------
    ONE leaf-blade, two-tone language. Warm translucent cream-paper
    surfaces layered over an emerald/moss base — soft, organic,
@@ -121,7 +121,7 @@
      consumer overrides to re-skin (`:root { --brand-accent: … }` or a scoped
      `[data-brand="acme"] { … }`). Every semantic token below reads THROUGH
      these, so one override flows into BOTH light and dark. Defaults are today's
-     Ops Surfer values → zero visual change unless a consumer opts in.
+     Operator Surface values → zero visual change unless a consumer opts in.
 
      Brand is ORTHOGONAL to light/dark: `*-dark` variants carry the dark-theme
      resolved value so the .dark block can derive from brand without changing

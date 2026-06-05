@@ -42,7 +42,7 @@ export function SiteFooter({ className }: { className?: string }) {
               <span className="text-primary">
                 <WaveMark className="size-5" />
               </span>
-              <span className="font-mono text-[13px] font-semibold uppercase tracking-[0.18em]">Ops Surfer</span>
+              <span className="font-mono text-[13px] font-semibold uppercase tracking-[0.18em]">Operator Surface</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               The operator surface for Customer Success — see what your agents did, and approve what they do next.
@@ -71,10 +71,10 @@ export function SiteFooter({ className }: { className?: string }) {
 
         {/* bottom bar */}
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
-          <span className="eyebrow text-muted-foreground">© 2026 Ops Surfer · v0.4</span>
+          <span className="eyebrow text-muted-foreground">© 2026 Operator Surface</span>
           <span className="inline-flex items-center gap-2 text-muted-foreground">
             <StatusDot tone="good" pulse />
-            <span className="eyebrow">agent online · last sync 14s ago</span>
+            <span className="eyebrow">agents online · live</span>
           </span>
         </div>
       </div>
