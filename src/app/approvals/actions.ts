@@ -3,6 +3,7 @@
 import { createHmac } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/lib/supabase/types";
 import { getDemoOperatorId } from "@/lib/supabase/operator";
 
 /**
@@ -99,7 +100,11 @@ export async function retryHermesWebhook(
     const cleared = { ...(row.metadata as Record<string, unknown>) };
     delete cleared.execution_blocker;
     delete cleared.execution_error;
-    await sb.from("approvals").update({ metadata: cleared }).eq("id", approvalId);
+    // `cleared` is a `Record<string, unknown>` because TS can't prove all
+    // values are JSON-safe; at runtime they came from row.metadata (already Json)
+    // and we only spread/delete, never inject foreign types. Cast satisfies
+    // the generated Json type whose union includes Json[].
+    await sb.from("approvals").update({ metadata: cleared as Json }).eq("id", approvalId);
 
     await fireHermesWebhook(approvalId, operatorId);
 
