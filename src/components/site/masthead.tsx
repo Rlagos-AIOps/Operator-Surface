@@ -12,7 +12,6 @@ const NAV = [
   { label: "Overview", href: "/" },
   { label: "Book", href: "/accounts" },
   { label: "Operator", href: "/operator" },
-  { label: "Galileo", href: "/galileo" },
   { label: "Daily Brief", href: "/brief" },
   { label: "Approvals", href: "/approvals" },
   { label: "Decisions", href: "/decisions" },
