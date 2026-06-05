@@ -3,9 +3,18 @@
 /**
  * GalileoWidget — persistent floating chat across the whole app.
  *
+ * Lives in the root layout so it survives page navigations: the user can open
+ * Galileo, send a question, navigate to /accounts or /brief while he thinks,
+ * and come back to the same panel with the answer ready. The panel is a small
+ * floating window (not a full-height side panel) and there is NO backdrop or
+ * blur — the rest of the site stays fully interactive while chat is open.
+ *
  * Three pieces working together as one state machine:
  *   - FAB (floating action button): the always-visible "G" circle, bottom-right.
- *   - Panel: the slide-in chat panel; embeds the existing GalileoConsole verbatim.
+ *     Hidden while the panel is open (panel sits over the same spot).
+ *   - Panel: floating chat window, bottom-right, ~400×600. Esc or the X button
+ *     closes it; clicking outside does NOT close it (so a stray click on the
+ *     page doesn't kill an in-flight request).
  *   - CTA bubble: first-visit-only welcome tooltip that explains who Galileo is.
  *
  * The standalone /galileo route is preserved as a fallback for direct linking.
@@ -44,6 +53,16 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
     return () => window.clearTimeout(t);
   }, []);
 
+  // Esc closes the panel. Only bound while open to avoid stealing Esc elsewhere.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   // Hide the FAB entirely on the legacy /galileo route — the standalone page
   // already shows the full console, no need to double up.
   if (pathname.startsWith("/galileo")) return null;
@@ -62,26 +81,24 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
 
   return (
     <>
-      {/* Backdrop when panel is open — click to close. */}
-      {open && (
-        <div
-          aria-hidden
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
-        />
-      )}
-
-      {/* Slide-in chat panel (right side, full height, narrow column). */}
+      {/* Floating chat panel — anchored bottom-right, sized to leave the rest
+          of the page visible and interactive. No backdrop, no blur: the user
+          can keep reading, scrolling, and navigating while Galileo thinks. */}
       <aside
         role="dialog"
         aria-label="Galileo chat"
         aria-hidden={!open}
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-dvh w-full max-w-md flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
-          open ? "translate-x-0" : "translate-x-full",
+          "fixed bottom-6 right-6 z-50 flex w-[400px] max-w-[calc(100vw-3rem)] flex-col",
+          "h-[600px] max-h-[calc(100dvh-3rem)]",
+          "rounded-2xl border border-border bg-background shadow-2xl",
+          "origin-bottom-right transition-all duration-200 ease-out",
+          open
+            ? "scale-100 opacity-100"
+            : "pointer-events-none scale-95 opacity-0",
         )}
       >
-        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+        <header className="flex items-center justify-between border-b border-border px-s5 py-s4">
           <div>
             <p className="eyebrow text-muted-foreground">Talk to your team</p>
             <h2 className="mt-0.5 font-serif text-h3 text-foreground">Galileo</h2>
@@ -98,7 +115,7 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
             <X className="size-4" strokeWidth={1.75} />
           </button>
         </header>
-        <div className="flex-1 overflow-hidden px-4 py-4">
+        <div className="flex-1 overflow-hidden px-s4 py-s4">
           {open && <GalileoConsole accounts={accounts} />}
         </div>
       </aside>
@@ -151,34 +168,37 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
         </div>
       )}
 
-      {/* The FAB itself — always rendered (except on /galileo route handled above). */}
-      <button
-        ref={fabRef}
-        type="button"
-        onClick={openPanel}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onFocus={() => setHovered(true)}
-        onBlur={() => setHovered(false)}
-        aria-label="Open Galileo"
-        aria-expanded={open}
-        className={cn(
-          "fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full",
-          "bg-background ring-2 ring-primary shadow-xl",
-          "transition-all duration-200 hover:scale-105 hover:shadow-2xl",
-          "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/60",
-          "active:scale-95",
-        )}
-      >
-        {/* The "G" in DM Serif Display, same family as the headers. */}
-        <span
-          aria-hidden
-          className="font-serif text-2xl leading-none text-primary"
-          style={{ transform: "translateY(1px)" }}
+      {/* The FAB itself — hidden while the panel is open (the panel sits over
+          this same spot; showing both is noisy and the panel has its own X). */}
+      {!open && (
+        <button
+          ref={fabRef}
+          type="button"
+          onClick={openPanel}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onFocus={() => setHovered(true)}
+          onBlur={() => setHovered(false)}
+          aria-label="Open Galileo"
+          aria-expanded={open}
+          className={cn(
+            "fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full",
+            "bg-background ring-2 ring-primary shadow-xl",
+            "transition-all duration-200 hover:scale-105 hover:shadow-2xl",
+            "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/60",
+            "active:scale-95",
+          )}
         >
-          G
-        </span>
-      </button>
+          {/* The "G" in DM Serif Display, same family as the headers. */}
+          <span
+            aria-hidden
+            className="font-serif text-2xl leading-none text-primary"
+            style={{ transform: "translateY(1px)" }}
+          >
+            G
+          </span>
+        </button>
+      )}
     </>
   );
 }
