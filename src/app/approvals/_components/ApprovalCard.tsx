@@ -35,8 +35,25 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
 
   const metadata = (approval.metadata ?? {}) as {
     account_name?: string;
+    opportunity_name?: string;
+    contact_name?: string;
+    target_name?: string;
+    /** Legacy: early Bell drafts wrote this instead of account_name. */
+    account?: string;
     risk_level?: string;
   };
+
+  // Title resolution: prefer a type-specific name when present, fall back
+  // through synonyms, then to a generic target_name. Opportunity cards
+  // were rendering blank because Bell wrote `metadata.account` while
+  // Galileo wrote `metadata.account_name`. UI now reads both.
+  const displayTitle =
+    metadata.target_name ??
+    metadata.opportunity_name ??
+    metadata.account_name ??
+    metadata.contact_name ??
+    metadata.account ??
+    null;
 
   const uiState = getUiState(approval);
   const execMeta = getExecutionMetadata(approval);
@@ -84,9 +101,9 @@ export function ApprovalCard({ approval, mode = "active" }: Props) {
       </header>
 
       <div className="mb-s4">
-        {metadata.account_name && (
+        {displayTitle && (
           <h3 className="font-serif text-h3 text-foreground">
-            {metadata.account_name}
+            {displayTitle}
           </h3>
         )}
         <p className="mt-[2px] font-mono text-micro text-muted-foreground">
