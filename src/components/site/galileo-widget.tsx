@@ -115,8 +115,8 @@ export function GalileoWidget({ accounts }: GalileoWidgetProps) {
             <X className="size-4" strokeWidth={1.75} />
           </button>
         </header>
-        <div className="flex-1 overflow-hidden px-s4 py-s4">
-          {open && <GalileoConsole accounts={accounts} />}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {open && <GalileoConsole accounts={accounts} embedded />}
         </div>
       </aside>
 
